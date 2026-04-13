@@ -68,3 +68,8 @@ fi
 if $dashboard_installed; then
   echo "Run 'bash scripts/adoption-dashboard.sh' to see AI adoption metrics."
 fi
+
+echo ""
+echo "Optional: install graphify for codebase knowledge graph"
+echo "  pip install graphifyy && graphify cursor install"
+echo "  Then run '/graphify .' in Cursor to build the graph."

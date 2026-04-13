@@ -110,6 +110,7 @@ Manual commits (hotfixes, config changes) get auto-tagged by the git hook with `
 - `bmad-quick-dev` -- appends trailers to commits (both step-05 and one-shot paths)
 - `bmad-retrospective` -- queries git for AI adoption metrics by phase, includes in retro output
 - `bmad-ai-tracking` -- new skill: hook template, dashboard, install instructions
+- `bmad-graphify` -- new skill: knowledge graph setup, query reference, workflow integration docs
 
 ## Credits
 
