@@ -54,11 +54,8 @@ When there is only one concern, omit the bold label — just list the stops dire
 2. If version control is available and the tree is dirty, create a local commit with a conventional message derived from the spec title. Append AI tracking trailers to the commit message body (after a blank line):
 
    ```
-   AI-Story: manual
-   AI-Code: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
-   AI-Test: {agent/model currently running, or "manual" if no tests were written}
-   AI-Review: {agent/model currently running if step-04-review ran, otherwise "pending"}
-   AI-Model: {the model currently running}
+   AI-Phase: code
+   AI-Tool: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
    Story-Ref: {spec title in kebab-case}
    ```
 

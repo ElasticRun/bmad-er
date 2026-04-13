@@ -4,20 +4,31 @@ Set up and query AI adoption tracking for the project. Use when the user says "s
 
 ## What This Skill Does
 
-1. Installs a `prepare-commit-msg` git hook that auto-tags manual commits with AI tracking trailers.
-2. Queries git history for AI adoption metrics and displays a dashboard.
+1. Installs a `prepare-commit-msg` git hook that auto-tags manual commits with three trailers: `AI-Phase`, `AI-Tool`, `Story-Ref`.
+2. Queries git history for AI adoption metrics grouped by SDLC phase and displays the Pulse dashboard.
+
+## Trailer Scheme
+
+Every commit gets exactly three trailers:
+
+| Trailer | Purpose | Example values |
+|---|---|---|
+| `AI-Phase` | What phase this commit belongs to | `prd`, `architecture`, `ux-design`, `epics`, `sprint-plan`, `story`, `code`, `test`, `review`, `deploy` |
+| `AI-Tool` | AI tool/model used, or `manual` | `cursor/claude-sonnet-4-20250514`, `manual` |
+| `Story-Ref` | Story or artifact reference | `1-1-wave-planning`, `prd-aieye` |
 
 ## Usage
 
 ### Install the hook
-
-Copy `./prepare-commit-msg` to `.git/hooks/prepare-commit-msg` and make it executable:
 
 ```bash
 cp .cursor/skills/bmad-ai-tracking/prepare-commit-msg .git/hooks/prepare-commit-msg
 chmod +x .git/hooks/prepare-commit-msg
 ```
 
-### Query adoption metrics
+### Run Pulse (adoption dashboard)
 
-Run `./adoption-dashboard.sh` from the project root to see current AI adoption rates.
+```bash
+bash .cursor/skills/bmad-ai-tracking/adoption-dashboard.sh           # all commits
+bash .cursor/skills/bmad-ai-tracking/adoption-dashboard.sh "1-*"     # filter by Story-Ref
+```

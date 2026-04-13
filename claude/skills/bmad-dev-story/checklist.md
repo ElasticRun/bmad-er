@@ -57,8 +57,8 @@ validation-rules:
 
 ## 🤖 AI Tracking
 
-- [ ] **AI Engineering Record Updated:** Implementation and Testing rows filled with current agent/model and story ref
-- [ ] **Git Commit Trailers Present:** Commit message includes AI-Story, AI-Code, AI-Test, AI-Review, AI-Model, Story-Ref trailers
+- [ ] **AI Engineering Record Updated:** code and test rows filled with current agent/model and story ref
+- [ ] **Git Commit Trailers Present:** Commit message includes AI-Phase, AI-Tool, Story-Ref trailers
 
 ## 🔚 Final Status Verification
 

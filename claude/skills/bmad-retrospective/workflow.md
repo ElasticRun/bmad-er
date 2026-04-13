@@ -282,18 +282,14 @@ Charlie (Senior Dev): "Good idea - those dev notes always have gold in them."
 **AI Adoption Metrics (from git history):**
 
 <action>If git is available, query commit trailers for all commits related to this epic's stories.
-  Run: git log --format='%(trailers:key=AI-Story,valueonly)|||%(trailers:key=AI-Code,valueonly)|||%(trailers:key=AI-Test,valueonly)|||%(trailers:key=AI-Review,valueonly)|||%(trailers:key=AI-Deploy,valueonly)|||%(trailers:key=Story-Ref,valueonly)' --all
+  Run: git log --format='%(trailers:key=AI-Phase,valueonly)|||%(trailers:key=AI-Tool,valueonly)|||%(trailers:key=Story-Ref,valueonly)' --all
   Filter results to commits whose Story-Ref matches stories in this epic ({{epic_number}}-*).
 </action>
 
-<action>Calculate and store these metrics:
-  - AI Story Rate: stories with AI-Story != "manual" / total stories
-  - AI Code Rate: commits with AI-Code != "manual" / total commits
-  - AI Test Rate: commits with AI-Test != "manual" / total commits
-  - AI Review Rate: commits with AI-Review != "manual" and != "pending" / total commits
-  - AI Deploy Rate: commits with AI-Deploy = "auto" / total deploy-tagged commits
-  - Full Pipeline Rate: commits where all five trailers are not "manual" / total commits
-  - Most common AI-Model values
+<action>Group commits by AI-Phase value. For each phase, calculate:
+  - AI adoption rate: commits where AI-Tool != "manual" / total commits in that phase
+  Show rates for: prd, architecture, ux-design, epics, sprint-plan, story, code, test, review, deploy (only phases with commits).
+  - Most common AI-Tool values
 </action>
 
 <action>Also check the AI Engineering Record table in each story file for this epic.
@@ -528,15 +524,11 @@ Quality and Technical:
 - Test coverage: {{coverage_info}}
 - Production incidents: {{incident_count}}
 
-AI Adoption (from git trailers):
+AI Adoption by Phase (from git trailers):
 
-- AI Story Rate: {{ai_story_rate}}%
-- AI Code Rate: {{ai_code_rate}}%
-- AI Test Rate: {{ai_test_rate}}%
-- AI Review Rate: {{ai_review_rate}}%
-- AI Deploy Rate: {{ai_deploy_rate}}%
-- Full Pipeline Rate: {{full_pipeline_rate}}%
-- Primary model: {{primary_ai_model}}
+{{for each phase with commits, show:}}
+- {{phase}}: {{ai_adoption_rate}}% AI-assisted ({{ai_count}}/{{total_count}})
+- Primary tool: {{primary_ai_tool}}
 
 Business Outcomes:
 

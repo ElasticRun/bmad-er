@@ -65,10 +65,8 @@ If version control is available and the working tree is dirty, create a local co
 - Append AI tracking trailers to the commit message body:
 
   ```
-  AI-Artifact: prd
-  AI-Author: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
-  AI-Review: pending
-  AI-Model: {the model currently running}
+  AI-Phase: prd
+  AI-Tool: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
   Story-Ref: prd-{{project_name}}
   ```
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.0 (2026-04-13)
+
+Simplified trailer scheme. Every commit now gets exactly three trailers (`AI-Phase`, `AI-Tool`, `Story-Ref`) instead of 5-7. One commit = one phase.
+
+### Breaking Changes
+
+- Old trailers (`AI-Story`, `AI-Code`, `AI-Test`, `AI-Review`, `AI-Deploy`, `AI-Model`, `AI-Artifact`, `AI-Author`) are replaced by `AI-Phase` + `AI-Tool`.
+- Dashboard no longer recognizes old trailer format. Re-run workflows to generate new-format commits, or manually add trailers to existing commits.
+
+### Changed
+
+- All planning workflows (`create-prd`, `create-epics-and-stories`, `create-architecture`, `create-ux-design`, `sprint-planning`, `create-story`) now commit with `AI-Phase: {type}`, `AI-Tool: {model}`, `Story-Ref: {ref}`.
+- All development workflows (`dev-story`, `quick-dev`, `code-review`) now commit with the same three trailers.
+- `prepare-commit-msg` hook detects `AI-Phase:` instead of `AI-Code:` or `AI-Artifact:`. Tags manual commits with `AI-Phase: code`, `AI-Tool: manual`.
+- `adoption-dashboard.sh` (Pulse) groups commits by `AI-Phase` value and shows per-phase adoption rates.
+- Story template AI Engineering Record table uses `AI-Phase | AI-Tool | Story-Ref` columns.
+- Retrospective workflow queries the new trailer format and reports adoption by phase.
+
 ## 1.1.0 (2026-04-13)
 
 Added git checkpoints with AI trailers to all planning workflows.
@@ -19,19 +37,9 @@ Initial release. Fork of BMAD v6.3.0 with AI tracking extensions.
 
 ### Added
 
-- **AI Engineering Record** table in story template (`bmad-create-story/template.md`). Tracks which model was used for each SDLC phase.
-- **Git commit trailers** (`AI-Story`, `AI-Code`, `AI-Test`, `AI-Review`, `AI-Deploy`, `AI-Model`, `Story-Ref`) auto-appended by `dev-story`, `quick-dev`, and `code-review` workflows.
-- **`prepare-commit-msg` hook** that auto-tags manual commits with `manual` trailers, ensuring every commit is tracked with zero developer overhead.
-- **`adoption-dashboard.sh`** script that reads git trailers and prints AI adoption rates vs. targets. Supports per-epic filtering.
-- **Retrospective AI metrics**: `bmad-retrospective` workflow now queries git for trailer data and surfaces adoption rates during the retro.
-- **Definition of Done update**: `bmad-dev-story` checklist includes AI Engineering Record and trailer validation.
-
-### Changed (from upstream BMAD v6.3.0)
-
-- `bmad-create-story/workflow.md` — fills Story Creation row in AI Engineering Record
-- `bmad-dev-story/workflow.md` — fills Implementation/Testing rows, creates commit with trailers
-- `bmad-dev-story/checklist.md` — adds AI Tracking validation section
-- `bmad-code-review/steps/step-04-present.md` — fills Code Review row, amends AI-Review trailer
-- `bmad-quick-dev/step-05-present.md` — appends trailers to commits
-- `bmad-quick-dev/step-oneshot.md` — appends trailers to one-shot commits
-- `bmad-retrospective/workflow.md` — queries git for AI adoption metrics, includes in retro output
+- **AI Engineering Record** table in story template (`bmad-create-story/template.md`).
+- **Git commit trailers** auto-appended by `dev-story`, `quick-dev`, and `code-review` workflows.
+- **`prepare-commit-msg` hook** that auto-tags manual commits.
+- **`adoption-dashboard.sh`** script that reads git trailers and prints AI adoption rates vs. targets.
+- **Retrospective AI metrics**: `bmad-retrospective` workflow queries git for trailer data during the retro.
+- **Definition of Done update**: `bmad-dev-story` checklist includes AI tracking validation.

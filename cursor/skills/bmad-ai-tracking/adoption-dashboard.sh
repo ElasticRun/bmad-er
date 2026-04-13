@@ -1,149 +1,135 @@
 #!/usr/bin/env bash
 #
-# AI Adoption Dashboard (Pulse)
-# Reads git commit trailers and prints adoption rates.
-# Run from project root: bash .cursor/skills/bmad-ai-tracking/adoption-dashboard.sh
+# Pulse — AI Adoption Dashboard
+# Reads AI-Phase / AI-Tool / Story-Ref trailers from git history
+# and shows adoption rates grouped by phase.
 #
-# Optional: pass a story prefix to filter (e.g. "1-" for epic 1)
-#   bash adoption-dashboard.sh 1-
-#
-# Two trailer schemes:
-#   Development commits: AI-Code, AI-Test, AI-Story, AI-Review, AI-Deploy
-#   Planning commits:    AI-Artifact, AI-Author, AI-Review
+# Usage:
+#   bash adoption-dashboard.sh              # all commits
+#   bash adoption-dashboard.sh "1-*"        # filter by Story-Ref pattern
+
+set -euo pipefail
 
 FILTER="${1:-}"
 
-# Development counters
-DEV_TOTAL=0
-AI_STORY=0
-AI_CODE=0
-AI_TEST=0
-AI_REVIEW_DEV=0
-AI_DEPLOY_AUTO=0
-AI_DEPLOY_TOTAL=0
-FULL_PIPELINE=0
+DELIM="---COMMIT---"
 
-# Planning counters
-PLAN_TOTAL=0
-AI_AUTHORED=0
-AI_REVIEW_PLAN=0
+RAW=$(git log --all --format="%H${DELIM}%(trailers:key=AI-Phase,valueonly)${DELIM}%(trailers:key=AI-Tool,valueonly)${DELIM}%(trailers:key=Story-Ref,valueonly)" 2>/dev/null || true)
 
-# Parse commits using commit-boundary delimiter
-while IFS= read -r line; do
-  if [ "$line" = "---COMMIT---" ]; then
-    if [ -n "$_artifact" ]; then
-      # This is a planning commit
-      if [ -n "$FILTER" ] && [[ "$_storyref" != ${FILTER}* ]]; then
-        _artifact="" ; _author="" ; _review="" ; _storyref=""
-        continue
-      fi
-      PLAN_TOTAL=$((PLAN_TOTAL + 1))
-      [ "$_author" != "manual" ] && [ -n "$_author" ] && AI_AUTHORED=$((AI_AUTHORED + 1))
-      [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && [ -n "$_review" ] && AI_REVIEW_PLAN=$((AI_REVIEW_PLAN + 1))
-    elif [ -n "$_code" ]; then
-      # This is a development commit
-      if [ -n "$FILTER" ] && [[ "$_storyref" != ${FILTER}* ]]; then
-        _story="" ; _code="" ; _test="" ; _review="" ; _deploy="" ; _storyref=""
-        continue
-      fi
-      DEV_TOTAL=$((DEV_TOTAL + 1))
-      [ "$_story" != "manual" ] && AI_STORY=$((AI_STORY + 1))
-      [ "$_code" != "manual" ] && AI_CODE=$((AI_CODE + 1))
-      [ "$_test" != "manual" ] && AI_TEST=$((AI_TEST + 1))
-      [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && AI_REVIEW_DEV=$((AI_REVIEW_DEV + 1))
-      if [ -n "$_deploy" ] && [ "$_deploy" != "pending" ]; then
-        AI_DEPLOY_TOTAL=$((AI_DEPLOY_TOTAL + 1))
-        [ "$_deploy" = "auto" ] && AI_DEPLOY_AUTO=$((AI_DEPLOY_AUTO + 1))
-      fi
-      if [ "$_story" != "manual" ] && [ "$_code" != "manual" ] && [ "$_test" != "manual" ] && \
-         [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && [ "$_deploy" = "auto" ]; then
-        FULL_PIPELINE=$((FULL_PIPELINE + 1))
-      fi
-    fi
-    _story="" ; _code="" ; _test="" ; _review="" ; _deploy="" ; _storyref="" ; _artifact="" ; _author=""
-    continue
-  fi
-
-  key="${line%%:*}"
-  val="$(echo "${line#*: }" | xargs)"
-  case "$key" in
-    AI-Story)    _story="$val" ;;
-    AI-Code)     _code="$val" ;;
-    AI-Test)     _test="$val" ;;
-    AI-Review)   _review="$val" ;;
-    AI-Deploy)   _deploy="$val" ;;
-    Story-Ref)   _storyref="$val" ;;
-    AI-Artifact) _artifact="$val" ;;
-    AI-Author)   _author="$val" ;;
-  esac
-done < <(git log --format='---COMMIT---%n%(trailers:key=AI-Story)%(trailers:key=AI-Code)%(trailers:key=AI-Test)%(trailers:key=AI-Review)%(trailers:key=AI-Deploy)%(trailers:key=Story-Ref)%(trailers:key=AI-Artifact)%(trailers:key=AI-Author)')
-
-# Process last commit
-if [ -n "$_artifact" ]; then
-  if [ -z "$FILTER" ] || [[ "$_storyref" == ${FILTER}* ]]; then
-    PLAN_TOTAL=$((PLAN_TOTAL + 1))
-    [ "$_author" != "manual" ] && [ -n "$_author" ] && AI_AUTHORED=$((AI_AUTHORED + 1))
-    [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && [ -n "$_review" ] && AI_REVIEW_PLAN=$((AI_REVIEW_PLAN + 1))
-  fi
-elif [ -n "$_code" ]; then
-  if [ -z "$FILTER" ] || [[ "$_storyref" == ${FILTER}* ]]; then
-    DEV_TOTAL=$((DEV_TOTAL + 1))
-    [ "$_story" != "manual" ] && AI_STORY=$((AI_STORY + 1))
-    [ "$_code" != "manual" ] && AI_CODE=$((AI_CODE + 1))
-    [ "$_test" != "manual" ] && AI_TEST=$((AI_TEST + 1))
-    [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && AI_REVIEW_DEV=$((AI_REVIEW_DEV + 1))
-    if [ -n "$_deploy" ] && [ "$_deploy" != "pending" ]; then
-      AI_DEPLOY_TOTAL=$((AI_DEPLOY_TOTAL + 1))
-      [ "$_deploy" = "auto" ] && AI_DEPLOY_AUTO=$((AI_DEPLOY_AUTO + 1))
-    fi
-    if [ "$_story" != "manual" ] && [ "$_code" != "manual" ] && [ "$_test" != "manual" ] && \
-       [ "$_review" != "manual" ] && [ "$_review" != "pending" ] && [ "$_deploy" = "auto" ]; then
-      FULL_PIPELINE=$((FULL_PIPELINE + 1))
-    fi
-  fi
+if [ -z "$RAW" ]; then
+  echo "No git history found."
+  exit 1
 fi
 
-GRAND_TOTAL=$((DEV_TOTAL + PLAN_TOTAL))
+declare -A phase_total
+declare -A phase_ai
+total_tracked=0
 
-if [ "$GRAND_TOTAL" -eq 0 ]; then
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+
+  hash=$(echo "$line" | awk -F"$DELIM" '{print $1}')
+  phase=$(echo "$line" | awk -F"$DELIM" '{print $2}' | xargs 2>/dev/null || true)
+  tool=$(echo "$line" | awk -F"$DELIM" '{print $3}' | xargs 2>/dev/null || true)
+  ref=$(echo "$line" | awk -F"$DELIM" '{print $4}' | xargs 2>/dev/null || true)
+
+  # Skip commits without AI-Phase trailer
+  [ -z "$phase" ] && continue
+
+  # Apply Story-Ref filter if specified
+  if [ -n "$FILTER" ]; then
+    case "$ref" in
+      $FILTER) ;; # matches
+      *) continue ;;
+    esac
+  fi
+
+  total_tracked=$((total_tracked + 1))
+  phase_total[$phase]=$(( ${phase_total[$phase]:-0} + 1 ))
+
+  if [ "$tool" != "manual" ] && [ -n "$tool" ]; then
+    phase_ai[$phase]=$(( ${phase_ai[$phase]:-0} + 1 ))
+  fi
+
+done <<< "$RAW"
+
+if [ "$total_tracked" -eq 0 ]; then
   echo "No commits with AI trailers found."
-  [ -n "$FILTER" ] && echo "Filter: Story-Ref starting with '$FILTER'"
+  [ -n "$FILTER" ] && echo "  (filter: Story-Ref = $FILTER)"
   exit 0
 fi
 
+# Phase display order and targets
+declare -a PLANNING_PHASES=("prd" "architecture" "ux-design" "epics" "sprint-plan" "story")
+declare -a DEV_PHASES=("code" "test" "review" "deploy")
+
+declare -A TARGETS=(
+  ["prd"]="90" ["architecture"]="90" ["ux-design"]="90" ["epics"]="90"
+  ["sprint-plan"]="90" ["story"]="90"
+  ["code"]="80" ["test"]="85" ["review"]="95" ["deploy"]="80"
+)
+
 pct() {
-  if [ "$2" -eq 0 ]; then echo "N/A"; else echo "$(( ($1 * 100) / $2 ))%"; fi
+  local ai=${1:-0}
+  local tot=${2:-0}
+  if [ "$tot" -eq 0 ]; then echo "—"; else echo "$(( ai * 100 / tot ))%"; fi
 }
 
+echo ""
 echo "======================================"
 echo "  Pulse — AI Adoption Dashboard"
 echo "======================================"
-[ -n "$FILTER" ] && echo "  Filter: Story-Ref = ${FILTER}*"
+[ -n "$FILTER" ] && echo "  Filter: Story-Ref = $FILTER"
 echo ""
 
-if [ "$PLAN_TOTAL" -gt 0 ]; then
-  echo "  PLANNING ($PLAN_TOTAL commits)"
-  echo "  --------------------------------"
-  printf "  AI Authored:      %4s\n" "$(pct $AI_AUTHORED $PLAN_TOTAL)"
-  printf "  AI Reviewed:      %4s\n" "$(pct $AI_REVIEW_PLAN $PLAN_TOTAL)"
-  echo ""
-fi
-
-if [ "$DEV_TOTAL" -gt 0 ]; then
-  echo "  DEVELOPMENT ($DEV_TOTAL commits)"
-  echo "  --------------------------------"
-  printf "  AI Story Rate:    %4s  (target: 90%%)\n" "$(pct $AI_STORY $DEV_TOTAL)"
-  printf "  AI Code Rate:     %4s  (target: 80%%)\n" "$(pct $AI_CODE $DEV_TOTAL)"
-  printf "  AI Test Rate:     %4s  (target: 85%%)\n" "$(pct $AI_TEST $DEV_TOTAL)"
-  printf "  AI Review Rate:   %4s  (target: 95%%)\n" "$(pct $AI_REVIEW_DEV $DEV_TOTAL)"
-  if [ "$AI_DEPLOY_TOTAL" -gt 0 ]; then
-    printf "  AI Deploy Rate:   %4s  (target: 80%%)\n" "$(pct $AI_DEPLOY_AUTO $AI_DEPLOY_TOTAL)"
-  else
-    echo "  AI Deploy Rate:    N/A  (no deploy-tagged commits)"
+# Planning phases
+planning_count=0
+has_planning=false
+for p in "${PLANNING_PHASES[@]}"; do
+  if [ "${phase_total[$p]:-0}" -gt 0 ]; then
+    has_planning=true
+    planning_count=$((planning_count + ${phase_total[$p]}))
   fi
-  printf "  Full Pipeline:    %4s  (target: 70%%)\n" "$(pct $FULL_PIPELINE $DEV_TOTAL)"
+done
+
+if $has_planning; then
+  echo "  PLANNING ($planning_count commits)"
+  echo "  --------------------------------"
+  for p in "${PLANNING_PHASES[@]}"; do
+    tot=${phase_total[$p]:-0}
+    [ "$tot" -eq 0 ] && continue
+    ai=${phase_ai[$p]:-0}
+    rate=$(pct "$ai" "$tot")
+    target=${TARGETS[$p]:-"—"}
+    printf "  %-20s %5s  (target: %s%%)  [%d/%d]\n" "$p" "$rate" "$target" "$ai" "$tot"
+  done
   echo ""
 fi
 
-echo "  TOTAL: $GRAND_TOTAL tracked commits"
+# Development phases
+dev_count=0
+has_dev=false
+for p in "${DEV_PHASES[@]}"; do
+  if [ "${phase_total[$p]:-0}" -gt 0 ]; then
+    has_dev=true
+    dev_count=$((dev_count + ${phase_total[$p]}))
+  fi
+done
+
+if $has_dev; then
+  echo "  DEVELOPMENT ($dev_count commits)"
+  echo "  --------------------------------"
+  for p in "${DEV_PHASES[@]}"; do
+    tot=${phase_total[$p]:-0}
+    [ "$tot" -eq 0 ] && continue
+    ai=${phase_ai[$p]:-0}
+    rate=$(pct "$ai" "$tot")
+    target=${TARGETS[$p]:-"—"}
+    printf "  %-20s %5s  (target: %s%%)  [%d/%d]\n" "$p" "$rate" "$target" "$ai" "$tot"
+  done
+  echo ""
+fi
+
+echo "  TOTAL: $total_tracked tracked commits"
 echo "======================================"
+echo ""

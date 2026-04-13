@@ -38,13 +38,13 @@ so that {{benefit}}.
 
 ## AI Engineering Record
 
-| Phase | Tool/Model | Story Ref |
+| AI-Phase | AI-Tool | Story-Ref |
 |---|---|---|
-| Story Creation | {{agent_model_name_version}} | {{story_key}} |
-| Implementation | pending | |
-| Testing | pending | |
-| Code Review | pending | |
-| Deployment | pending | |
+| story | {{agent_model_name_version}} | {{story_key}} |
+| code | pending | |
+| test | pending | |
+| review | pending | |
+| deploy | pending | |
 
 ## Dev Agent Record
 

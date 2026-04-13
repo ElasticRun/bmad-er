@@ -219,10 +219,8 @@ development_status:
   - Stage {status_file}
   - Commit with message: "chore: generate sprint status"
   - Append AI tracking trailers:
-    AI-Artifact: sprint-plan
-    AI-Author: {agent/model currently running}
-    AI-Review: pending
-    AI-Model: {the model currently running}
+    AI-Phase: sprint-plan
+    AI-Tool: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
     Story-Ref: sprint-planning
   - Do NOT push. If VCS is unavailable, skip.
 </action>

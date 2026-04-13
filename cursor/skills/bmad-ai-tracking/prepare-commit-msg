@@ -4,10 +4,6 @@
 # that don't already have them. Ensures manual commits get tagged
 # with "manual" so adoption metrics stay complete.
 #
-# Recognizes two trailer schemes:
-#   - Development: AI-Code, AI-Test, AI-Story, AI-Review, AI-Deploy
-#   - Planning:    AI-Artifact, AI-Author, AI-Review
-#
 # Install: cp this file to .git/hooks/prepare-commit-msg && chmod +x .git/hooks/prepare-commit-msg
 
 COMMIT_MSG_FILE="$1"
@@ -18,8 +14,8 @@ if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "squash" ]; then
   exit 0
 fi
 
-# If any BMAD trailer already present, leave the message alone
-if grep -qE "^(AI-Code|AI-Artifact):" "$COMMIT_MSG_FILE"; then
+# If AI-Phase trailer already present, leave the message alone
+if grep -qE "^AI-Phase:" "$COMMIT_MSG_FILE"; then
   exit 0
 fi
 
@@ -28,11 +24,7 @@ STORY_REF=$(git branch --show-current 2>/dev/null | sed 's|.*/||')
 
 cat >> "$COMMIT_MSG_FILE" <<EOF
 
-AI-Story: manual
-AI-Code: manual
-AI-Test: manual
-AI-Review: pending
-AI-Deploy: pending
-AI-Model: none
+AI-Phase: code
+AI-Tool: manual
 Story-Ref: ${STORY_REF:-unknown}
 EOF

@@ -44,11 +44,8 @@ Write `{spec_file}` using `./spec-template.md`. Fill only these sections — del
 If version control is available and the tree is dirty, create a local commit with a conventional message derived from the intent. Append AI tracking trailers to the commit message body (after a blank line):
 
 ```
-AI-Story: manual
-AI-Code: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
-AI-Test: {agent/model currently running, or "manual" if no tests were written}
-AI-Review: {agent/model currently running, since one-shot includes review}
-AI-Model: {the model currently running}
+AI-Phase: code
+AI-Tool: {agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
 Story-Ref: {intent title in kebab-case}
 ```
 

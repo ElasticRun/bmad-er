@@ -83,17 +83,24 @@ If `{spec_file}` is **not** set, present only options 1 and 3 (omit option 2 —
 - Deferred: <W>
 - Dismissed: <R>
 
-### 6. Update AI Engineering Record and commit trailers
+### 6. Update AI Engineering Record and create review commit
 
 Skip this section if `{spec_file}` is not set.
 
 If `{spec_file}` contains an "AI Engineering Record" table:
-- Update the Code Review row: set Tool/Model to the agent/model currently running (e.g. "cursor/claude-sonnet-4-20250514"), set Story Ref to `{story_key}`.
+- Update the `review` row: set AI-Tool to the agent/model currently running (e.g. "cursor/claude-sonnet-4-20250514"), set Story-Ref to `{story_key}`.
 
-If version control is available:
-- Find the most recent commit whose message contains `AI-Review: pending` and `Story-Ref: {story_key}`.
-- Amend that commit to replace `AI-Review: pending` with `AI-Review: {agent/model currently running}`.
-- If no such commit exists (e.g. manual commits), skip gracefully.
+If version control is available and the working tree is dirty (review applied patches):
+- Create a commit with message derived from the review outcome (e.g. "refactor: address review findings for {story_key}")
+- Append trailers:
+
+  ```
+  AI-Phase: review
+  AI-Tool: {agent/model currently running}
+  Story-Ref: {story_key}
+  ```
+
+- Do NOT push. No remote ops.
 
 ### 7. Update story status and sync sprint tracking
 

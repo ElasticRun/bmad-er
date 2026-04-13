@@ -365,11 +365,11 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
     <action>Confirm File List includes every changed file</action>
     <action>Execute enhanced definition-of-done validation</action>
 
-    <!-- AI Engineering Record: fill Implementation and Testing rows -->
+    <!-- AI Engineering Record: fill code and test rows -->
     <action>Locate the "AI Engineering Record" table in the story file. Update these rows:
-      - Implementation: set Tool/Model to the agent/model currently running (e.g. "cursor/claude-sonnet-4-20250514"), set Story Ref to {{story_key}}
-      - Testing: set Tool/Model to the agent/model currently running, set Story Ref to {{story_key}}
-      - Code Review: set Tool/Model to "pending" (will be filled by code-review workflow)
+      - code: set AI-Tool to the agent/model currently running (e.g. "cursor/claude-sonnet-4-20250514"), set Story-Ref to {{story_key}}
+      - test: set AI-Tool to the agent/model currently running, set Story-Ref to {{story_key}}
+      - review: leave as "pending" (will be filled by code-review workflow)
     </action>
 
     <action>Update the story Status to: "review"</action>
@@ -424,15 +424,12 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
     <!-- Create a git commit with AI tracking trailers -->
     <check if="version control is available AND the working tree is dirty">
-      <action>Read the AI Engineering Record table from the story file to determine trailer values</action>
+      <action>Read the AI Engineering Record table from the story file</action>
       <action>Create a local commit with a conventional message derived from the story title.
         Append these trailers to the commit message body (after a blank line):
 
-        AI-Story: {value from Story Creation row Tool/Model, or "manual"}
-        AI-Code: {value from Implementation row Tool/Model, or "manual"}
-        AI-Test: {value from Testing row Tool/Model, or "manual"}
-        AI-Review: pending
-        AI-Model: {the model currently running, e.g. "claude-sonnet-4-20250514"}
+        AI-Phase: code
+        AI-Tool: {the agent/model currently running, e.g. "cursor/claude-sonnet-4-20250514"}
         Story-Ref: {{story_key}}
       </action>
       <action>Do NOT push. No remote ops.</action>
