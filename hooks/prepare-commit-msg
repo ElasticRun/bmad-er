@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# prepare-commit-msg hook: auto-adds AI tracking trailers to commits
+# that don't already have them. Ensures manual commits get tagged
+# with "manual" so adoption metrics stay complete.
+#
+# Install: cp this file to .git/hooks/prepare-commit-msg && chmod +x .git/hooks/prepare-commit-msg
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip merge commits, amends, and squashes — they already carry trailers or shouldn't be retagged
+if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "squash" ]; then
+  exit 0
+fi
+
+# If trailers already present (added by BMAD workflows), leave the message alone
+if grep -q "^AI-Code:" "$COMMIT_MSG_FILE"; then
+  exit 0
+fi
+
+# Derive story ref from branch name (strips any prefix like feature/, fix/, etc.)
+STORY_REF=$(git branch --show-current 2>/dev/null | sed 's|.*/||')
+
+cat >> "$COMMIT_MSG_FILE" <<EOF
+
+AI-Story: manual
+AI-Code: manual
+AI-Test: manual
+AI-Review: pending
+AI-Deploy: pending
+AI-Model: none
+Story-Ref: ${STORY_REF:-unknown}
+EOF
