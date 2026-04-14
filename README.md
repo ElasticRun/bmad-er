@@ -42,32 +42,63 @@ A dashboard script (Pulse) reads git history and prints adoption rates grouped b
 
 ## Install
 
+A workspace can contain multiple git repos. Skills install at the workspace root (where Cursor / Claude Code are opened), and git hooks install into each repo inside the workspace.
+
 ```bash
 git clone https://github.com/ElasticRun/bmad-er.git
-bash bmad-er/scripts/install.sh /path/to/your/project
+
+# Full install: skills at workspace root + hooks in every repo inside it
+bash bmad-er/scripts/install.sh ~/Workspace
+
+# Skills only (no git repos required)
+bash bmad-er/scripts/install.sh ~/Workspace --skills-only
+
+# Hooks only (into repos discovered inside the workspace)
+bash bmad-er/scripts/install.sh ~/Workspace --hooks-only
 ```
 
-This copies skills into `.cursor/skills/` and `.claude/skills/`, installs the `prepare-commit-msg` hook, and drops the dashboard script into `scripts/`.
-
-If you already have a `prepare-commit-msg` hook, the installer backs it up to `.bak` before replacing.
+If a `prepare-commit-msg` hook already exists in a repo, the installer backs it up to `.bak` before replacing.
 
 ## What Gets Installed
 
-| Location | What |
-|---|---|
-| `.cursor/skills/bmad-*` | All BMAD skills (Cursor) |
-| `.claude/skills/bmad-*` | All BMAD skills (Claude Code) |
-| `.git/hooks/prepare-commit-msg` | Auto-tags manual commits with AI trailers |
-| `scripts/adoption-dashboard.sh` | Reads git trailers, prints adoption rates |
+| Location | What | Scope |
+|---|---|---|
+| `.cursor/skills/bmad-*` | All BMAD skills (Cursor) | Workspace root |
+| `.claude/skills/bmad-*` | All BMAD skills (Claude Code) | Workspace root |
+| `scripts/adoption-dashboard.sh` | Reads git trailers, prints adoption rates | Workspace root |
+| `<repo>/.git/hooks/prepare-commit-msg` | Auto-tags manual commits with AI trailers | Per repo |
+
+### Workspace layout example
+
+```
+~/Workspace/                       <- open Cursor / Claude Code here
+├── .cursor/skills/bmad-*/         <- skills (installed once)
+├── .claude/skills/bmad-*/         <- skills (installed once)
+├── scripts/adoption-dashboard.sh  <- dashboard
+├── project-a/                     <- git repo
+│   └── .git/hooks/prepare-commit-msg
+├── project-b/                     <- git repo
+│   └── .git/hooks/prepare-commit-msg
+└── docs/                          <- not a git repo, skipped for hooks
+```
 
 ## Dashboard Usage
 
 ```bash
-# All commits
+# Current repo
 bash scripts/adoption-dashboard.sh
 
-# Filter by story ref pattern (e.g. epic 1)
-bash scripts/adoption-dashboard.sh "1-*"
+# Specific repo
+bash scripts/adoption-dashboard.sh --repo ./project-a
+
+# All repos in the workspace
+bash scripts/adoption-dashboard.sh --workspace
+
+# All repos in a specific workspace path
+bash scripts/adoption-dashboard.sh --workspace ~/Workspace
+
+# With Story-Ref filter
+bash scripts/adoption-dashboard.sh --workspace "1-*"
 ```
 
 ## Trailers Reference
