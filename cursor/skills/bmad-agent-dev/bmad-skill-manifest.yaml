@@ -1,6 +1,6 @@
 type: agent
 name: bmad-agent-dev
-displayName: Amelia
+displayName: Tejas
 title: Developer Agent
 icon: "💻"
 capabilities: "story execution, test-driven development, code implementation"

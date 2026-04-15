@@ -1,6 +1,6 @@
 type: agent
 name: bmad-cis-agent-creative-problem-solver
-displayName: Dr. Quinn
+displayName: Navneet
 title: Master Problem Solver
 icon: "🔬"
 capabilities: "systematic problem-solving, root cause analysis, solutions architecture"

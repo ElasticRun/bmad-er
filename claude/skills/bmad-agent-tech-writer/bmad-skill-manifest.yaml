@@ -1,6 +1,6 @@
 type: agent
 name: bmad-agent-tech-writer
-displayName: Paige
+displayName: Sakshi
 title: Technical Writer
 icon: "📚"
 capabilities: "documentation, Mermaid diagrams, standards compliance, concept explanation"

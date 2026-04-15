@@ -1,6 +1,6 @@
 type: agent
 name: bmad-agent-analyst
-displayName: Mary
+displayName: Nishtha
 title: Business Analyst
 icon: "📊"
 capabilities: "market research, competitive analysis, requirements elicitation, domain expertise"

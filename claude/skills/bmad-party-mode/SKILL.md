@@ -101,10 +101,10 @@ The user drives what happens next. Common patterns:
 | User says... | You do... |
 |---|---|
 | Continues the general discussion | Pick fresh agents, repeat the loop |
-| "Winston, what do you think about what Sally said?" | Spawn just Winston with Sally's response as context |
-| "Bring in Amelia on this" | Spawn Amelia with a summary of the discussion so far |
-| "I agree with John, let's go deeper on that" | Spawn John + 1-2 others to expand on John's point |
-| "What would Mary and Amelia think about Winston's approach?" | Spawn Mary and Amelia with Winston's response as context |
+| "Siddharth, what do you think about what Sai said?" | Spawn just Siddharth with Sai's response as context |
+| "Bring in Tejas on this" | Spawn Tejas with a summary of the discussion so far |
+| "I agree with Chaitanya, let's go deeper on that" | Spawn Chaitanya + 1-2 others to expand on Chaitanya's point |
+| "What would Nishtha and Tejas think about Siddharth's approach?" | Spawn Nishtha and Tejas with Siddharth's response as context |
 | Asks a question directed at everyone | Back to step 1 with all agents |
 
 The key insight: you can spawn any combination at any time. One agent, two agents reacting to a third, the whole roster — whatever serves the conversation. Each spawn is cheap and independent.
