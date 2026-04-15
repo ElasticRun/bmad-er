@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 usage() {
   cat <<EOF
-bmad-er installer
+dont-b-mad installer
 
 Usage:
   bash install.sh [workspace-path]                  Install everything
@@ -38,7 +38,7 @@ done
 TARGET="${TARGET:-.}"
 TARGET="$(cd "$TARGET" && pwd)"
 
-echo "bmad-er installer"
+echo "dont-b-mad installer"
 echo "Workspace: $TARGET"
 echo ""
 

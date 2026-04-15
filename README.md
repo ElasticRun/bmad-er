@@ -1,4 +1,4 @@
-# bmad-er
+# dont-b-mad
 
 A fork of [BMAD v6.3.0](https://github.com/bmad-code-org) with AI tracking baked into every workflow. Measures AI adoption across the full SDLC without adding any overhead to developers.
 
@@ -45,16 +45,16 @@ A dashboard script (Pulse) reads git history and prints adoption rates grouped b
 A workspace can contain multiple git repos. Skills install at the workspace root (where Cursor / Claude Code are opened), and git hooks install into each repo inside the workspace.
 
 ```bash
-git clone https://github.com/ElasticRun/bmad-er.git
+git clone https://github.com/ElasticRun/dont-b-mad.git
 
 # Full install: skills at workspace root + hooks in every repo inside it
-bash bmad-er/scripts/install.sh ~/Workspace
+bash dont-b-mad/scripts/install.sh ~/Workspace
 
 # Skills only (no git repos required)
-bash bmad-er/scripts/install.sh ~/Workspace --skills-only
+bash dont-b-mad/scripts/install.sh ~/Workspace --skills-only
 
 # Hooks only (into repos discovered inside the workspace)
-bash bmad-er/scripts/install.sh ~/Workspace --hooks-only
+bash dont-b-mad/scripts/install.sh ~/Workspace --hooks-only
 ```
 
 If a `prepare-commit-msg` hook already exists in a repo, the installer backs it up to `.bak` before replacing.
@@ -105,7 +105,7 @@ The workspace-level resolution rule (`.cursor/rules/` and `.claude/rules/`) teac
 After initializing BMAD in a new project, re-run the installer with `--force` to refresh the registry:
 
 ```bash
-bash bmad-er/scripts/install.sh ~/Workspace --force
+bash dont-b-mad/scripts/install.sh ~/Workspace --force
 ```
 
 ### Customize your team
