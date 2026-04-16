@@ -10,6 +10,11 @@
 #   bash adoption-dashboard.sh --workspace [path]       # all repos in workspace
 #   bash adoption-dashboard.sh --workspace [path] "1-*" # workspace + filter
 #   bash adoption-dashboard.sh --repo /path/to/repo     # specific repo
+#
+# Portable: works on any bash (3.2+) and any POSIX awk. No associative
+# arrays in bash — aggregation is delegated to awk, which also fixes a
+# subtle parsing bug: git's %(trailers:valueonly) puts each trailer on
+# its own line, so per-line shell parsing never saw AI-Tool / Story-Ref.
 
 set -euo pipefail
 
@@ -22,7 +27,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --workspace)
       WORKSPACE_MODE=true
-      if [ "${2:-}" != "" ] && [[ ! "$2" =~ ^- ]]; then
+      if [ "${2:-}" != "" ] && [ "${2#-}" = "${2:-}" ]; then
         WORKSPACE_PATH="$2"; shift
       fi
       ;;
@@ -30,7 +35,7 @@ while [ $# -gt 0 ]; do
       REPO_PATH="${2:-.}"; shift
       ;;
     --help|-h)
-      head -n 11 "$0" | tail -n +2 | sed 's/^# *//'
+      sed -n '2,12p' "$0" | sed 's/^# *//;s/^#$//'
       exit 0
       ;;
     *)
@@ -40,146 +45,172 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-DELIM="---COMMIT---"
+F_SEP="---F---"
+E_SEP="---END---"
+FMT="%H${F_SEP}%(trailers:key=AI-Phase,valueonly)${F_SEP}%(trailers:key=AI-Tool,valueonly)${F_SEP}%(trailers:key=Story-Ref,valueonly)${E_SEP}"
 
-declare -A phase_total
-declare -A phase_ai
-total_tracked=0
-repos_scanned=0
+RAW=""
+REPOS_SCANNED=0
 
 collect_from_repo() {
   local repo_dir="$1"
-  local raw
-
-  raw=$(git -C "$repo_dir" log --all --format="%H${DELIM}%(trailers:key=AI-Phase,valueonly)${DELIM}%(trailers:key=AI-Tool,valueonly)${DELIM}%(trailers:key=Story-Ref,valueonly)" 2>/dev/null || true)
-  [ -z "$raw" ] && return 0
-
-  repos_scanned=$((repos_scanned + 1))
-
-  while IFS= read -r line; do
-    [ -z "$line" ] && continue
-
-    phase=$(echo "$line" | awk -F"$DELIM" '{print $2}' | xargs 2>/dev/null || true)
-    tool=$(echo "$line" | awk -F"$DELIM" '{print $3}' | xargs 2>/dev/null || true)
-    ref=$(echo "$line" | awk -F"$DELIM" '{print $4}' | xargs 2>/dev/null || true)
-
-    [ -z "$phase" ] && continue
-
-    if [ -n "$FILTER" ]; then
-      case "$ref" in
-        $FILTER) ;;
-        *) continue ;;
-      esac
-    fi
-
-    total_tracked=$((total_tracked + 1))
-    phase_total[$phase]=$(( ${phase_total[$phase]:-0} + 1 ))
-
-    if [ "$tool" != "manual" ] && [ -n "$tool" ]; then
-      phase_ai[$phase]=$(( ${phase_ai[$phase]:-0} + 1 ))
-    fi
-  done <<< "$raw"
+  local out
+  out=$(git -C "$repo_dir" log --all --format="$FMT" 2>/dev/null || true)
+  if [ -n "$out" ]; then
+    RAW="${RAW}${out}"
+    REPOS_SCANNED=$((REPOS_SCANNED + 1))
+  fi
 }
 
-# Determine which repos to scan
+# Discover every git repo under $1 at any depth. Skips common noise dirs
+# for speed, and drops nested repos (submodules, vendored checkouts) so
+# their commits aren't double-counted against the outer project.
+discover_repos() {
+  local root="$1"
+  find "$root" \
+    \( -type d \( \
+         -name node_modules -o -name vendor -o -name .venv -o \
+         -name venv -o -name __pycache__ -o -name build -o \
+         -name dist -o -name target -o -name .next -o \
+         -name .turbo -o -name .cache \
+      \) -prune \) -o \
+    \( -name .git -print -prune \) 2>/dev/null \
+  | awk '
+      {
+        slash = 0
+        for (i = length($0); i > 0; i--) {
+          if (substr($0, i, 1) == "/") { slash = i; break }
+        }
+        parent = (slash > 1) ? substr($0, 1, slash - 1) : "."
+        if (!seen[parent]++) print parent
+      }
+    ' \
+  | sort \
+  | awk '
+      {
+        keep = 1
+        for (i = 1; i <= n; i++) {
+          if (index($0 "/", kept[i] "/") == 1 && $0 != kept[i]) {
+            keep = 0; break
+          }
+        }
+        if (keep) { n++; kept[n] = $0; print $0 }
+      }
+    '
+}
+
 if $WORKSPACE_MODE; then
   ws="${WORKSPACE_PATH:-.}"
   ws="$(cd "$ws" && pwd)"
 
-  # Workspace root itself may be a repo
-  if [ -d "$ws/.git" ] || [ -f "$ws/.git" ]; then
-    collect_from_repo "$ws"
+  repos=$(discover_repos "$ws")
+  if [ -z "$repos" ]; then
+    echo "No git repositories found under: $ws" >&2
+  else
+    while IFS= read -r repo; do
+      [ -n "$repo" ] || continue
+      collect_from_repo "$repo"
+    done <<< "$repos"
   fi
-
-  # Scan one level deep for repos
-  for dir in "$ws"/*/; do
-    [ -d "$dir" ] || continue
-    if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
-      collect_from_repo "${dir%/}"
-    fi
-  done
 elif [ -n "$REPO_PATH" ]; then
   collect_from_repo "$(cd "$REPO_PATH" && pwd)"
 else
   collect_from_repo "."
 fi
 
-if [ "$total_tracked" -eq 0 ]; then
-  echo "No commits with AI trailers found."
-  [ -n "$FILTER" ] && echo "  (filter: Story-Ref = $FILTER)"
-  $WORKSPACE_MODE && echo "  (scanned $repos_scanned repo(s) in workspace)"
-  exit 0
+WS_LABEL=""
+if $WORKSPACE_MODE; then
+  WS_LABEL="$REPOS_SCANNED"
 fi
 
-declare -a PLANNING_PHASES=("prd" "architecture" "ux-design" "epics" "sprint-plan" "story")
-declare -a DEV_PHASES=("code" "test" "review" "deploy")
-
-declare -A TARGETS=(
-  ["prd"]="90" ["architecture"]="90" ["ux-design"]="90" ["epics"]="90"
-  ["sprint-plan"]="90" ["story"]="90"
-  ["code"]="80" ["test"]="85" ["review"]="95" ["deploy"]="80"
-)
-
-pct() {
-  local ai=${1:-0}
-  local tot=${2:-0}
-  if [ "$tot" -eq 0 ]; then echo "—"; else echo "$(( ai * 100 / tot ))%"; fi
+printf '%s' "$RAW" | awk \
+  -v filter="$FILTER" \
+  -v ws_label="$WS_LABEL" '
+BEGIN {
+  RS  = "---END---"
+  FS  = "---F---"
+  total = 0
 }
+function trim(s) {
+  gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", s)
+  return s
+}
+function glob_match(s, g,    re) {
+  re = g
+  gsub(/[.+^$(){}|\\]/, "\\\\&", re)
+  gsub(/\*/, ".*", re)
+  gsub(/\?/, ".", re)
+  return s ~ ("^" re "$")
+}
+{
+  if (NF < 4) next
+  phase = trim($2)
+  tool  = trim($3)
+  ref   = trim($4)
+  if (phase == "") next
+  if (filter != "" && !glob_match(ref, filter)) next
 
-echo ""
-echo "======================================"
-echo "  Pulse — AI Adoption Dashboard"
-echo "======================================"
-[ -n "$FILTER" ] && echo "  Filter: Story-Ref = $FILTER"
-$WORKSPACE_MODE && echo "  Repos scanned: $repos_scanned"
-echo ""
+  total++
+  phase_total[phase]++
+  if (tool != "" && tool != "manual") phase_ai[phase]++
+}
+function render(title, arr, n,    sum, has, i, p, tot, ai, rate, t) {
+  sum = 0; has = 0
+  for (i = 1; i <= n; i++) {
+    if ((arr[i] in phase_total) && phase_total[arr[i]] > 0) {
+      has = 1
+      sum += phase_total[arr[i]]
+    }
+  }
+  if (!has) return
+  printf "  %s (%d commits)\n", title, sum
+  print  "  --------------------------------"
+  for (i = 1; i <= n; i++) {
+    p = arr[i]
+    tot = (p in phase_total) ? phase_total[p] : 0
+    if (tot == 0) continue
+    ai = (p in phase_ai) ? phase_ai[p] : 0
+    rate = sprintf("%d%%", int(ai * 100 / tot))
+    t = (p in tgt) ? (tgt[p] "%") : "—"
+    printf "  %-20s %5s  (target: %s)  [%d/%d]\n", p, rate, t, ai, tot
+  }
+  print ""
+}
+END {
+  if (total == 0) {
+    print "No commits with AI trailers found."
+    if (filter   != "") print "  (filter: Story-Ref = " filter ")"
+    if (ws_label != "") print "  (scanned " ws_label " repo(s) in workspace)"
+    exit 0
+  }
 
-planning_count=0
-has_planning=false
-for p in "${PLANNING_PHASES[@]}"; do
-  if [ "${phase_total[$p]:-0}" -gt 0 ]; then
-    has_planning=true
-    planning_count=$((planning_count + ${phase_total[$p]}))
-  fi
-done
+  n_plan = split("prd architecture ux-design epics sprint-plan story", plan, " ")
+  n_dev  = split("code test review deploy",                              dev,  " ")
 
-if $has_planning; then
-  echo "  PLANNING ($planning_count commits)"
-  echo "  --------------------------------"
-  for p in "${PLANNING_PHASES[@]}"; do
-    tot=${phase_total[$p]:-0}
-    [ "$tot" -eq 0 ] && continue
-    ai=${phase_ai[$p]:-0}
-    rate=$(pct "$ai" "$tot")
-    target=${TARGETS[$p]:-"—"}
-    printf "  %-20s %5s  (target: %s%%)  [%d/%d]\n" "$p" "$rate" "$target" "$ai" "$tot"
-  done
-  echo ""
-fi
+  tgt["prd"]           = 90
+  tgt["architecture"]  = 90
+  tgt["ux-design"]     = 90
+  tgt["epics"]         = 90
+  tgt["sprint-plan"]   = 90
+  tgt["story"]         = 90
+  tgt["code"]          = 80
+  tgt["test"]          = 85
+  tgt["review"]        = 95
+  tgt["deploy"]        = 80
 
-dev_count=0
-has_dev=false
-for p in "${DEV_PHASES[@]}"; do
-  if [ "${phase_total[$p]:-0}" -gt 0 ]; then
-    has_dev=true
-    dev_count=$((dev_count + ${phase_total[$p]}))
-  fi
-done
+  print ""
+  print "======================================"
+  print "  Pulse — AI Adoption Dashboard"
+  print "======================================"
+  if (filter   != "") print "  Filter: Story-Ref = " filter
+  if (ws_label != "") print "  Repos scanned: " ws_label
+  print ""
 
-if $has_dev; then
-  echo "  DEVELOPMENT ($dev_count commits)"
-  echo "  --------------------------------"
-  for p in "${DEV_PHASES[@]}"; do
-    tot=${phase_total[$p]:-0}
-    [ "$tot" -eq 0 ] && continue
-    ai=${phase_ai[$p]:-0}
-    rate=$(pct "$ai" "$tot")
-    target=${TARGETS[$p]:-"—"}
-    printf "  %-20s %5s  (target: %s%%)  [%d/%d]\n" "$p" "$rate" "$target" "$ai" "$tot"
-  done
-  echo ""
-fi
+  render("PLANNING",    plan, n_plan)
+  render("DEVELOPMENT", dev,  n_dev)
 
-echo "  TOTAL: $total_tracked tracked commits"
-echo "======================================"
-echo ""
+  printf "  TOTAL: %d tracked commits\n", total
+  print "======================================"
+  print ""
+}
+'
