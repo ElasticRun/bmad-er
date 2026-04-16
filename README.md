@@ -67,6 +67,8 @@ If a `prepare-commit-msg` hook already exists in a repo, the installer backs it 
 | `.claude/skills/bmad-*` | All BMAD skills (Claude Code) | Workspace root |
 | `.cursor/rules/bmad-workspace-resolution.md` | Teaches agent how to resolve `{project-root}` | Workspace root |
 | `.cursor/rules/bmad-team-customization.md` | Teaches agent to read custom team names | Workspace root |
+| `.cursor/rules/bmad-graph-first.md` | Prefer knowledge graph over reading full source | Workspace root |
+| `.cursor/rules/bmad-caveman-activate.md` | Always-on terse output (caveman mode) | Workspace root |
 | `.claude/rules/bmad-*.md` | Same rules for Claude Code | Workspace root |
 | `_bmad/workspace.yaml` | Maps project directories in the workspace | Workspace root |
 | `_bmad/_config/team.yaml` | Custom agent display names | Workspace root |
@@ -79,10 +81,10 @@ If a `prepare-commit-msg` hook already exists in a repo, the installer backs it 
 ~/Workspace/                       <- open Cursor / Claude Code here
 ├── .cursor/
 │   ├── skills/bmad-*/             <- skills (installed once)
-│   └── rules/bmad-*.md            <- workspace + team rules
+│   └── rules/bmad-*.md            <- workspace, team, graph-first, caveman rules
 ├── .claude/
 │   ├── skills/bmad-*/             <- skills (installed once)
-│   └── rules/bmad-*.md            <- workspace + team rules
+│   └── rules/bmad-*.md            <- workspace, team, graph-first, caveman rules
 ├── _bmad/
 │   ├── workspace.yaml             <- project registry
 │   └── _config/team.yaml          <- custom agent names
@@ -129,6 +131,22 @@ agents:
 ```
 
 Each key maps to an agent role. Change the name and it takes effect immediately -- no reinstall needed. Agents without an entry keep their default name from the skill files.
+
+## Token Compression (Caveman Mode)
+
+Built-in output compression based on [caveman](https://github.com/JuliusBrussee/caveman) by Julius Brussee. Cuts agent output tokens by ~75% and artifact input tokens by ~46% without losing technical substance.
+
+Three pieces ship with the fork:
+
+| Skill | What it does |
+|---|---|
+| `/bmad-caveman` | Switches agent to terse mode. Levels: `lite`, `full` (default), `ultra`. Say "stop caveman" to revert. |
+| `/bmad-compress-artifacts` | Compresses planning docs (PRDs, architecture, stories) for cheaper agent reads. Originals saved as `.original.md`. |
+| `--caveman` flag on party mode | All subagents respond terse. Combine with `--model haiku` for max savings. |
+
+The activation rule (`bmad-caveman-activate.md`) is installed to `.cursor/rules/` and `.claude/rules/` by the installer, making caveman always-on by default. Delete the rule file to disable.
+
+Code blocks, file paths, commands, and BMAD deliverable artifacts (PRDs, stories) are always written in normal prose.
 
 ## Dashboard Usage
 
@@ -190,6 +208,9 @@ Manual commits (hotfixes, config changes) get auto-tagged by the git hook with `
 - `bmad-retrospective` -- queries git for AI adoption metrics by phase, includes in retro output
 - `bmad-ai-tracking` -- new skill: hook template, dashboard, install instructions
 - `bmad-graphify` -- new skill: knowledge graph setup, query reference, workflow integration docs
+- `bmad-caveman` -- new skill: terse output mode (~75% token reduction), based on [caveman](https://github.com/JuliusBrussee/caveman)
+- `bmad-compress-artifacts` -- new skill: compress planning artifacts for cheaper agent reads (~46% input token savings)
+- `bmad-party-mode` -- added `--caveman` flag for terse multi-agent roundtables
 
 ## Credits
 

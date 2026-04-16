@@ -17,10 +17,11 @@ Party mode accepts optional arguments when invoked:
 
 - `--model <model>` — Force all subagents to use a specific model (e.g. `--model haiku`, `--model opus`). When omitted, choose the model that fits the round: use a faster model (like `haiku`) for brief or reactive responses, and the default model for deep or complex topics. Match model weight to the depth of thinking the round requires.
 - `--solo` — Run without subagents. Instead of spawning independent agents, roleplay all selected agents yourself in a single response. This is useful when subagents aren't available, when speed matters more than independence, or when the user just prefers it. Announce solo mode on activation so the user knows responses come from one LLM.
+- `--caveman` — All agent responses use terse caveman-speak. Cuts ~75% of output tokens per agent per round. When active, append the caveman rules block (see below) to each subagent's prompt. Announce caveman mode on activation. Combinable with other flags (e.g. `--caveman --model haiku` for maximum speed/cost savings).
 
 ## On Activation
 
-1. **Parse arguments** — check for `--model` and `--solo` flags from the user's invocation.
+1. **Parse arguments** — check for `--model`, `--solo`, and `--caveman` flags from the user's invocation.
 
 2. Load config from `{project-root}/_bmad/core/config.yaml` and resolve:
   - Use `{user_name}` for greeting
@@ -80,6 +81,13 @@ You are {displayName} ({title}), a BMAD agent in a collaborative roundtable disc
 - If you have nothing substantive to add, say so in one sentence rather than manufacturing an opinion.
 - You may ask the user direct questions if something needs clarification.
 - Do NOT use tools. Just respond with your perspective.
+
+{if --caveman is active, append the following block}
+
+## Caveman Mode
+Respond terse. All technical substance stay. Only fluff die.
+Drop: articles (a/an/the), filler, pleasantries, hedging. Fragments OK. Short synonyms.
+Technical terms exact. Code unchanged. Pattern: [thing] [action] [reason].
 ```
 
 **Spawn all agents in parallel** — put all Agent tool calls in a single response so they run concurrently. If `--model` was specified, use that model for all subagents. Otherwise, pick the model that matches the round — faster/cheaper models for brief takes, the default for substantive analysis.
