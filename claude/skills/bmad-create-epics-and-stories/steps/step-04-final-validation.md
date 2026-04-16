@@ -121,9 +121,9 @@ If all validations pass:
 
 ### 7. Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the epics:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the epics. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage the epics file (`{planning_artifacts}/epics.md`) and any related files updated during this workflow.
+- Stage files: `git -C {project-root} add {planning_artifacts}/epics.md` (and any related files updated during this workflow).
 - Create a commit with a conventional message: `docs: create epics and stories`
 - Append AI tracking trailers to the commit message body:
 

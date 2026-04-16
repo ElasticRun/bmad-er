@@ -431,7 +431,10 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
     <!-- Create a git commit with AI tracking trailers -->
     <check if="version control is available AND the working tree is dirty">
       <action>Read the AI Engineering Record table from the story file</action>
-      <action>Create a local commit with a conventional message derived from the story title.
+      <action>All git commands MUST target the project repo using `git -C {project-root}`.
+        Stage changed files:
+          git -C {project-root} add [changed files]
+        Create a local commit with a conventional message derived from the story title.
         Append these trailers to the commit message body (after a blank line):
 
         AI-Phase: code

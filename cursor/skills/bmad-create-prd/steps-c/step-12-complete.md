@@ -58,9 +58,9 @@ Update the main workflow status file if there is one:
 
 ### 3. Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the PRD:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the PRD. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage `{outputFile}` and any related workflow status files that were updated.
+- Stage files: `git -C {project-root} add {outputFile}` (and any related workflow status files that were updated).
 - Create a commit with a conventional message: `docs: create PRD for {{project_name}}`
 - Append AI tracking trailers to the commit message body:
 

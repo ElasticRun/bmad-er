@@ -82,9 +82,9 @@ Update the main workflow status file:
 
 ### 3. Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the UX design:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the UX design. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage `{planning_artifacts}/ux-design-specification.md` and any supporting HTML files (`ux-color-themes.html`, `ux-design-directions.html`) updated during this workflow.
+- Stage files: `git -C {project-root} add {planning_artifacts}/ux-design-specification.md` (and any supporting HTML files like `ux-color-themes.html`, `ux-design-directions.html` updated during this workflow).
 - Create a commit with a conventional message: `docs: create UX design for {{project_name}}`
 - Append AI tracking trailers to the commit message body:
 

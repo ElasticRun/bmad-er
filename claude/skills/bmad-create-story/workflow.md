@@ -372,7 +372,9 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
   <!-- Git Checkpoint: commit the story file -->
   <check if="version control is available AND the working tree is dirty">
-    <action>Stage {default_output_file} and {{sprint_status}} if it was updated.
+    <action>All git commands MUST target the project repo using `git -C {project-root}`.
+      Stage {default_output_file} and {{sprint_status}} if it was updated:
+        git -C {project-root} add {default_output_file} {{sprint_status}}
       Create a local commit: "docs: create story {{story_key}}"
       Append AI tracking trailers:
         AI-Phase: story

@@ -41,9 +41,9 @@ completedAt: '{{current_date}}'
 
 ### 3. Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the architecture:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the architecture. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage the architecture file (`{planning_artifacts}/architecture.md`) and any related files updated during this workflow.
+- Stage files: `git -C {project-root} add {planning_artifacts}/architecture.md` (and any related files updated during this workflow).
 - Create a commit with a conventional message: `docs: create architecture for {{project_name}}`
 - Append AI tracking trailers to the commit message body:
 

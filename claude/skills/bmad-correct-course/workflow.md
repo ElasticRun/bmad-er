@@ -260,8 +260,8 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - Specific edit proposals with before/after
 - Implementation handoff plan
 
-<action>Git Checkpoint: If version control is available and the working tree is dirty, create a local commit:
-  - Stage {default_output_file}
+<action>Git Checkpoint: If version control is available and the working tree is dirty, create a local commit. All git commands MUST target the project repo using `git -C {project-root}`:
+  - Stage: git -C {project-root} add {default_output_file}
   - Commit with message: "docs: sprint change proposal for {{change_trigger}}"
   - Append AI tracking trailers:
     AI-Phase: sprint-change

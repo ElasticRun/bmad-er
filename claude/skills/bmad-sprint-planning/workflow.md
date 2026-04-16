@@ -215,8 +215,8 @@ development_status:
 3. Agents will update statuses as they work
 4. Re-run this workflow to refresh auto-detected statuses
 
-<action>Git Checkpoint: If version control is available and the working tree is dirty, create a local commit:
-  - Stage {status_file}
+<action>Git Checkpoint: If version control is available and the working tree is dirty, create a local commit. All git commands MUST target the project repo using `git -C {project-root}`:
+  - Stage: git -C {project-root} add {status_file}
   - Commit with message: "chore: generate sprint status"
   - Append AI tracking trailers:
     AI-Phase: sprint-plan

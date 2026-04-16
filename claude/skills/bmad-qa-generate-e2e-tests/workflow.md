@@ -135,9 +135,9 @@ Save summary to: `{default_output_file}`
 
 ## Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the generated tests:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the generated tests. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage the generated test files and `{default_output_file}`.
+- Stage files: `git -C {project-root} add [generated test files] {default_output_file}`
 - Create a commit with a conventional message: `test: generate e2e tests for {{feature_name}}`
 - Append AI tracking trailers to the commit message body:
 

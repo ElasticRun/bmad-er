@@ -72,9 +72,9 @@ purpose: "Token-efficient context for downstream PRD creation"
 
 ## Step 4: Git Checkpoint
 
-If version control is available and the working tree is dirty, create a local commit to checkpoint the product brief:
+If version control is available and the working tree is dirty, create a local commit to checkpoint the product brief. All git commands MUST target the project repo using `git -C {project-root}`:
 
-- Stage `{planning_artifacts}/product-brief-{project_name}.md` and the distillate file if it was created.
+- Stage files: `git -C {project-root} add {planning_artifacts}/product-brief-{project_name}.md` (and the distillate file if it was created).
 - Create a commit with a conventional message: `docs: create product brief for {project_name}`
 - Append AI tracking trailers to the commit message body:
 
