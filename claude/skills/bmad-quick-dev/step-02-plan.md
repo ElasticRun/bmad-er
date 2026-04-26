@@ -43,6 +43,4 @@ HALT and ask human: `[A] Approve` | `[E] Edit`
 - **E**: Apply changes, then return to CHECKPOINT 1.
 
 
-## NEXT
-
-Read fully and follow `./step-03-implement.md`
+→ Next step: `./step-03-implement.md`

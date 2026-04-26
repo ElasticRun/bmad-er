@@ -52,20 +52,13 @@ If the user chooses to defer, ask: Quick one-line reason for deferring this item
 
 If `patch` findings exist (including any resolved from step 4), HALT. Ask the user:
 
-If `{spec_file}` is set, present all three options (if >3 `patch` findings exist, also show option 0):
+Present this menu (omit option 2 if `{spec_file}` is not set; show option 0 only if >3 `patch` findings):
 
 > **How would you like to handle the <Z> `patch` findings?**
-> 0. **Batch-apply all** — automatically fix every non-controversial patch (recommended when there are many)
-> 1. **Fix them automatically** — I will apply fixes now
-> 2. **Leave as action items** — they are already in the story file
-> 3. **Walk through each** — let me show details before deciding
-
-If `{spec_file}` is **not** set, present only options 1 and 3 (omit option 2 — findings were not written to a file). If >3 `patch` findings exist, also show option 0:
-
-> **How would you like to handle the <Z> `patch` findings?**
-> 0. **Batch-apply all** — automatically fix every non-controversial patch (recommended when there are many)
-> 1. **Fix them automatically** — I will apply fixes now
-> 2. **Walk through each** — let me show details before deciding
+> 0. **Batch-apply all** — fix every non-controversial patch (when many findings)
+> 1. **Fix automatically** — apply fixes now
+> 2. **Leave as action items** — already written to the story file
+> 3. **Walk through each** — show details before deciding
 
 **HALT** — I am waiting for your numbered choice. Reply with only the number (or "0" for batch). Do not proceed until you select an option.
 

@@ -85,25 +85,13 @@ Run `/bmad:bmm:workflows:sprint-planning` to generate it, then rerun sprint-stat
 - Valid retrospective statuses: optional, done
 
   <check if="any status is unrecognized">
-    <output>
-⚠️ **Unknown status detected:**
-{{#each invalid_entries}}
-
-- `{{key}}`: "{{status}}" (not recognized)
-  {{/each}}
-
-**Valid statuses:**
-
-- Stories: backlog, ready-for-dev, in-progress, review, done
-- Epics: backlog, in-progress, done
-- Retrospectives: optional, done
-  </output>
-  <ask>How should these be corrected?
-  {{#each invalid_entries}}
-  {{@index}}. {{key}}: "{{status}}" → [select valid status]
-  {{/each}}
-
-Enter corrections (e.g., "1=in-progress, 2=backlog") or "skip" to continue without fixing:</ask>
+    <output>Unknown status entries:
+{{#each invalid_entries}}- `{{key}}`: "{{status}}"
+{{/each}}
+Valid statuses: stories=[backlog, ready-for-dev, in-progress, review, done]; epics=[backlog, in-progress, done]; retros=[optional, done].</output>
+    <ask>Corrections (e.g. "1=in-progress, 2=backlog") or "skip":
+{{#each invalid_entries}}{{@index}}. {{key}}: "{{status}}"
+{{/each}}</ask>
 <check if="user provided corrections">
 <action>Update sprint-status.yaml with corrected values</action>
 <action>Re-parse the file with corrected statuses</action>
@@ -134,7 +122,7 @@ Enter corrections (e.g., "1=in-progress, 2=backlog") or "skip" to continue witho
 
 <step n="4" goal="Display summary">
   <output>
-## 📊 Sprint Status
+## Sprint Status
 
 - Project: {{project}} ({{project_key}})
 - Tracking: {{tracking_system}}

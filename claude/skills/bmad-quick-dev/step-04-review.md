@@ -44,6 +44,4 @@ Launch three subagents without conversation context. If no sub-agents are availa
    - **defer** — Append to `{deferred_work_file}`.
    - **reject** — Drop silently.
 
-## NEXT
-
-Read fully and follow `./step-05-present.md`
+→ Next step: `./step-05-present.md`

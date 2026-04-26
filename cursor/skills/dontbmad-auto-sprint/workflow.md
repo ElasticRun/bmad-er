@@ -41,6 +41,16 @@ Use the current working directory as the project root. All paths below are relat
 
 Read `stories/sprint-status.yaml`. Find the first story with status `ready-for-dev`, processing epics in order (1 → N). If none left, report "all done" and exit.
 
+### Step 1.5: Graph context (skip if graph.json missing)
+
+If `graphify-out/graph.json` exists, capture a story-scoped summary to feed the impl agent:
+
+```bash
+uvx --from graphifyy graphify query --budget 3000 "what files, functions, and modules are relevant to story <id>: <story-title>?"
+```
+
+Save stdout as `{graph_context}`. If the file does not exist, set `{graph_context}` = `(none, graph not built)` and continue.
+
 ### Step 2: Implementation (fresh agent, `sonnet`)
 
 Spawn Agent with these params:
@@ -60,8 +70,13 @@ RULES:
 - Write tests for new functionality (co-located *.test.ts or equivalent)
 - Run typecheck and test commands per project conventions (e.g. `npx tsc --noEmit` + `npx vitest run`)
 - Follow existing code patterns and conventions
+- If GRAPH CONTEXT below is non-empty, treat its file paths and dependencies as authoritative starting points. Do not invent paths.
+- Before modifying any function or class, run `uvx --from graphifyy graphify explain "<symbol>"` to see direct callers/callees. For impact between two symbols, run `uvx --from graphifyy graphify path "<A>" "<B>"`. Skip silently if graph.json is absent.
 - Do NOT commit
 - Output CAVEMAN style: list files changed, test result line, any issues. No explanations.
+
+GRAPH CONTEXT:
+{graph_context}
 ```
 
 Capture result. If agent reports failure/errors, **abort the loop** and surface the issue to the user.

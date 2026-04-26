@@ -15,7 +15,7 @@
   - Two-part format: (1) Epic Review + (2) Next Epic Preparation
 - Party mode protocol:
   - ALL agent dialogue MUST use format: "Name (Role): dialogue"
-  - Example: Tejas (Developer): "Let's begin..."
+  - Example: Deepika (Developer): "Let's begin..."
   - Example: {user_name} (Project Lead): [User responds]
   - Create natural back-and-forth with user actively participating
   - Show disagreements, diverse perspectives, authentic team dynamics
@@ -69,7 +69,7 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 <action>Explain to {user_name} the epic discovery process using natural dialogue</action>
 
 <output>
-Tejas (Developer): "Welcome to the retrospective, {user_name}. Let me help you identify which epic we just completed. I'll check sprint-status first, but you're the ultimate authority on what we're reviewing today."
+Deepika (Developer): "Welcome to the retrospective, {user_name}. Let me help you identify which epic we just completed. I'll check sprint-status first, but you're the ultimate authority on what we're reviewing today."
 </output>
 
 <action>PRIORITY 1: Check {sprint_status_file} first</action>
@@ -84,7 +84,7 @@ Tejas (Developer): "Welcome to the retrospective, {user_name}. Let me help you i
   <action>Present finding to user with context</action>
 
   <output>
-Tejas (Developer): "Based on {sprint_status_file}, it looks like Epic {{detected_epic}} was recently completed. Is that the epic you want to review today, {user_name}?"
+Deepika (Developer): "Based on {sprint_status_file}, it looks like Epic {{detected_epic}} was recently completed. Is that the epic you want to review today, {user_name}?"
   </output>
 
 <action>WAIT for {user_name} to confirm or correct</action>
@@ -96,7 +96,7 @@ Tejas (Developer): "Based on {sprint_status_file}, it looks like Epic {{detected
   <check if="{user_name} provides different epic number">
     <action>Set {{epic_number}} = user-provided number</action>
     <output>
-Tejas (Developer): "Got it, we're reviewing Epic {{epic_number}}. Let me gather that information."
+Deepika (Developer): "Got it, we're reviewing Epic {{epic_number}}. Let me gather that information."
     </output>
   </check>
 </check>
@@ -105,7 +105,7 @@ Tejas (Developer): "Got it, we're reviewing Epic {{epic_number}}. Let me gather 
   <action>PRIORITY 2: Ask user directly</action>
 
   <output>
-Tejas (Developer): "I'm having trouble detecting the completed epic from {sprint_status_file}. {user_name}, which epic number did you just complete?"
+Deepika (Developer): "I'm having trouble detecting the completed epic from {sprint_status_file}. {user_name}, which epic number did you just complete?"
   </output>
 
 <action>WAIT for {user_name} to provide epic number</action>
@@ -120,7 +120,7 @@ Tejas (Developer): "I'm having trouble detecting the completed epic from {sprint
 <action>Set {{detected_epic}} = highest epic number found</action>
 
   <output>
-Tejas (Developer): "I found stories for Epic {{detected_epic}} in the stories folder. Is that the epic we're reviewing, {user_name}?"
+Deepika (Developer): "I found stories for Epic {{detected_epic}} in the stories folder. Is that the epic we're reviewing, {user_name}?"
   </output>
 
 <action>WAIT for {user_name} to confirm or correct</action>
@@ -143,9 +143,9 @@ Tejas (Developer): "I found stories for Epic {{detected_epic}} in the stories fo
 
 <check if="epic is not complete">
   <output>
-Alice (Product Owner): "Wait, Tejas - I'm seeing that Epic {{epic_number}} isn't actually complete yet."
+Alice (Product Owner): "Wait, Deepika - I'm seeing that Epic {{epic_number}} isn't actually complete yet."
 
-Tejas (Developer): "Let me check... you're right, Alice."
+Deepika (Developer): "Let me check... you're right, Alice."
 
 **Epic Status:**
 
@@ -156,7 +156,7 @@ Tejas (Developer): "Let me check... you're right, Alice."
 **Pending Stories:**
 {{pending_story_list}}
 
-Tejas (Developer): "{user_name}, we typically run retrospectives after all stories are done. What would you like to do?"
+Deepika (Developer): "{user_name}, we typically run retrospectives after all stories are done. What would you like to do?"
 
 **Options:**
 
@@ -169,7 +169,7 @@ Tejas (Developer): "{user_name}, we typically run retrospectives after all stori
 
   <check if="user says no">
     <output>
-Tejas (Developer): "Smart call, {user_name}. Let's finish those stories first and then have a proper retrospective."
+Deepika (Developer): "Smart call, {user_name}. Let's finish those stories first and then have a proper retrospective."
     </output>
     <action>HALT</action>
   </check>
@@ -178,7 +178,7 @@ Tejas (Developer): "Smart call, {user_name}. Let's finish those stories first an
 <output>
 Charlie (Senior Dev): "Just so everyone knows, this partial retro might miss some important lessons from those pending stories."
 
-Tejas (Developer): "Good point, Charlie. {user_name}, we'll document what we can now, but we may want to revisit after everything's done."
+Deepika (Developer): "Good point, Charlie. {user_name}, we'll document what we can now, but we may want to revisit after everything's done."
 </output>
 </check>
 
@@ -186,7 +186,7 @@ Tejas (Developer): "Good point, Charlie. {user_name}, we'll document what we can
   <output>
 Alice (Product Owner): "Excellent! All {{done_stories}} stories are marked done."
 
-Tejas (Developer): "Perfect. Epic {{epic_number}} is complete and ready for retrospective, {user_name}."
+Deepika (Developer): "Perfect. Epic {{epic_number}} is complete and ready for retrospective, {user_name}."
 </output>
 </check>
 
@@ -200,7 +200,7 @@ Tejas (Developer): "Perfect. Epic {{epic_number}} is complete and ready for retr
 <step n="2" goal="Deep Story Analysis - Extract Lessons from Implementation">
 
 <output>
-Tejas (Developer): "Before we start the team discussion, let me review all the story records to surface key themes. This'll help us have a richer conversation."
+Deepika (Developer): "Before we start the team discussion, let me review all the story records to surface key themes. This'll help us have a richer conversation."
 
 Charlie (Senior Dev): "Good idea - those dev notes always have gold in them."
 </output>
@@ -299,11 +299,11 @@ Charlie (Senior Dev): "Good idea - those dev notes always have gold in them."
 <action>Store this synthesis - these patterns will drive the retrospective discussion</action>
 
 <output>
-Tejas (Developer): "Okay, I've reviewed all {{total_stories}} story records. I found some really interesting patterns we should discuss."
+Deepika (Developer): "Okay, I've reviewed all {{total_stories}} story records. I found some really interesting patterns we should discuss."
 
-Dana (QA Engineer): "I'm curious what you found, Tejas. I noticed some things in my testing too."
+Dana (QA Engineer): "I'm curious what you found, Deepika. I noticed some things in my testing too."
 
-Tejas (Developer): "We'll get to all of it. But first, let me load the previous epic's retro to see if we learned from last time."
+Deepika (Developer): "We'll get to all of it. But first, let me load the previous epic's retro to see if we learned from last time."
 </output>
 
 </step>
@@ -317,7 +317,7 @@ Tejas (Developer): "We'll get to all of it. But first, let me load the previous 
 
   <check if="previous retrospectives found">
     <output>
-Tejas (Developer): "I found our retrospectives from Epic {{prev_epic_num}}. Let me see what we committed to back then..."
+Deepika (Developer): "I found our retrospectives from Epic {{prev_epic_num}}. Let me see what we committed to back then..."
     </output>
 
     <action>Read the previous retrospectives</action>
@@ -366,26 +366,26 @@ Tejas (Developer): "I found our retrospectives from Epic {{prev_epic_num}}. Let 
 
     <output>
 
-Tejas (Developer): "Interesting... in Epic {{prev_epic_num}}'s retro, we committed to {{action_count}} action items."
+Deepika (Developer): "Interesting... in Epic {{prev_epic_num}}'s retro, we committed to {{action_count}} action items."
 
-Alice (Product Owner): "How'd we do on those, Tejas?"
+Alice (Product Owner): "How'd we do on those, Deepika?"
 
-Tejas (Developer): "We completed {{completed_count}}, made progress on {{in_progress_count}}, but didn't address {{not_addressed_count}}."
+Deepika (Developer): "We completed {{completed_count}}, made progress on {{in_progress_count}}, but didn't address {{not_addressed_count}}."
 
 Charlie (Senior Dev): _looking concerned_ "Which ones didn't we address?"
 
-Tejas (Developer): "We'll discuss that in the retro. Some of them might explain challenges we had this epic."
+Deepika (Developer): "We'll discuss that in the retro. Some of them might explain challenges we had this epic."
 
 Elena (Junior Dev): "That's... actually pretty insightful."
 
-Tejas (Developer): "That's why we track this stuff. Pattern recognition helps us improve."
+Deepika (Developer): "That's why we track this stuff. Pattern recognition helps us improve."
 </output>
 
   </check>
 
   <check if="no previous retro found">
     <output>
-Tejas (Developer): "I don't see a retrospective for Epic {{prev_epic_num}}. Either we skipped it, or this is your first retro."
+Deepika (Developer): "I don't see a retrospective for Epic {{prev_epic_num}}. Either we skipped it, or this is your first retro."
 
 Alice (Product Owner): "Probably our first one. Good time to start the habit!"
 </output>
@@ -395,7 +395,7 @@ Alice (Product Owner): "Probably our first one. Good time to start the habit!"
 
 <check if="{{prev_epic_num}} < 1">
   <output>
-Tejas (Developer): "This is Epic 1, so naturally there's no previous retro to reference. We're starting fresh!"
+Deepika (Developer): "This is Epic 1, so naturally there's no previous retro to reference. We're starting fresh!"
 
 Charlie (Senior Dev): "First epic, first retro. Let's make it count."
 </output>
@@ -409,7 +409,7 @@ Charlie (Senior Dev): "First epic, first retro. Let's make it count."
 <action>Calculate next epic number: {{next_epic_num}} = {{epic_number}} + 1</action>
 
 <output>
-Tejas (Developer): "Before we dive into the discussion, let me take a quick look at Epic {{next_epic_num}} to understand what's coming."
+Deepika (Developer): "Before we dive into the discussion, let me take a quick look at Epic {{next_epic_num}} to understand what's coming."
 
 Alice (Product Owner): "Good thinking - helps us connect what we learned to what we're about to do."
 </output>
@@ -465,15 +465,15 @@ Alice (Product Owner): "Good thinking - helps us connect what we learned to what
 - Deployment or environment setup
 
   <output>
-Tejas (Developer): "Alright, I've reviewed Epic {{next_epic_num}}: '{{next_epic_title}}'"
+Deepika (Developer): "Alright, I've reviewed Epic {{next_epic_num}}: '{{next_epic_title}}'"
 
 Alice (Product Owner): "What are we looking at?"
 
-Tejas (Developer): "{{next_epic_num}} stories planned, building on the {{dependency_description}} from Epic {{epic_number}}."
+Deepika (Developer): "{{next_epic_num}} stories planned, building on the {{dependency_description}} from Epic {{epic_number}}."
 
 Charlie (Senior Dev): "Dependencies concern me. Did we finish everything we need for that?"
 
-Tejas (Developer): "Good question - that's exactly what we need to explore in this retro."
+Deepika (Developer): "Good question - that's exactly what we need to explore in this retro."
 </output>
 
 <action>Set {{next_epic_exists}} = true</action>
@@ -481,11 +481,11 @@ Tejas (Developer): "Good question - that's exactly what we need to explore in th
 
 <check if="next epic NOT found">
   <output>
-Tejas (Developer): "Hmm, I don't see Epic {{next_epic_num}} defined yet."
+Deepika (Developer): "Hmm, I don't see Epic {{next_epic_num}} defined yet."
 
 Alice (Product Owner): "We might be at the end of the roadmap, or we haven't planned that far ahead yet."
 
-Tejas (Developer): "No problem. We'll still do a thorough retro on Epic {{epic_number}}. The lessons will be valuable whenever we plan the next work."
+Deepika (Developer): "No problem. We'll still do a thorough retro on Epic {{epic_number}}. The lessons will be valuable whenever we plan the next work."
 </output>
 
 <action>Set {{next_epic_exists}} = false</action>
@@ -500,13 +500,13 @@ Tejas (Developer): "No problem. We'll still do a thorough retro on Epic {{epic_n
 <action>Ensure key roles present: Product Owner, Developer (facilitating), Testing/QA, Architect</action>
 
 <output>
-Tejas (Developer): "Alright team, everyone's here. Let me set the stage for our retrospective."
+Deepika (Developer): "Alright team, everyone's here. Let me set the stage for our retrospective."
 
 ═══════════════════════════════════════════════════════════
 🔄 TEAM RETROSPECTIVE - Epic {{epic_number}}: {{epic_title}}
 ═══════════════════════════════════════════════════════════
 
-Tejas (Developer): "Here's what we accomplished together."
+Deepika (Developer): "Here's what we accomplished together."
 
 **EPIC {{epic_number}} SUMMARY:**
 
@@ -556,7 +556,7 @@ Preparation Needed:
 Technical Prerequisites:
 {{list_technical_prereqs}}
 
-Tejas (Developer): "And here's what's coming next. Epic {{next_epic_num}} builds on what we just finished."
+Deepika (Developer): "And here's what's coming next. Epic {{next_epic_num}} builds on what we just finished."
 
 Elena (Junior Dev): "Wow, that's a lot of dependencies on our work."
 
@@ -565,24 +565,24 @@ Charlie (Senior Dev): "Which means we better make sure Epic {{epic_number}} is a
 
 ═══════════════════════════════════════════════════════════
 
-Tejas (Developer): "Team assembled for this retrospective:"
+Deepika (Developer): "Team assembled for this retrospective:"
 
 {{list_participating_agents}}
 
-Tejas (Developer): "{user_name}, you're joining us as Project Lead. Your perspective is crucial here."
+Deepika (Developer): "{user_name}, you're joining us as Project Lead. Your perspective is crucial here."
 
 {user_name} (Project Lead): [Participating in the retrospective]
 
-Tejas (Developer): "Our focus today:"
+Deepika (Developer): "Our focus today:"
 
 1. Learning from Epic {{epic_number}} execution
    {{#if next_epic_exists}}2. Preparing for Epic {{next_epic_num}} success{{/if}}
 
-Tejas (Developer): "Ground rules: psychological safety first. No blame, no judgment. We focus on systems and processes, not individuals. Everyone's voice matters. Specific examples are better than generalizations."
+Deepika (Developer): "Ground rules: psychological safety first. No blame, no judgment. We focus on systems and processes, not individuals. Everyone's voice matters. Specific examples are better than generalizations."
 
 Alice (Product Owner): "And everything shared here stays in this room - unless we decide together to escalate something."
 
-Tejas (Developer): "Exactly. {user_name}, any questions before we dive in?"
+Deepika (Developer): "Exactly. {user_name}, any questions before we dive in?"
 </output>
 
 <action>WAIT for {user_name} to respond or indicate readiness</action>
@@ -592,9 +592,9 @@ Tejas (Developer): "Exactly. {user_name}, any questions before we dive in?"
 <step n="6" goal="Epic Review Discussion - What Went Well, What Didn't">
 
 <output>
-Tejas (Developer): "Let's start with the good stuff. What went well in Epic {{epic_number}}?"
+Deepika (Developer): "Let's start with the good stuff. What went well in Epic {{epic_number}}?"
 
-Tejas (Developer): _pauses, creating space_
+Deepika (Developer): _pauses, creating space_
 
 Alice (Product Owner): "I'll start. The user authentication flow we delivered exceeded my expectations. The UX is smooth, and early user feedback has been really positive."
 
@@ -607,10 +607,10 @@ Elena (Junior Dev): _smiling_ "That's because Charlie made me document everythin
 Charlie (Senior Dev): _laughing_ "Tough love pays off."
 </output>
 
-<action>Tejas (Developer) naturally turns to {user_name} to engage them in the discussion</action>
+<action>Deepika (Developer) naturally turns to {user_name} to engage them in the discussion</action>
 
 <output>
-Tejas (Developer): "{user_name}, what stood out to you as going well in this epic?"
+Deepika (Developer): "{user_name}, what stood out to you as going well in this epic?"
 </output>
 
 <action>WAIT for {user_name} to respond - this is a KEY USER INTERACTION moment</action>
@@ -628,9 +628,9 @@ Charlie (Senior Dev): [Builds on the discussion, perhaps adding technical detail
 <action>After covering successes, guide the transition to challenges with care</action>
 
 <output>
-Tejas (Developer): "Okay, we've celebrated some real wins. Now let's talk about challenges - where did we struggle? What slowed us down?"
+Deepika (Developer): "Okay, we've celebrated some real wins. Now let's talk about challenges - where did we struggle? What slowed us down?"
 
-Tejas (Developer): _creates safe space with tone and pacing_
+Deepika (Developer): _creates safe space with tone and pacing_
 
 Elena (Junior Dev): _hesitates_ "Well... I really struggled with the database migrations in Story {{difficult_story_num}}. The documentation wasn't clear, and I had to redo it three times. Lost almost a full sprint on that story alone."
 
@@ -640,11 +640,11 @@ Alice (Product Owner): _frustrated_ "That's not fair, Charlie. We only clarified
 
 Charlie (Senior Dev): _heat rising_ "We asked plenty of questions! You said the schema was finalized, then two days into development you wanted to add three new fields!"
 
-Tejas (Developer): _intervening calmly_ "Let's take a breath here. This is exactly the kind of thing we need to unpack."
+Deepika (Developer): _intervening calmly_ "Let's take a breath here. This is exactly the kind of thing we need to unpack."
 
-Tejas (Developer): "Elena, you spent almost a full sprint on Story {{difficult_story_num}}. Charlie, you're saying requirements changed. Alice, you feel the right questions weren't asked up front."
+Deepika (Developer): "Elena, you spent almost a full sprint on Story {{difficult_story_num}}. Charlie, you're saying requirements changed. Alice, you feel the right questions weren't asked up front."
 
-Tejas (Developer): "{user_name}, you have visibility across the whole project. What's your take on this situation?"
+Deepika (Developer): "{user_name}, you have visibility across the whole project. What's your take on this situation?"
 </output>
 
 <action>WAIT for {user_name} to respond and help facilitate the conflict resolution</action>
@@ -652,7 +652,7 @@ Tejas (Developer): "{user_name}, you have visibility across the whole project. W
 <action>Use {user_name}'s response to guide the discussion toward systemic understanding rather than blame</action>
 
 <output>
-Tejas (Developer): [Synthesizes {user_name}'s input with what the team shared] "So it sounds like the core issue was {{root_cause_based_on_discussion}}, not any individual person's fault."
+Deepika (Developer): [Synthesizes {user_name}'s input with what the team shared] "So it sounds like the core issue was {{root_cause_based_on_discussion}}, not any individual person's fault."
 
 Elena (Junior Dev): "That makes sense. If we'd had {{preventive_measure}}, I probably could have avoided those redos."
 
@@ -660,23 +660,23 @@ Charlie (Senior Dev): _softening_ "Yeah, and I could have been clearer about ass
 
 Alice (Product Owner): "I appreciate that. I could've been more proactive about flagging the schema additions earlier, too."
 
-Tejas (Developer): "This is good. We're identifying systemic improvements, not assigning blame."
+Deepika (Developer): "This is good. We're identifying systemic improvements, not assigning blame."
 </output>
 
 <action>Continue the discussion, weaving in patterns discovered from the deep story analysis (Step 2)</action>
 
 <output>
-Tejas (Developer): "Speaking of patterns, I noticed something when reviewing all the story records..."
+Deepika (Developer): "Speaking of patterns, I noticed something when reviewing all the story records..."
 
-Tejas (Developer): "{{pattern_1_description}} - this showed up in {{pattern_1_count}} out of {{total_stories}} stories."
+Deepika (Developer): "{{pattern_1_description}} - this showed up in {{pattern_1_count}} out of {{total_stories}} stories."
 
 Dana (QA Engineer): "Oh wow, I didn't realize it was that widespread."
 
-Tejas (Developer): "Yeah. And there's more - {{pattern_2_description}} came up in almost every code review."
+Deepika (Developer): "Yeah. And there's more - {{pattern_2_description}} came up in almost every code review."
 
 Charlie (Senior Dev): "That's... actually embarrassing. We should've caught that pattern earlier."
 
-Tejas (Developer): "No shame, Charlie. Now we know, and we can improve. {user_name}, did you notice these patterns during the epic?"
+Deepika (Developer): "No shame, Charlie. Now we know, and we can improve. {user_name}, did you notice these patterns during the epic?"
 </output>
 
 <action>WAIT for {user_name} to share their observations</action>
@@ -692,21 +692,21 @@ Tejas (Developer): "No shame, Charlie. Now we know, and we can improve. {user_na
 
 <check if="previous retrospective exists">
   <output>
-Tejas (Developer): "Before we move on, I want to circle back to Epic {{prev_epic_num}}'s retrospective."
+Deepika (Developer): "Before we move on, I want to circle back to Epic {{prev_epic_num}}'s retrospective."
 
-Tejas (Developer): "We made some commitments in that retro. Let's see how we did."
+Deepika (Developer): "We made some commitments in that retro. Let's see how we did."
 
-Tejas (Developer): "Action item 1: {{prev_action_1}}. Status: {{prev_action_1_status}}"
+Deepika (Developer): "Action item 1: {{prev_action_1}}. Status: {{prev_action_1_status}}"
 
 Alice (Product Owner): {{#if prev_action_1_status == "completed"}}"We nailed that one!"{{else}}"We... didn't do that one."{{/if}}
 
 Charlie (Senior Dev): {{#if prev_action_1_status == "completed"}}"And it helped! I noticed {{evidence_of_impact}}"{{else}}"Yeah, and I think that's why we had {{consequence_of_not_doing_it}} this epic."{{/if}}
 
-Tejas (Developer): "Action item 2: {{prev_action_2}}. Status: {{prev_action_2_status}}"
+Deepika (Developer): "Action item 2: {{prev_action_2}}. Status: {{prev_action_2_status}}"
 
 Dana (QA Engineer): {{#if prev_action_2_status == "completed"}}"This one made testing so much easier this time."{{else}}"If we'd done this, I think testing would've gone faster."{{/if}}
 
-Tejas (Developer): "{user_name}, looking at what we committed to last time and what we actually did - what's your reaction?"
+Deepika (Developer): "{user_name}, looking at what we committed to last time and what we actually did - what's your reaction?"
 </output>
 
 <action>WAIT for {user_name} to respond</action>
@@ -715,18 +715,18 @@ Tejas (Developer): "{user_name}, looking at what we committed to last time and w
 </check>
 
 <output>
-Tejas (Developer): "Alright, we've covered a lot of ground. Let me summarize what I'm hearing..."
+Deepika (Developer): "Alright, we've covered a lot of ground. Let me summarize what I'm hearing..."
 
-Tejas (Developer): "**Successes:**"
+Deepika (Developer): "**Successes:**"
 {{list_success_themes}}
 
-Tejas (Developer): "**Challenges:**"
+Deepika (Developer): "**Challenges:**"
 {{list_challenge_themes}}
 
-Tejas (Developer): "**Key Insights:**"
+Deepika (Developer): "**Key Insights:**"
 {{list_insight_themes}}
 
-Tejas (Developer): "Does that capture it? Anyone have something important we missed?"
+Deepika (Developer): "Does that capture it? Anyone have something important we missed?"
 </output>
 
 <action>Allow team members to add any final thoughts on the epic review</action>
@@ -738,15 +738,15 @@ Tejas (Developer): "Does that capture it? Anyone have something important we mis
 
 <check if="{{next_epic_exists}} == false">
   <output>
-Tejas (Developer): "Normally we'd discuss preparing for the next epic, but since Epic {{next_epic_num}} isn't defined yet, let's skip to action items."
+Deepika (Developer): "Normally we'd discuss preparing for the next epic, but since Epic {{next_epic_num}} isn't defined yet, let's skip to action items."
   </output>
   <action>Skip to Step 8</action>
 </check>
 
 <output>
-Tejas (Developer): "Now let's shift gears. Epic {{next_epic_num}} is coming up: '{{next_epic_title}}'"
+Deepika (Developer): "Now let's shift gears. Epic {{next_epic_num}} is coming up: '{{next_epic_title}}'"
 
-Tejas (Developer): "The question is: are we ready? What do we need to prepare?"
+Deepika (Developer): "The question is: are we ready? What do we need to prepare?"
 
 Alice (Product Owner): "From my perspective, we need to make sure {{dependency_concern_1}} from Epic {{epic_number}} is solid before we start building on it."
 
@@ -756,7 +756,7 @@ Dana (QA Engineer): "And I need {{testing_infrastructure_need}} in place, or we'
 
 Elena (Junior Dev): "I'm less worried about infrastructure and more about knowledge. I don't understand {{knowledge_gap}} well enough to work on Epic {{next_epic_num}}'s stories."
 
-Tejas (Developer): "{user_name}, the team is surfacing some real concerns here. What's your sense of our readiness?"
+Deepika (Developer): "{user_name}, the team is surfacing some real concerns here. What's your sense of our readiness?"
 </output>
 
 <action>WAIT for {user_name} to share their assessment</action>
@@ -778,13 +778,13 @@ Charlie (Senior Dev): "Exactly. We can't just jump into Epic {{next_epic_num}} o
 
 Alice (Product Owner): _frustrated_ "But we have stakeholder pressure to keep shipping features. They're not going to be happy about a 'prep sprint.'"
 
-Tejas (Developer): "Let's think about this differently. What happens if we DON'T do this prep work?"
+Deepika (Developer): "Let's think about this differently. What happens if we DON'T do this prep work?"
 
 Dana (QA Engineer): "We'll hit blockers in the middle of Epic {{next_epic_num}}, velocity will tank, and we'll ship late anyway."
 
 Charlie (Senior Dev): "Worse - we'll ship something built on top of {{technical_concern_1}}, and it'll be fragile."
 
-Tejas (Developer): "{user_name}, you're balancing stakeholder pressure against technical reality. How do you want to handle this?"
+Deepika (Developer): "{user_name}, you're balancing stakeholder pressure against technical reality. How do you want to handle this?"
 </output>
 
 <action>WAIT for {user_name} to provide direction on preparation approach</action>
@@ -796,9 +796,9 @@ Alice (Product Owner): [Potentially disagrees with {user_name}'s approach] "I he
 
 Charlie (Senior Dev): [Potentially supports or challenges Alice's point] "The business perspective is valid, but {{technical_counter_argument}}."
 
-Tejas (Developer): "We have healthy tension here between business needs and technical reality. That's good - it means we're being honest."
+Deepika (Developer): "We have healthy tension here between business needs and technical reality. That's good - it means we're being honest."
 
-Tejas (Developer): "Let's explore a middle ground. Charlie, which of your prep items are absolutely critical vs. nice-to-have?"
+Deepika (Developer): "Let's explore a middle ground. Charlie, which of your prep items are absolutely critical vs. nice-to-have?"
 
 Charlie (Senior Dev): "{{critical_prep_item_1}} and {{critical_prep_item_2}} are non-negotiable. {{nice_to_have_prep_item}} can wait."
 
@@ -810,7 +810,7 @@ Dana (QA Engineer): "But that means Story 1 of Epic {{next_epic_num}} can't depe
 
 Alice (Product Owner): _looking at epic plan_ "Actually, Stories 1 and 2 are about {{independent_work}}, so they don't depend on it. We could make that work."
 
-Tejas (Developer): "{user_name}, the team is finding a workable compromise here. Does this approach make sense to you?"
+Deepika (Developer): "{user_name}, the team is finding a workable compromise here. Does this approach make sense to you?"
 </output>
 
 <action>WAIT for {user_name} to validate or adjust the preparation strategy</action>
@@ -836,7 +836,7 @@ Tejas (Developer): "{user_name}, the team is finding a workable compromise here.
 - Brings {user_name} in for key decisions
 
 <output>
-Tejas (Developer): "I'm hearing a clear picture of what we need before Epic {{next_epic_num}}. Let me summarize..."
+Deepika (Developer): "I'm hearing a clear picture of what we need before Epic {{next_epic_num}}. Let me summarize..."
 
 **CRITICAL PREPARATION (Must complete before epic starts):**
 {{list_critical_prep_items_with_owners_and_estimates}}
@@ -847,11 +847,11 @@ Tejas (Developer): "I'm hearing a clear picture of what we need before Epic {{ne
 **NICE-TO-HAVE PREPARATION (Would help but not blocking):**
 {{list_nice_to_have_prep_items}}
 
-Tejas (Developer): "Total critical prep effort: {{critical_hours}} hours ({{critical_days}} days)"
+Deepika (Developer): "Total critical prep effort: {{critical_hours}} hours ({{critical_days}} days)"
 
 Alice (Product Owner): "That's manageable. We can communicate that to stakeholders."
 
-Tejas (Developer): "{user_name}, does this preparation plan work for you?"
+Deepika (Developer): "{user_name}, does this preparation plan work for you?"
 </output>
 
 <action>WAIT for {user_name} final validation of preparation plan</action>
@@ -861,9 +861,9 @@ Tejas (Developer): "{user_name}, does this preparation plan work for you?"
 <step n="8" goal="Synthesize Action Items with Significant Change Detection">
 
 <output>
-Tejas (Developer): "Let's capture concrete action items from everything we've discussed."
+Deepika (Developer): "Let's capture concrete action items from everything we've discussed."
 
-Tejas (Developer): "I want specific, achievable actions with clear owners. Not vague aspirations."
+Deepika (Developer): "I want specific, achievable actions with clear owners. Not vague aspirations."
 </output>
 
 <action>Synthesize themes from Epic {{epic_number}} review discussion into actionable improvements</action>
@@ -885,7 +885,7 @@ Tejas (Developer): "I want specific, achievable actions with clear owners. Not v
 - Time-bound: Has clear deadline
 
 <output>
-Tejas (Developer): "Based on our discussion, here are the action items I'm proposing..."
+Deepika (Developer): "Based on our discussion, here are the action items I'm proposing..."
 
 ═══════════════════════════════════════════════════════════
 📝 EPIC {{epic_number}} ACTION ITEMS:
@@ -905,11 +905,11 @@ Tejas (Developer): "Based on our discussion, here are the action items I'm propo
 
 Charlie (Senior Dev): "I can own action item 1, but {{timeline_1}} is tight. Can we push it to {{alternative_timeline}}?"
 
-Tejas (Developer): "What do others think? Does that timing still work?"
+Deepika (Developer): "What do others think? Does that timing still work?"
 
 Alice (Product Owner): "{{alternative_timeline}} works for me, as long as it's done before Epic {{next_epic_num}} starts."
 
-Tejas (Developer): "Agreed. Updated to {{alternative_timeline}}."
+Deepika (Developer): "Agreed. Updated to {{alternative_timeline}}."
 
 **Technical Debt:**
 
@@ -927,7 +927,7 @@ Dana (QA Engineer): "For debt item 1, can we prioritize that as high? It caused 
 
 Charlie (Senior Dev): "I marked it medium because {{reasoning}}, but I hear your point."
 
-Tejas (Developer): "{user_name}, this is a priority call. Testing impact vs. {{reasoning}} - how do you want to prioritize it?"
+Deepika (Developer): "{user_name}, this is a priority call. Testing impact vs. {{reasoning}} - how do you want to prioritize it?"
 </output>
 
 <action>WAIT for {user_name} to help resolve priority discussions</action>
@@ -948,7 +948,7 @@ Tejas (Developer): "{user_name}, this is a priority call. Testing impact vs. {{r
 - {{agreement_2}}
 - {{agreement_3}}
 
-Tejas (Developer): "These agreements are how we're committing to work differently going forward."
+Deepika (Developer): "These agreements are how we're committing to work differently going forward."
 
 Elena (Junior Dev): "I like agreement 2 - that would've saved me on Story {{difficult_story_num}}."
 
@@ -1014,9 +1014,9 @@ Estimated: {{est_4}}
 🚨 SIGNIFICANT DISCOVERY ALERT 🚨
 ═══════════════════════════════════════════════════════════
 
-Tejas (Developer): "{user_name}, we need to flag something important."
+Deepika (Developer): "{user_name}, we need to flag something important."
 
-Tejas (Developer): "During Epic {{epic_number}}, the team uncovered findings that may require updating the plan for Epic {{next_epic_num}}."
+Deepika (Developer): "During Epic {{epic_number}}, the team uncovered findings that may require updating the plan for Epic {{next_epic_num}}."
 
 **Significant Changes Identified:**
 
@@ -1059,9 +1059,9 @@ This means Epic {{next_epic_num}} likely needs:
 4. Hold alignment session with Product Owner before starting Epic {{next_epic_num}}
    {{#if prd_update_needed}}5. Update PRD sections affected by new understanding{{/if}}
 
-Tejas (Developer): "**Epic Update Required**: YES - Schedule epic planning review session"
+Deepika (Developer): "**Epic Update Required**: YES - Schedule epic planning review session"
 
-Tejas (Developer): "{user_name}, this is significant. We need to address this before committing to Epic {{next_epic_num}}'s current plan. How do you want to handle it?"
+Deepika (Developer): "{user_name}, this is significant. We need to address this before committing to Epic {{next_epic_num}}'s current plan. How do you want to handle it?"
 </output>
 
 <action>WAIT for {user_name} to decide on how to handle the significant changes</action>
@@ -1073,24 +1073,24 @@ Alice (Product Owner): "I agree with {user_name}'s approach. Better to adjust th
 
 Charlie (Senior Dev): "This is why retrospectives matter. We caught this before it became a disaster."
 
-Tejas (Developer): "Adding to critical path: Epic {{next_epic_num}} planning review session before epic kickoff."
+Deepika (Developer): "Adding to critical path: Epic {{next_epic_num}} planning review session before epic kickoff."
 </output>
 </check>
 
 <check if="no significant discoveries">
   <output>
-Tejas (Developer): "Good news - nothing from Epic {{epic_number}} fundamentally changes our plan for Epic {{next_epic_num}}. The plan is still sound."
+Deepika (Developer): "Good news - nothing from Epic {{epic_number}} fundamentally changes our plan for Epic {{next_epic_num}}. The plan is still sound."
 
 Alice (Product Owner): "We learned a lot, but the direction is right."
 </output>
 </check>
 
 <output>
-Tejas (Developer): "Let me show you the complete action plan..."
+Deepika (Developer): "Let me show you the complete action plan..."
 
-Tejas (Developer): "That's {{total_action_count}} action items, {{prep_task_count}} preparation tasks, and {{critical_count}} critical path items."
+Deepika (Developer): "That's {{total_action_count}} action items, {{prep_task_count}} preparation tasks, and {{critical_count}} critical path items."
 
-Tejas (Developer): "Everyone clear on what they own?"
+Deepika (Developer): "Everyone clear on what they own?"
 </output>
 
 <action>Give each agent with assignments a moment to acknowledge their ownership</action>
@@ -1102,21 +1102,21 @@ Tejas (Developer): "Everyone clear on what they own?"
 <step n="9" goal="Critical Readiness Exploration - Interactive Deep Dive">
 
 <output>
-Tejas (Developer): "Before we close, I want to do a final readiness check."
+Deepika (Developer): "Before we close, I want to do a final readiness check."
 
-Tejas (Developer): "Epic {{epic_number}} is marked complete in sprint-status, but is it REALLY done?"
+Deepika (Developer): "Epic {{epic_number}} is marked complete in sprint-status, but is it REALLY done?"
 
-Alice (Product Owner): "What do you mean, Tejas?"
+Alice (Product Owner): "What do you mean, Deepika?"
 
-Tejas (Developer): "I mean truly production-ready, stakeholders happy, no loose ends that'll bite us later."
+Deepika (Developer): "I mean truly production-ready, stakeholders happy, no loose ends that'll bite us later."
 
-Tejas (Developer): "{user_name}, let's walk through this together."
+Deepika (Developer): "{user_name}, let's walk through this together."
 </output>
 
 <action>Explore testing and quality state through natural conversation</action>
 
 <output>
-Tejas (Developer): "{user_name}, tell me about the testing for Epic {{epic_number}}. What verification has been done?"
+Deepika (Developer): "{user_name}, tell me about the testing for Epic {{epic_number}}. What verification has been done?"
 </output>
 
 <action>WAIT for {user_name} to describe testing status</action>
@@ -1126,18 +1126,18 @@ Dana (QA Engineer): [Responds to what {user_name} shared] "I can add to that - {
 
 Dana (QA Engineer): "But honestly, {{testing_concern_if_any}}."
 
-Tejas (Developer): "{user_name}, are you confident Epic {{epic_number}} is production-ready from a quality perspective?"
+Deepika (Developer): "{user_name}, are you confident Epic {{epic_number}} is production-ready from a quality perspective?"
 </output>
 
 <action>WAIT for {user_name} to assess quality readiness</action>
 
 <check if="{user_name} expresses concerns">
   <output>
-Tejas (Developer): "Okay, let's capture that. What specific testing is still needed?"
+Deepika (Developer): "Okay, let's capture that. What specific testing is still needed?"
 
 Dana (QA Engineer): "I can handle {{testing_work_needed}}, estimated {{testing_hours}} hours."
 
-Tejas (Developer): "Adding to critical path: Complete {{testing_work_needed}} before Epic {{next_epic_num}}."
+Deepika (Developer): "Adding to critical path: Complete {{testing_work_needed}} before Epic {{next_epic_num}}."
 </output>
 <action>Add testing completion to critical path</action>
 </check>
@@ -1145,7 +1145,7 @@ Tejas (Developer): "Adding to critical path: Complete {{testing_work_needed}} be
 <action>Explore deployment and release status</action>
 
 <output>
-Tejas (Developer): "{user_name}, what's the deployment status for Epic {{epic_number}}? Is it live in production, scheduled for deployment, or still pending?"
+Deepika (Developer): "{user_name}, what's the deployment status for Epic {{epic_number}}? Is it live in production, scheduled for deployment, or still pending?"
 </output>
 
 <action>WAIT for {user_name} to provide deployment status</action>
@@ -1154,7 +1154,7 @@ Tejas (Developer): "{user_name}, what's the deployment status for Epic {{epic_nu
   <output>
 Charlie (Senior Dev): "If it's not deployed yet, we need to factor that into Epic {{next_epic_num}} timing."
 
-Tejas (Developer): "{user_name}, when is deployment planned? Does that timing work for starting Epic {{next_epic_num}}?"
+Deepika (Developer): "{user_name}, when is deployment planned? Does that timing work for starting Epic {{next_epic_num}}?"
 </output>
 
 <action>WAIT for {user_name} to clarify deployment timeline</action>
@@ -1165,11 +1165,11 @@ Tejas (Developer): "{user_name}, when is deployment planned? Does that timing wo
 <action>Explore stakeholder acceptance</action>
 
 <output>
-Tejas (Developer): "{user_name}, have stakeholders seen and accepted the Epic {{epic_number}} deliverables?"
+Deepika (Developer): "{user_name}, have stakeholders seen and accepted the Epic {{epic_number}} deliverables?"
 
 Alice (Product Owner): "This is important - I've seen 'done' epics get rejected by stakeholders and force rework."
 
-Tejas (Developer): "{user_name}, any feedback from stakeholders still pending?"
+Deepika (Developer): "{user_name}, any feedback from stakeholders still pending?"
 </output>
 
 <action>WAIT for {user_name} to describe stakeholder acceptance status</action>
@@ -1178,7 +1178,7 @@ Tejas (Developer): "{user_name}, any feedback from stakeholders still pending?"
   <output>
 Alice (Product Owner): "We should get formal acceptance before moving on. Otherwise Epic {{next_epic_num}} might get interrupted by rework."
 
-Tejas (Developer): "{user_name}, how do you want to handle stakeholder acceptance? Should we make it a critical path item?"
+Deepika (Developer): "{user_name}, how do you want to handle stakeholder acceptance? Should we make it a critical path item?"
 </output>
 
 <action>WAIT for {user_name} decision</action>
@@ -1189,9 +1189,9 @@ Tejas (Developer): "{user_name}, how do you want to handle stakeholder acceptanc
 <action>Explore technical health and stability</action>
 
 <output>
-Tejas (Developer): "{user_name}, this is a gut-check question: How does the codebase feel after Epic {{epic_number}}?"
+Deepika (Developer): "{user_name}, this is a gut-check question: How does the codebase feel after Epic {{epic_number}}?"
 
-Tejas (Developer): "Stable and maintainable? Or are there concerns lurking?"
+Deepika (Developer): "Stable and maintainable? Or are there concerns lurking?"
 
 Charlie (Senior Dev): "Be honest, {user_name}. We've all shipped epics that felt... fragile."
 </output>
@@ -1204,11 +1204,11 @@ Charlie (Senior Dev): "Okay, let's dig into that. What's causing those concerns?
 
 Charlie (Senior Dev): [Helps {user_name} articulate technical concerns]
 
-Tejas (Developer): "What would it take to address these concerns and feel confident about stability?"
+Deepika (Developer): "What would it take to address these concerns and feel confident about stability?"
 
 Charlie (Senior Dev): "I'd say we need {{stability_work_needed}}, roughly {{stability_hours}} hours."
 
-Tejas (Developer): "{user_name}, is addressing this stability work worth doing before Epic {{next_epic_num}}?"
+Deepika (Developer): "{user_name}, is addressing this stability work worth doing before Epic {{next_epic_num}}?"
 </output>
 
 <action>WAIT for {user_name} decision</action>
@@ -1219,26 +1219,26 @@ Tejas (Developer): "{user_name}, is addressing this stability work worth doing b
 <action>Explore unresolved blockers</action>
 
 <output>
-Tejas (Developer): "{user_name}, are there any unresolved blockers or technical issues from Epic {{epic_number}} that we're carrying forward?"
+Deepika (Developer): "{user_name}, are there any unresolved blockers or technical issues from Epic {{epic_number}} that we're carrying forward?"
 
 Dana (QA Engineer): "Things that might create problems for Epic {{next_epic_num}} if we don't deal with them?"
 
-Tejas (Developer): "Nothing is off limits here. If there's a problem, we need to know."
+Deepika (Developer): "Nothing is off limits here. If there's a problem, we need to know."
 </output>
 
 <action>WAIT for {user_name} to surface any blockers</action>
 
 <check if="blockers identified">
   <output>
-Tejas (Developer): "Let's capture those blockers and figure out how they affect Epic {{next_epic_num}}."
+Deepika (Developer): "Let's capture those blockers and figure out how they affect Epic {{next_epic_num}}."
 
 Charlie (Senior Dev): "For {{blocker_1}}, if we leave it unresolved, it'll {{impact_description_1}}."
 
 Alice (Product Owner): "That sounds critical. We need to address that before moving forward."
 
-Tejas (Developer): "Agreed. Adding to critical path: Resolve {{blocker_1}} before Epic {{next_epic_num}} kickoff."
+Deepika (Developer): "Agreed. Adding to critical path: Resolve {{blocker_1}} before Epic {{next_epic_num}} kickoff."
 
-Tejas (Developer): "Who owns that work?"
+Deepika (Developer): "Who owns that work?"
 </output>
 
 <action>Assign blocker resolution to appropriate agent</action>
@@ -1248,7 +1248,7 @@ Tejas (Developer): "Who owns that work?"
 <action>Synthesize the readiness assessment</action>
 
 <output>
-Tejas (Developer): "Okay {user_name}, let me synthesize what we just uncovered..."
+Deepika (Developer): "Okay {user_name}, let me synthesize what we just uncovered..."
 
 **EPIC {{epic_number}} READINESS ASSESSMENT:**
 
@@ -1267,13 +1267,13 @@ Technical Health: {{stability_status}}
 Unresolved Blockers: {{blocker_status}}
 {{#if blockers_exist}}⚠️ Must resolve: {{blocker_list}}{{/if}}
 
-Tejas (Developer): "{user_name}, does this assessment match your understanding?"
+Deepika (Developer): "{user_name}, does this assessment match your understanding?"
 </output>
 
 <action>WAIT for {user_name} to confirm or correct the assessment</action>
 
 <output>
-Tejas (Developer): "Based on this assessment, Epic {{epic_number}} is {{#if all_clear}}fully complete and we're clear to proceed{{else}}complete from a story perspective, but we have {{critical_work_count}} critical items before Epic {{next_epic_num}}{{/if}}."
+Deepika (Developer): "Based on this assessment, Epic {{epic_number}} is {{#if all_clear}}fully complete and we're clear to proceed{{else}}complete from a story perspective, but we have {{critical_work_count}} critical items before Epic {{next_epic_num}}{{/if}}."
 
 Alice (Product Owner): "This level of thoroughness is why retrospectives are valuable."
 
@@ -1285,13 +1285,13 @@ Charlie (Senior Dev): "Better to catch this now than three stories into the next
 <step n="10" goal="Retrospective Closure with Celebration and Commitment">
 
 <output>
-Tejas (Developer): "We've covered a lot of ground today. Let me bring this retrospective to a close."
+Deepika (Developer): "We've covered a lot of ground today. Let me bring this retrospective to a close."
 
 ═══════════════════════════════════════════════════════════
 ✅ RETROSPECTIVE COMPLETE
 ═══════════════════════════════════════════════════════════
 
-Tejas (Developer): "Epic {{epic_number}}: {{epic_title}} - REVIEWED"
+Deepika (Developer): "Epic {{epic_number}}: {{epic_title}} - REVIEWED"
 
 **Key Takeaways:**
 
@@ -1304,7 +1304,7 @@ Alice (Product Owner): "That first takeaway is huge - {{impact_of_lesson_1}}."
 
 Charlie (Senior Dev): "And lesson 2 is something we can apply immediately."
 
-Tejas (Developer): "Commitments made today:"
+Deepika (Developer): "Commitments made today:"
 
 - Action Items: {{action_count}}
 - Preparation Tasks: {{prep_task_count}}
@@ -1312,7 +1312,7 @@ Tejas (Developer): "Commitments made today:"
 
 Dana (QA Engineer): "That's a lot of commitments. We need to actually follow through this time."
 
-Tejas (Developer): "Agreed. Which is why we'll review these action items in our next standup."
+Deepika (Developer): "Agreed. Which is why we'll review these action items in our next standup."
 
 ═══════════════════════════════════════════════════════════
 🎯 NEXT STEPS:
@@ -1329,9 +1329,9 @@ Alice (Product Owner): "I'll communicate the timeline to stakeholders. They'll u
 
 ═══════════════════════════════════════════════════════════
 
-Tejas (Developer): "Before we wrap, I want to take a moment to acknowledge the team."
+Deepika (Developer): "Before we wrap, I want to take a moment to acknowledge the team."
 
-Tejas (Developer): "Epic {{epic_number}} delivered {{completed_stories}} stories with {{velocity_description}} velocity. We overcame {{blocker_count}} blockers. We learned a lot. That's real work by real people."
+Deepika (Developer): "Epic {{epic_number}} delivered {{completed_stories}} stories with {{velocity_description}} velocity. We overcame {{blocker_count}} blockers. We learned a lot. That's real work by real people."
 
 Charlie (Senior Dev): "Hear, hear."
 
@@ -1339,17 +1339,17 @@ Alice (Product Owner): "I'm proud of what we shipped."
 
 Dana (QA Engineer): "And I'm excited about Epic {{next_epic_num}} - especially now that we're prepared for it."
 
-Tejas (Developer): "{user_name}, any final thoughts before we close?"
+Deepika (Developer): "{user_name}, any final thoughts before we close?"
 </output>
 
 <action>WAIT for {user_name} to share final reflections</action>
 
 <output>
-Tejas (Developer): [Acknowledges what {user_name} shared] "Thank you for that, {user_name}."
+Deepika (Developer): [Acknowledges what {user_name} shared] "Thank you for that, {user_name}."
 
-Tejas (Developer): "Alright team - great work today. We learned a lot from Epic {{epic_number}}. Let's use these insights to make Epic {{next_epic_num}} even better."
+Deepika (Developer): "Alright team - great work today. We learned a lot from Epic {{epic_number}}. Let's use these insights to make Epic {{next_epic_num}} even better."
 
-Tejas (Developer): "See you all when prep work is done. Meeting adjourned!"
+Deepika (Developer): "See you all when prep work is done. Meeting adjourned!"
 
 ═══════════════════════════════════════════════════════════
 </output>
@@ -1470,7 +1470,7 @@ Epic {{epic_number}} delivered {{completed_stories}} stories with {{velocity_sum
 
 ---
 
-Tejas (Developer): "Great session today, {user_name}. The team did excellent work."
+Deepika (Developer): "Great session today, {user_name}. The team did excellent work."
 
 Alice (Product Owner): "See you at epic planning!"
 
@@ -1484,7 +1484,7 @@ Charlie (Senior Dev): "Time to knock out that prep work."
 
 <facilitation-guidelines>
 <guideline>PARTY MODE REQUIRED: All agent dialogue uses "Name (Role): dialogue" format</guideline>
-<guideline>Tejas (Developer) maintains psychological safety throughout - no blame or judgment</guideline>
+<guideline>Deepika (Developer) maintains psychological safety throughout - no blame or judgment</guideline>
 <guideline>Focus on systems and processes, not individual performance</guideline>
 <guideline>Create authentic team dynamics: disagreements, diverse perspectives, emotions</guideline>
 <guideline>User ({user_name}) is active participant, not passive observer</guideline>

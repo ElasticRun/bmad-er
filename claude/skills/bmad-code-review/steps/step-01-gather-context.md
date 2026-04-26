@@ -3,6 +3,7 @@ diff_output: '' # set at runtime
 spec_file: '' # set at runtime (path or empty)
 review_mode: '' # set at runtime: "full" or "no-spec"
 story_key: '' # set at runtime when discovered from sprint status
+blast_radius: '' # set at runtime; output of graph queries on changed files
 ---
 
 # Step 1: Gather Context
@@ -71,7 +72,11 @@ story_key: '' # set at runtime when discovered from sprint status
 
 5. If `{review_mode}` = `"full"` and the file at `{spec_file}` has a `context` field in its frontmatter listing additional docs, load each referenced document. Warn the user about any docs that cannot be found.
 
-6. **Graphify context.** If `graphify-out/GRAPH_REPORT.md` exists, read it. Use the knowledge graph to understand the blast radius of changed files: which modules depend on them, which god nodes they touch, and whether the changes cross community boundaries. This informs the review in step 2.
+6. **Graphify context.** If `graphify-out/GRAPH_REPORT.md` exists, read it for high-level topology (god nodes, communities). If `graphify-out/graph.json` also exists, run targeted impact queries against the diff:
+   - For each changed module/file, run `uvx --from graphifyy graphify query --budget 2000 "what depends on <file_or_module>?"` to enumerate importers.
+   - For each new or modified public function/class, run `uvx --from graphifyy graphify explain "<symbol>"` to list direct callers.
+   - When the diff touches two distinct modules, run `uvx --from graphifyy graphify path "<A>" "<B>"` to verify the actual call chain.
+   Capture importer lists, caller counts, and any boundary-crossing edges into `{blast_radius}`. The Blind Hunter, Edge Case Hunter, and Acceptance Auditor in step-02-review will use this as ground truth for impact analysis instead of guessing from the diff hunk alone. If graph.json is absent, set `{blast_radius}` = `(unavailable, graph not built)` and continue without it.
 
 7. Sanity check: if `{diff_output}` exceeds approximately 3000 lines, warn the user and offer to chunk the review by file group.
    - If the user opts to chunk: agree on the first group, narrow `{diff_output}` accordingly, and list the remaining groups for the user to note for follow-up runs.
