@@ -1,0 +1,126 @@
+# Development Guide: dont-b-mad
+
+**Generated:** 2026-04-26
+
+## Prerequisites
+
+- **bash** 3.2 or newer (Mac default works)
+- **git** 2.32+ (for `%(trailers:key=...,valueonly)` format)
+- **awk** (POSIX or GNU)
+- **Python 3** (only required for `bmad-distillator` skill development)
+
+No package manager, no language runtime, no build step.
+
+## Local development workflow
+
+This repo IS the source of truth for skills. There are two ways to develop:
+
+### 1. Live editing in this repo (recommended)
+
+```bash
+# From inside the repo:
+bash scripts/install.sh .
+```
+
+When `TARGET == REPO_ROOT`, the installer creates **symlinks** under `.claude/skills/` and `.cursor/skills/` pointing into `claude/skills/` and `cursor/skills/`. Edits to source files apply immediately to the agent in this repo's session.
+
+### 2. Live editing globally
+
+```bash
+bash scripts/install.sh --global --dev-link
+```
+
+Symlinks every skill into `~/.claude/skills/` and `~/.cursor/skills/`. Every project on the machine sees edits immediately. Use this when iterating on a skill while testing it across multiple projects.
+
+## Adding a new skill
+
+1. Create a new directory under `claude/skills/<name>/`. Name MUST start with `bmad-` or `dontbmad-` (the installer's glob expects this).
+2. Add a `SKILL.md` with YAML frontmatter:
+   ```yaml
+   ---
+   name: my-new-skill
+   description: One-line trigger description starting with "Use when the user says…"
+   ---
+   ```
+3. Add a `workflow.md` if multi-step.
+4. Mirror the directory under `cursor/skills/<name>/`. (Strict parity is enforced informally — the installer copies whichever is present, but check-skill-symlinks.sh will flag missing mirrors.)
+5. Run `bash scripts/install.sh .` to wire the new skill into `.claude/skills/` and `.cursor/skills/` of this repo.
+6. Run `bash scripts/check-skill-symlinks.sh` to confirm no drift.
+
+## Modifying the git hook
+
+Source: `hooks/prepare-commit-msg`
+
+After editing, contributors who already ran the installer must **re-install** the hook (existing copies in `.git/hooks/` will not auto-update):
+
+```bash
+bash scripts/install.sh ~/Workspace --hooks-only
+```
+
+## Running the dashboard during development
+
+```bash
+# From a repo with commits that have AI trailers:
+bash scripts/adoption-dashboard.sh
+bash scripts/adoption-dashboard.sh "1-*"          # filter by Story-Ref glob
+bash scripts/adoption-dashboard.sh --workspace ~/Workspace
+```
+
+To generate test data: make commits in a throwaway repo with crafted trailers, then run dashboard against it.
+
+## Testing
+
+**Today:** the only tests live under `claude/skills/bmad-distillator/scripts/tests/`:
+
+```bash
+cd claude/skills/bmad-distillator/scripts
+python3 -m pytest tests/
+```
+
+**Planned:** see `test-suite-prd.md` for the full test framework introduction.
+
+## Validation tools
+
+```bash
+# Verify all skills have clean symlinks in this repo's mirror:
+bash scripts/check-skill-symlinks.sh
+```
+
+Exits 0 if clean, 1 if drift (missing skills, broken symlinks, regular files where symlinks expected).
+
+## Release flow
+
+There is no automated release pipeline today. Versions are tracked in `CHANGELOG.md`.
+
+To cut a release:
+1. Bump version in `CHANGELOG.md`.
+2. Tag with `git tag v<version>` and push.
+3. Users update by `git pull` in their cloned `bmad-er` and re-running `install.sh`.
+
+## Common dev tasks
+
+| Task | Command |
+|---|---|
+| Re-install everything in this repo | `bash scripts/install.sh .` |
+| Re-install hooks only across all repos in `~/Workspace` | `bash scripts/install.sh ~/Workspace --hooks-only` |
+| Verify mirror integrity | `bash scripts/check-skill-symlinks.sh` |
+| Run distillator tests | `cd claude/skills/bmad-distillator/scripts && python3 -m pytest tests/` |
+| View dashboard output | `bash scripts/adoption-dashboard.sh` |
+| Force-overwrite workspace.yaml | `bash scripts/install.sh <ws> --force` |
+
+## Coding conventions
+
+- **Bash:** `set -euo pipefail` everywhere. Prefer POSIX-friendly constructs (the dashboard explicitly avoids associative arrays for bash 3.2 compatibility).
+- **Markdown skills:** Use `{project-root}` as a placeholder, never absolute paths. Reference the workspace-resolution rule.
+- **Trailer keys:** Always `AI-Phase`, `AI-Tool`, `Story-Ref` — exact case, with hyphen, with colon. The hook and dashboard both depend on this.
+- **Skill names:** Always prefixed `bmad-` or `dontbmad-`. The installer's glob and the check-symlinks script both filter on these prefixes.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Skill doesn't appear in agent | Skill not installed into target workspace | Run `install.sh <ws>` |
+| Edit to skill doesn't take effect | Workspace was installed in copy mode, not symlink mode | Either re-run installer to refresh copy, or use `--global --dev-link` for live edits |
+| Commits not getting trailers | Hook not installed or backed up by another tool | Run `install.sh <ws> --hooks-only` |
+| Dashboard says "no commits" | Repo has no commits with `AI-Phase:` trailer (e.g. only old commits before install) | Make a new commit; the hook will tag it |
+| `check-skill-symlinks.sh` reports drift | Likely a manual file edit or a partial install | Re-run `install.sh .` from repo root |
