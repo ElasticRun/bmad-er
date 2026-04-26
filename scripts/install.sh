@@ -9,28 +9,36 @@ usage() {
 dont-b-mad installer
 
 Usage:
-  bash install.sh [workspace-path]                  Install everything
+  bash install.sh [workspace-path]                  Install everything (workspace mode)
   bash install.sh [workspace-path] --skills-only    Skills only (no git required)
   bash install.sh [workspace-path] --hooks-only     Git hooks only (requires repos)
   bash install.sh [workspace-path] --force          Overwrite existing workspace.yaml
+  bash install.sh --global                          Publish skills+commands to ~/.claude and ~/.cursor
+  bash install.sh --global --dev-link               Same, but symlink to this repo (live edits)
 
-The workspace path defaults to the current directory.
-
-Skills and resolution rules install at the workspace root.
+Workspace mode (default): skills and rules install at the workspace root.
 Git hooks install into every git repo found inside the workspace.
 A workspace.yaml is generated listing discovered projects.
+
+Global mode: publishes skills as copies (default) or symlinks (--dev-link)
+into the user's home Claude/Cursor dirs. Slash commands are mirrored as
+symlinks from ~/.claude/commands/ to each skill's SKILL.md so they're
+available in every project.
 EOF
   exit 0
 }
 
-MODE="all"  # all | skills | hooks
+MODE="all"  # all | skills | hooks | global
 TARGET=""
 FORCE=false
+DEV_LINK=false
 for arg in "$@"; do
   case "$arg" in
     --help|-h)     usage ;;
     --skills-only) MODE="skills" ;;
     --hooks-only)  MODE="hooks" ;;
+    --global)      MODE="global" ;;
+    --dev-link)    DEV_LINK=true ;;
     --force)       FORCE=true ;;
     *)             TARGET="$arg" ;;
   esac
@@ -39,7 +47,11 @@ TARGET="${TARGET:-.}"
 TARGET="$(cd "$TARGET" && pwd)"
 
 echo "dont-b-mad installer"
-echo "Workspace: $TARGET"
+if [ "$MODE" = "global" ]; then
+  echo "Mode:    global ($($DEV_LINK && echo "symlink to repo" || echo "copy to home"))"
+else
+  echo "Workspace: $TARGET"
+fi
 echo ""
 
 cursor_count=0
@@ -48,21 +60,94 @@ hook_repos=0
 project_count=0
 dashboard_installed=false
 
-# --- Skills: installed at workspace root (no git required) ---
-if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
-  if [ -d "$REPO_ROOT/cursor/skills" ]; then
-    mkdir -p "$TARGET/.cursor/skills"
-    cp -r "$REPO_ROOT/cursor/skills/bmad-"* "$REPO_ROOT/cursor/skills/dontbmad-"* "$TARGET/.cursor/skills/"
-    cursor_count=$(ls -d "$REPO_ROOT/cursor/skills/bmad-"* "$REPO_ROOT/cursor/skills/dontbmad-"* 2>/dev/null | wc -l | xargs)
-    echo "  Cursor skills:  $cursor_count folders -> .cursor/skills/"
-  fi
+# --- Global publish: ~/.claude and ~/.cursor (independent of workspace) ---
+if [ "$MODE" = "global" ]; then
+  HOME_CLAUDE_SKILLS="$HOME/.claude/skills"
+  HOME_CLAUDE_COMMANDS="$HOME/.claude/commands"
+  HOME_CURSOR_SKILLS="$HOME/.cursor/skills"
+  mkdir -p "$HOME_CLAUDE_SKILLS" "$HOME_CLAUDE_COMMANDS" "$HOME_CURSOR_SKILLS"
 
-  if [ -d "$REPO_ROOT/claude/skills" ]; then
-    mkdir -p "$TARGET/.claude/skills"
-    cp -r "$REPO_ROOT/claude/skills/bmad-"* "$REPO_ROOT/claude/skills/dontbmad-"* "$TARGET/.claude/skills/"
-    claude_count=$(ls -d "$REPO_ROOT/claude/skills/bmad-"* "$REPO_ROOT/claude/skills/dontbmad-"* 2>/dev/null | wc -l | xargs)
-    echo "  Claude skills:  $claude_count folders -> .claude/skills/"
-  fi
+  publish_skills() {
+    local src_dir="$1"        # claude/skills or cursor/skills
+    local dst_skills="$2"     # ~/.claude/skills or ~/.cursor/skills
+    local dst_commands="$3"   # ~/.claude/commands  or ""  (cursor has none)
+    local label="$4"
+    local count=0
+    [ -d "$REPO_ROOT/$src_dir" ] || { echo "  $label  (no source dir)"; return 0; }
+    for skill_path in "$REPO_ROOT/$src_dir/bmad-"* "$REPO_ROOT/$src_dir/dontbmad-"*; do
+      [ -d "$skill_path" ] || continue
+      local name; name=$(basename "$skill_path")
+      rm -rf "$dst_skills/$name"
+      if $DEV_LINK; then
+        ln -s "$skill_path" "$dst_skills/$name"
+      else
+        cp -r "$skill_path" "$dst_skills/"
+      fi
+      if [ -n "$dst_commands" ]; then
+        rm -f "$dst_commands/$name.md"
+        ln -s "$dst_skills/$name/SKILL.md" "$dst_commands/$name.md"
+      fi
+      count=$((count + 1))
+    done
+    local mode_label; $DEV_LINK && mode_label="symlinks" || mode_label="copies"
+    echo "  $label  $count $mode_label -> $dst_skills"
+    [ -n "$dst_commands" ] && echo "  $label  $count command symlinks -> $dst_commands"
+  }
+
+  # Clean up any stale bmad-*/dontbmad-* command symlinks that no longer have a skill
+  for f in "$HOME_CLAUDE_COMMANDS"/bmad-*.md "$HOME_CLAUDE_COMMANDS"/dontbmad-*.md; do
+    [ -e "$f" ] || [ -L "$f" ] || continue
+    [ -L "$f" ] && [ ! -e "$f" ] && { rm -f "$f"; echo "  Cleaned broken: $(basename "$f")"; }
+  done
+
+  publish_skills "claude/skills" "$HOME_CLAUDE_SKILLS" "$HOME_CLAUDE_COMMANDS" "Claude:"
+  publish_skills "cursor/skills" "$HOME_CURSOR_SKILLS" "" "Cursor:"
+
+  echo ""
+  echo "Globally published from $REPO_ROOT to ~/.claude and ~/.cursor."
+  $DEV_LINK && echo "Live mode: edits to $REPO_ROOT/{claude,cursor}/skills/ apply immediately."
+  $DEV_LINK || echo "Stable mode: re-run with --global to publish updates."
+  exit 0
+fi
+
+# --- Skills: installed at workspace root (no git required) ---
+# In-repo installs symlink so .claude/skills/ stays in sync with claude/skills/
+# (single source of truth, no drift). External workspaces copy because they
+# shouldn't depend on this repo's path being stable.
+IN_REPO=false
+if [ "$TARGET" = "$REPO_ROOT" ]; then
+  IN_REPO=true
+fi
+
+install_skills_dir() {
+  # Sets the global $INSTALL_SKILLS_COUNT after running. Prints summary line.
+  local src_dir="$1"
+  local dst_dir="$2"
+  local label="$3"
+  INSTALL_SKILLS_COUNT=0
+  [ -d "$REPO_ROOT/$src_dir" ] || return 0
+  mkdir -p "$dst_dir"
+  for skill_path in "$REPO_ROOT/$src_dir/bmad-"* "$REPO_ROOT/$src_dir/dontbmad-"*; do
+    [ -d "$skill_path" ] || continue
+    local name; name=$(basename "$skill_path")
+    if $IN_REPO; then
+      rm -rf "$dst_dir/$name"
+      ln -s "../../$src_dir/$name" "$dst_dir/$name"
+    else
+      rm -rf "$dst_dir/$name"
+      cp -r "$skill_path" "$dst_dir/"
+    fi
+    INSTALL_SKILLS_COUNT=$((INSTALL_SKILLS_COUNT + 1))
+  done
+  local mode_label; $IN_REPO && mode_label="symlinks" || mode_label="folders"
+  echo "  $label  $INSTALL_SKILLS_COUNT $mode_label -> ${dst_dir#"$TARGET"/}"
+}
+
+if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
+  install_skills_dir "cursor/skills" "$TARGET/.cursor/skills" "Cursor skills:"
+  cursor_count=$INSTALL_SKILLS_COUNT
+  install_skills_dir "claude/skills" "$TARGET/.claude/skills" "Claude skills:"
+  claude_count=$INSTALL_SKILLS_COUNT
 
   if [ -f "$REPO_ROOT/scripts/adoption-dashboard.sh" ]; then
     mkdir -p "$TARGET/scripts"
