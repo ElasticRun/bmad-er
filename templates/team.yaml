@@ -9,17 +9,17 @@
 
 agents:
   # Core engineering squad (BMM)
-  dev: Tejas
-  pm: Chaitanya
-  architect: Siddharth
-  analyst: Nishtha
-  tech-writer: Sakshi
-  ux-designer: Sai
+  dev: Deepika
+  pm: Kalam
+  architect: Rohit
+  analyst: Sachin
+  tech-writer: Lata
+  ux-designer: Aamir
 
   # Creative & innovation crew (CIS)
-  brainstorming: Vaibhav
-  problem-solver: Navneet
-  design-thinking: Monik
-  innovation: Swapnil
-  presentations: Suraj
-  storyteller: Tanay
+  brainstorming: Ramanujan
+  problem-solver: Hrithik
+  design-thinking: Priyanka
+  innovation: Virat
+  presentations: Indira
+  storyteller: Amitabh
