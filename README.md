@@ -42,20 +42,25 @@ A dashboard script (Pulse) reads git history and prints adoption rates grouped b
 
 ## Install
 
-A workspace can contain multiple git repos. Skills install at the workspace root (where Cursor / Claude Code are opened), and git hooks install into each repo inside the workspace.
+Skills publish to the user-level skill directories (`~/.claude/skills`, `~/.cursor/skills`) so a single copy serves every workspace. Workspace-specific files (rules, project registry, team config, dashboard) install at the workspace root, and git hooks install into each repo inside the workspace.
 
 ```bash
 git clone https://github.com/ElasticRun/dont-b-mad.git
 
-# Full install: skills at workspace root + hooks in every repo inside it
+# Full install: skills (user-level) + workspace files + hooks in every repo
 bash dont-b-mad/scripts/install.sh ~/Workspace
 
-# Skills only (no git repos required)
+# Skills + workspace files, no hooks
 bash dont-b-mad/scripts/install.sh ~/Workspace --skills-only
 
 # Hooks only (into repos discovered inside the workspace)
 bash dont-b-mad/scripts/install.sh ~/Workspace --hooks-only
+
+# Skills only (no workspace files)
+bash dont-b-mad/scripts/install.sh --global
 ```
+
+Run with `--dev-link` (or simply run from inside this repo with `bash scripts/install.sh .`) to symlink user-level skills back to the source so edits apply live.
 
 If a `prepare-commit-msg` hook already exists in a repo, the installer backs it up to `.bak` before replacing.
 
@@ -63,13 +68,14 @@ If a `prepare-commit-msg` hook already exists in a repo, the installer backs it 
 
 | Location | What | Scope |
 |---|---|---|
-| `.cursor/skills/bmad-*`, `.cursor/skills/dontbmad-*` | All BMAD + custom skills (Cursor) | Workspace root |
-| `.claude/skills/bmad-*`, `.claude/skills/dontbmad-*` | All BMAD + custom skills (Claude Code) | Workspace root |
+| `~/.cursor/skills/bmad-*`, `~/.cursor/skills/dontbmad-*` | All BMAD + custom skills (Cursor) | User home |
+| `~/.claude/skills/bmad-*`, `~/.claude/skills/dontbmad-*` | All BMAD + custom skills (Claude Code) | User home |
+| `~/.claude/commands/bmad-*.md`, `~/.claude/commands/dontbmad-*.md` | Slash-command symlinks pointing at each skill's `SKILL.md` | User home |
 | `.cursor/rules/bmad-workspace-resolution.md` | Teaches agent how to resolve `{project-root}` | Workspace root |
 | `.cursor/rules/bmad-team-customization.md` | Teaches agent to read custom team names | Workspace root |
-| `.cursor/rules/bmad-graph-first.md` | Prefer knowledge graph over reading full source | Workspace root |
+| `.cursor/rules/dontbmad-graph-first.md` | Prefer knowledge graph over reading full source | Workspace root |
 | `.cursor/rules/dontbmad-caveman-activate.md` | Always-on terse output (caveman mode) | Workspace root |
-| `.claude/rules/bmad-*.md` | Same rules for Claude Code | Workspace root |
+| `.claude/rules/bmad-*.md`, `.claude/rules/dontbmad-*.md` | Same rules for Claude Code | Workspace root |
 | `_bmad/workspace.yaml` | Maps project directories in the workspace | Workspace root |
 | `_bmad/_config/team.yaml` | Custom agent display names | Workspace root |
 | `scripts/adoption-dashboard.sh` | Reads git trailers, prints adoption rates | Workspace root |
@@ -78,13 +84,13 @@ If a `prepare-commit-msg` hook already exists in a repo, the installer backs it 
 ### Workspace layout example
 
 ```
+~/.claude/skills/bmad-*/           <- skills published once at user level
+~/.cursor/skills/bmad-*/           <- (same)
+~/.claude/commands/bmad-*.md       <- slash-command symlinks
+
 ~/Workspace/                       <- open Cursor / Claude Code here
-├── .cursor/
-│   ├── skills/bmad-*/             <- skills (installed once)
-│   └── rules/bmad-*.md            <- workspace, team, graph-first, caveman rules
-├── .claude/
-│   ├── skills/bmad-*/             <- skills (installed once)
-│   └── rules/bmad-*.md            <- workspace, team, graph-first, caveman rules
+├── .cursor/rules/bmad-*.md        <- workspace, team, graph-first, caveman rules
+├── .claude/rules/bmad-*.md        <- workspace, team, graph-first, caveman rules
 ├── _bmad/
 │   ├── workspace.yaml             <- project registry
 │   └── _config/team.yaml          <- custom agent names

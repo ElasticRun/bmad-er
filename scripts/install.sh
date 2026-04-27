@@ -10,20 +10,20 @@ dont-b-mad installer
 
 Usage:
   bash install.sh [workspace-path]                  Install everything (workspace mode)
-  bash install.sh [workspace-path] --skills-only    Skills only (no git required)
+  bash install.sh [workspace-path] --skills-only    Skills + workspace files (no git required)
   bash install.sh [workspace-path] --hooks-only     Git hooks only (requires repos)
   bash install.sh [workspace-path] --force          Overwrite existing workspace.yaml
-  bash install.sh --global                          Publish skills+commands to ~/.claude and ~/.cursor
+  bash install.sh [workspace-path] --dev-link       Symlink skills (in-place editing)
+  bash install.sh --global                          Publish skills only (no workspace files)
   bash install.sh --global --dev-link               Same, but symlink to this repo (live edits)
 
-Workspace mode (default): skills and rules install at the workspace root.
-Git hooks install into every git repo found inside the workspace.
-A workspace.yaml is generated listing discovered projects.
+Skills (Claude + Cursor) always install to ~/.claude/skills and ~/.cursor/skills
+so a single user-level copy serves every workspace. Workspace mode additionally
+writes rules, _bmad/workspace.yaml, _bmad/_config/team.yaml, and the adoption
+dashboard at the workspace root, plus prepare-commit-msg into each child repo.
 
-Global mode: publishes skills as copies (default) or symlinks (--dev-link)
-into the user's home Claude/Cursor dirs. Slash commands are mirrored as
-symlinks from ~/.claude/commands/ to each skill's SKILL.md so they're
-available in every project.
+Skills are symlinked (not copied) when running from inside the source repo or
+when --dev-link is passed; this lets edits to claude/skills/ flow live.
 EOF
   exit 0
 }
@@ -46,39 +46,56 @@ done
 TARGET="${TARGET:-.}"
 TARGET="$(cd "$TARGET" && pwd)"
 
+# IN_REPO: running from inside the source repo. Defaults to symlinks so devs
+# editing claude/skills/ see changes immediately in ~/.claude/skills.
+IN_REPO=false
+if [ "$TARGET" = "$REPO_ROOT" ]; then
+  IN_REPO=true
+fi
+
+LINK_MODE=false
+if $IN_REPO || $DEV_LINK; then
+  LINK_MODE=true
+fi
+
 echo "dont-b-mad installer"
 if [ "$MODE" = "global" ]; then
-  echo "Mode:    global ($($DEV_LINK && echo "symlink to repo" || echo "copy to home"))"
+  echo "Mode:    global ($($LINK_MODE && echo "symlink to repo" || echo "copy to home"))"
 else
   echo "Workspace: $TARGET"
+  echo "Skills:    ~/.claude/skills, ~/.cursor/skills ($($LINK_MODE && echo "symlinks" || echo "copies"))"
 fi
 echo ""
 
-cursor_count=0
 claude_count=0
+cursor_count=0
 hook_repos=0
 project_count=0
 dashboard_installed=false
 
-# --- Global publish: ~/.claude and ~/.cursor (independent of workspace) ---
-if [ "$MODE" = "global" ]; then
-  HOME_CLAUDE_SKILLS="$HOME/.claude/skills"
-  HOME_CLAUDE_COMMANDS="$HOME/.claude/commands"
-  HOME_CURSOR_SKILLS="$HOME/.cursor/skills"
-  mkdir -p "$HOME_CLAUDE_SKILLS" "$HOME_CLAUDE_COMMANDS" "$HOME_CURSOR_SKILLS"
+# --- Skill publishing: always to ~/.claude and ~/.cursor ---
+# Why user-level: a workspace can hold many repos, but skills are user-scoped
+# in Claude Code and Cursor. Installing into each workspace would duplicate
+# every skill into both .claude/skills/ and ~/.claude/skills/, doubling the
+# token footprint and making it ambiguous which copy runs.
+publish_skills() {
+  local user_claude_skills="$HOME/.claude/skills"
+  local user_claude_commands="$HOME/.claude/commands"
+  local user_cursor_skills="$HOME/.cursor/skills"
+  mkdir -p "$user_claude_skills" "$user_claude_commands" "$user_cursor_skills"
 
-  publish_skills() {
+  publish_one() {
     local src_dir="$1"        # claude/skills or cursor/skills
     local dst_skills="$2"     # ~/.claude/skills or ~/.cursor/skills
-    local dst_commands="$3"   # ~/.claude/commands  or ""  (cursor has none)
+    local dst_commands="$3"   # ~/.claude/commands  or "" (cursor has none)
     local label="$4"
     local count=0
-    [ -d "$REPO_ROOT/$src_dir" ] || { echo "  $label  (no source dir)"; return 0; }
+    [ -d "$REPO_ROOT/$src_dir" ] || { echo "  $label  (no source dir)"; PUBLISH_LAST_COUNT=0; return 0; }
     for skill_path in "$REPO_ROOT/$src_dir/bmad-"* "$REPO_ROOT/$src_dir/dontbmad-"*; do
       [ -d "$skill_path" ] || continue
       local name; name=$(basename "$skill_path")
       rm -rf "$dst_skills/$name"
-      if $DEV_LINK; then
+      if $LINK_MODE; then
         ln -s "$skill_path" "$dst_skills/$name"
       else
         cp -r "$skill_path" "$dst_skills/"
@@ -89,65 +106,45 @@ if [ "$MODE" = "global" ]; then
       fi
       count=$((count + 1))
     done
-    local mode_label; $DEV_LINK && mode_label="symlinks" || mode_label="copies"
+    local mode_label; $LINK_MODE && mode_label="symlinks" || mode_label="copies"
     echo "  $label  $count $mode_label -> $dst_skills"
     [ -n "$dst_commands" ] && echo "  $label  $count command symlinks -> $dst_commands"
+    PUBLISH_LAST_COUNT=$count
   }
 
-  # Clean up any stale bmad-*/dontbmad-* command symlinks that no longer have a skill
-  for f in "$HOME_CLAUDE_COMMANDS"/bmad-*.md "$HOME_CLAUDE_COMMANDS"/dontbmad-*.md; do
+  # Clean stale command symlinks pointing at skills that no longer exist
+  for f in "$user_claude_commands"/bmad-*.md "$user_claude_commands"/dontbmad-*.md; do
     [ -e "$f" ] || [ -L "$f" ] || continue
     [ -L "$f" ] && [ ! -e "$f" ] && { rm -f "$f"; echo "  Cleaned broken: $(basename "$f")"; }
   done
 
-  publish_skills "claude/skills" "$HOME_CLAUDE_SKILLS" "$HOME_CLAUDE_COMMANDS" "Claude:"
-  publish_skills "cursor/skills" "$HOME_CURSOR_SKILLS" "" "Cursor:"
+  publish_one "claude/skills" "$user_claude_skills" "$user_claude_commands" "Claude:"
+  claude_count=$PUBLISH_LAST_COUNT
+  publish_one "cursor/skills" "$user_cursor_skills" "" "Cursor:"
+  cursor_count=$PUBLISH_LAST_COUNT
+}
 
+# --- Global mode: skills only, no workspace files ---
+# Also covers IN_REPO: running from inside the source repo shouldn't drop
+# workspace bookkeeping (rules, _bmad, dashboard) into the source tree —
+# those artifacts only make sense at a consumer workspace.
+if [ "$MODE" = "global" ] || $IN_REPO; then
+  publish_skills
   echo ""
-  echo "Globally published from $REPO_ROOT to ~/.claude and ~/.cursor."
-  $DEV_LINK && echo "Live mode: edits to $REPO_ROOT/{claude,cursor}/skills/ apply immediately."
-  $DEV_LINK || echo "Stable mode: re-run with --global to publish updates."
+  if $IN_REPO; then
+    echo "Source-repo install: skills published as symlinks to $REPO_ROOT."
+    echo "Edits to claude/skills/ and cursor/skills/ apply immediately."
+  else
+    echo "Globally published from $REPO_ROOT to ~/.claude and ~/.cursor."
+    $LINK_MODE && echo "Live mode: edits to $REPO_ROOT/{claude,cursor}/skills/ apply immediately."
+    $LINK_MODE || echo "Stable mode: re-run with --global to publish updates."
+  fi
   exit 0
 fi
 
-# --- Skills: installed at workspace root (no git required) ---
-# In-repo installs symlink so .claude/skills/ stays in sync with claude/skills/
-# (single source of truth, no drift). External workspaces copy because they
-# shouldn't depend on this repo's path being stable.
-IN_REPO=false
-if [ "$TARGET" = "$REPO_ROOT" ]; then
-  IN_REPO=true
-fi
-
-install_skills_dir() {
-  # Sets the global $INSTALL_SKILLS_COUNT after running. Prints summary line.
-  local src_dir="$1"
-  local dst_dir="$2"
-  local label="$3"
-  INSTALL_SKILLS_COUNT=0
-  [ -d "$REPO_ROOT/$src_dir" ] || return 0
-  mkdir -p "$dst_dir"
-  for skill_path in "$REPO_ROOT/$src_dir/bmad-"* "$REPO_ROOT/$src_dir/dontbmad-"*; do
-    [ -d "$skill_path" ] || continue
-    local name; name=$(basename "$skill_path")
-    if $IN_REPO; then
-      rm -rf "$dst_dir/$name"
-      ln -s "../../$src_dir/$name" "$dst_dir/$name"
-    else
-      rm -rf "$dst_dir/$name"
-      cp -r "$skill_path" "$dst_dir/"
-    fi
-    INSTALL_SKILLS_COUNT=$((INSTALL_SKILLS_COUNT + 1))
-  done
-  local mode_label; $IN_REPO && mode_label="symlinks" || mode_label="folders"
-  echo "  $label  $INSTALL_SKILLS_COUNT $mode_label -> ${dst_dir#"$TARGET"/}"
-}
-
+# --- Workspace mode (all / skills): publish skills + workspace files ---
 if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
-  install_skills_dir "cursor/skills" "$TARGET/.cursor/skills" "Cursor skills:"
-  cursor_count=$INSTALL_SKILLS_COUNT
-  install_skills_dir "claude/skills" "$TARGET/.claude/skills" "Claude skills:"
-  claude_count=$INSTALL_SKILLS_COUNT
+  publish_skills
 
   if [ -f "$REPO_ROOT/scripts/adoption-dashboard.sh" ]; then
     mkdir -p "$TARGET/scripts"
@@ -157,7 +154,7 @@ if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
     echo "  Dashboard:      scripts/adoption-dashboard.sh installed"
   fi
 
-  # --- Rules: installed to .cursor/rules/ and .claude/rules/ ---
+  # --- Rules: workspace-scoped (they teach the agent about THIS workspace) ---
   mkdir -p "$TARGET/.cursor/rules" "$TARGET/.claude/rules"
   for rule_file in bmad-workspace-resolution.md bmad-team-customization.md dontbmad-graph-first.md dontbmad-caveman-activate.md; do
     if [ -f "$REPO_ROOT/templates/$rule_file" ]; then
@@ -190,7 +187,6 @@ if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
     local found_projects=""
     local count=0
 
-    # Check workspace root itself (rare, but supports single-project layout)
     if has_bmad_project "$ws"; then
       found_projects="  .:
     path: .
@@ -199,7 +195,6 @@ if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
       count=$((count + 1))
     fi
 
-    # Scan one level deep for projects with _bmad/
     for dir in "$ws"/*/; do
       [ -d "$dir" ] || continue
       if has_bmad_project "$dir"; then
@@ -215,7 +210,6 @@ if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
 
     project_count=$count
 
-    # Also detect git repos that don't have _bmad/ yet (they might get it later)
     for dir in "$ws"/*/; do
       [ -d "$dir" ] || continue
       local name
@@ -261,7 +255,6 @@ install_hook_to_repo() {
   local repo_dir="$1"
   local git_dir
 
-  # Support both standard (.git dir) and worktree (.git file) layouts
   if [ -d "$repo_dir/.git" ]; then
     git_dir="$repo_dir/.git"
   elif [ -f "$repo_dir/.git" ]; then
@@ -284,12 +277,10 @@ install_hook_to_repo() {
 
 if [ "$MODE" = "all" ] || [ "$MODE" = "hooks" ]; then
   if [ -f "$REPO_ROOT/hooks/prepare-commit-msg" ]; then
-    # If the workspace root itself is a git repo, install there
     if [ -d "$TARGET/.git" ] || [ -f "$TARGET/.git" ]; then
       install_hook_to_repo "$TARGET"
     fi
 
-    # Scan one level deep for git repos (typical workspace layout)
     for dir in "$TARGET"/*/; do
       [ -d "$dir" ] || continue
       if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
@@ -307,7 +298,7 @@ fi
 # --- Summary ---
 echo ""
 if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
-  echo "Skills:    $cursor_count Cursor, $claude_count Claude (workspace root)"
+  echo "Skills:    $cursor_count Cursor, $claude_count Claude (~/.cursor + ~/.claude)"
   echo "Projects:  $project_count discovered in _bmad/workspace.yaml"
 fi
 if [ "$MODE" = "all" ] || [ "$MODE" = "hooks" ]; then

@@ -26,7 +26,7 @@ tests/
 
   e2e/                                # exercise the scripts end-to-end
     install.test.sh                   # scripts/install.sh
-    check-symlinks.test.sh            # scripts/check-skill-symlinks.sh
+    install-layouts.test.sh           # scripts/install.sh workspace shapes
     adoption-dashboard.test.sh        # scripts/adoption-dashboard.sh
     prepare-commit-msg.test.sh        # hooks/prepare-commit-msg
 
@@ -39,12 +39,11 @@ tests/
 
 ## How tests stay isolated
 
-- `e2e/install.test.sh` runs `install.sh` against a fresh `mktemp -d`
-  workspace and, for `--global`, redirects `HOME` to a tmp dir. Your real
-  `~/.claude` and `~/.cursor` are never touched.
-- `e2e/check-symlinks.test.sh` copies the script under test into a
-  synthetic `<tmp>/scripts/` and lets it resolve `REPO_ROOT` to the tmp
-  dir, so the real repo state is irrelevant.
+- `e2e/install.test.sh` and `e2e/install-layouts.test.sh` run `install.sh`
+  against a fresh `mktemp -d` workspace and always redirect `HOME` to a
+  tmp dir. Skills now publish user-level (`~/.claude/skills`,
+  `~/.cursor/skills`), so this redirect protects your real home from
+  being touched.
 - `e2e/adoption-dashboard.test.sh` builds throwaway git repos with
   hand-crafted commit trailers and calls the dashboard via `--repo` /
   `--workspace` against those.

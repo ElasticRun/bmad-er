@@ -22,12 +22,11 @@ test_referenced_templates_exist() {
   done
 }
 
-# install.sh and check-skill-symlinks.sh must remain executable
+# Shipped scripts must remain executable
 test_scripts_executable() {
   assert_executable "scripts/install.sh executable"             "$REPO_ROOT/scripts/install.sh"
-  assert_executable "scripts/check-skill-symlinks.sh executable" "$REPO_ROOT/scripts/check-skill-symlinks.sh"
-  assert_executable "scripts/adoption-dashboard.sh executable"   "$REPO_ROOT/scripts/adoption-dashboard.sh"
-  assert_executable "hooks/prepare-commit-msg executable"        "$REPO_ROOT/hooks/prepare-commit-msg"
+  assert_executable "scripts/adoption-dashboard.sh executable"  "$REPO_ROOT/scripts/adoption-dashboard.sh"
+  assert_executable "hooks/prepare-commit-msg executable"       "$REPO_ROOT/hooks/prepare-commit-msg"
 }
 
 run_test test_referenced_templates_exist

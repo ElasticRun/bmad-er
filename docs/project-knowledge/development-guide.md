@@ -43,9 +43,8 @@ Symlinks every skill into `~/.claude/skills/` and `~/.cursor/skills/`. Every pro
    ---
    ```
 3. Add a `workflow.md` if multi-step.
-4. Mirror the directory under `cursor/skills/<name>/`. (Strict parity is enforced informally — the installer copies whichever is present, but check-skill-symlinks.sh will flag missing mirrors.)
-5. Run `bash scripts/install.sh .` to wire the new skill into `.claude/skills/` and `.cursor/skills/` of this repo.
-6. Run `bash scripts/check-skill-symlinks.sh` to confirm no drift.
+4. Mirror the directory under `cursor/skills/<name>/`. (`structural/skill-mirror.test.sh` enforces parity.)
+5. Run `bash scripts/install.sh .` from the repo root. With TARGET equal to REPO_ROOT, the installer symlinks `~/.claude/skills/<name>` and `~/.cursor/skills/<name>` back to this repo's source — edits apply live.
 
 ## Modifying the git hook
 
@@ -79,15 +78,6 @@ python3 -m pytest tests/
 
 **Planned:** see `test-suite-prd.md` for the full test framework introduction.
 
-## Validation tools
-
-```bash
-# Verify all skills have clean symlinks in this repo's mirror:
-bash scripts/check-skill-symlinks.sh
-```
-
-Exits 0 if clean, 1 if drift (missing skills, broken symlinks, regular files where symlinks expected).
-
 ## Release flow
 
 There is no automated release pipeline today. Versions are tracked in `CHANGELOG.md`.
@@ -101,9 +91,8 @@ To cut a release:
 
 | Task | Command |
 |---|---|
-| Re-install everything in this repo | `bash scripts/install.sh .` |
+| Re-install everything in this repo (live symlinks) | `bash scripts/install.sh .` |
 | Re-install hooks only across all repos in `~/Workspace` | `bash scripts/install.sh ~/Workspace --hooks-only` |
-| Verify mirror integrity | `bash scripts/check-skill-symlinks.sh` |
 | Run distillator tests | `cd claude/skills/bmad-distillator/scripts && python3 -m pytest tests/` |
 | View dashboard output | `bash scripts/adoption-dashboard.sh` |
 | Force-overwrite workspace.yaml | `bash scripts/install.sh <ws> --force` |
@@ -113,14 +102,13 @@ To cut a release:
 - **Bash:** `set -euo pipefail` everywhere. Prefer POSIX-friendly constructs (the dashboard explicitly avoids associative arrays for bash 3.2 compatibility).
 - **Markdown skills:** Use `{project-root}` as a placeholder, never absolute paths. Reference the workspace-resolution rule.
 - **Trailer keys:** Always `AI-Phase`, `AI-Tool`, `Story-Ref` — exact case, with hyphen, with colon. The hook and dashboard both depend on this.
-- **Skill names:** Always prefixed `bmad-` or `dontbmad-`. The installer's glob and the check-symlinks script both filter on these prefixes.
+- **Skill names:** Always prefixed `bmad-` or `dontbmad-`. The installer's glob filters on these prefixes.
 
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Skill doesn't appear in agent | Skill not installed into target workspace | Run `install.sh <ws>` |
-| Edit to skill doesn't take effect | Workspace was installed in copy mode, not symlink mode | Either re-run installer to refresh copy, or use `--global --dev-link` for live edits |
+| Skill doesn't appear in agent | Skill not published to `~/.claude/skills` (or `~/.cursor/skills`) | Run `install.sh <ws>` (or `install.sh --global` for skills only) |
+| Edit to skill doesn't take effect | User-level skill is a copy, not a symlink | Re-run `install.sh .` from inside this repo (auto-detects IN_REPO and symlinks), or use `install.sh --global --dev-link` |
 | Commits not getting trailers | Hook not installed or backed up by another tool | Run `install.sh <ws> --hooks-only` |
 | Dashboard says "no commits" | Repo has no commits with `AI-Phase:` trailer (e.g. only old commits before install) | Make a new commit; the hook will tag it |
-| `check-skill-symlinks.sh` reports drift | Likely a manual file edit or a partial install | Re-run `install.sh .` from repo root |

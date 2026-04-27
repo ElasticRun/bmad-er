@@ -7,9 +7,8 @@ dependencies. Run with `bash tests/run.sh`.
 
 ### E2E (script behavior)
 
-- [x] `tests/e2e/install.test.sh` — `scripts/install.sh` skills/hooks/global modes, idempotency, `--force`, `--dev-link`, all 4 rule files (incl. caveman activator) land in both `.claude/rules` and `.cursor/rules` (33 assertions)
-- [x] `tests/e2e/install-layouts.test.sh` — workspace-shape coverage: in-repo symlink mode, root-as-project, multi-project, git-without-`_bmad/` commented stub, empty workspace, **mixed shapes in one workspace**, **root + children both as projects** (25 assertions)
-- [x] `tests/e2e/check-symlinks.test.sh` — `scripts/check-skill-symlinks.sh` clean/missing/not-symlink/broken cases + real-repo sanity (12 assertions)
+- [x] `tests/e2e/install.test.sh` — `scripts/install.sh` skills/hooks/global modes, idempotency, `--force`, `--dev-link`, user-level skill publish, no workspace-level skill duplication, all 4 rule files land in both `.claude/rules` and `.cursor/rules` (37 assertions)
+- [x] `tests/e2e/install-layouts.test.sh` — workspace-shape coverage: in-repo symlink mode, root-as-project, multi-project, git-without-`_bmad/` commented stub, empty workspace, **mixed shapes in one workspace**, **root + children both as projects** (26 assertions)
 - [x] `tests/e2e/adoption-dashboard.test.sh` — `scripts/adoption-dashboard.sh` trailer parsing, AI-vs-manual split, `--workspace` aggregation, glob filter, deep-nested repo discovery, pruning of `node_modules`, de-dup of nested git under outer, **every dashboard SDLC phase end-to-end (10 phases)**, **off-list phases tracked but not rendered** (39 assertions)
 - [x] `tests/e2e/prepare-commit-msg.test.sh` — `hooks/prepare-commit-msg` adds trailers, derives Story-Ref from branch, skips merge/squash/already-tagged commits, falls back to `unknown` on detached HEAD (10 assertions)
 
@@ -25,27 +24,25 @@ dependencies. Run with `bash tests/run.sh`.
 
 ```
 ==> ./e2e/adoption-dashboard.test.sh         39 passed,  39 total
-==> ./e2e/check-symlinks.test.sh             12 passed,  12 total
-==> ./e2e/install-layouts.test.sh            25 passed,  25 total
-==> ./e2e/install.test.sh                    33 passed,  33 total
+==> ./e2e/install-layouts.test.sh            26 passed,  26 total
+==> ./e2e/install.test.sh                    37 passed,  37 total
 ==> ./e2e/prepare-commit-msg.test.sh         10 passed,  10 total
-==> ./structural/install-templates.test.sh    9 passed,   9 total
+==> ./structural/install-templates.test.sh    8 passed,   8 total
 ==> ./structural/skill-ai-phase.test.sh      23 passed,  23 total
 ==> ./structural/skill-frontmatter.test.sh  324 passed, 324 total
 ==> ./structural/skill-mirror.test.sh         2 passed,   2 total
 ==> ./structural/skill-workflow-refs.test.sh 46 passed,  46 total
 === Summary ===
-All 10 test file(s) passed
+All 9 test file(s) passed
 ```
 
-**Total: 523 assertions, all passing.**
+**Total: 515 assertions, all passing.**
 
 ## Coverage
 
 | Surface | Status |
 |---|---|
-| `scripts/install.sh` (workspace install, global publish, hooks, force, dev-link) | covered |
-| `scripts/check-skill-symlinks.sh` (all four drift classes + real-repo sanity) | covered |
+| `scripts/install.sh` (workspace install, global publish, hooks, force, dev-link, user-level publishing) | covered |
 | `scripts/adoption-dashboard.sh` (single repo, workspace, filter, AI-vs-manual) | covered |
 | `hooks/prepare-commit-msg` (default add, branch derivation, skip cases) | covered |
 | Skill frontmatter / mirror / workflow refs | covered |

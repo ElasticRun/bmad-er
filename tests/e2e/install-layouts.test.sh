@@ -37,28 +37,43 @@ make_fake_repo() {
 }
 
 test_in_repo_install_uses_symlinks() {
-  local root; root=$(make_fake_repo)
-  bash "$root/scripts/install.sh" --skills-only "$root" >/dev/null 2>&1
+  local root fake_home
+  root=$(make_fake_repo)
+  fake_home=$(mktempdir)
+  HOME="$fake_home" bash "$root/scripts/install.sh" --skills-only "$root" >/dev/null 2>&1
 
-  assert_dir     "in-repo: .claude/skills exists"             "$root/.claude/skills"
-  assert_dir     "in-repo: .cursor/skills exists"             "$root/.cursor/skills"
-  assert_symlink "in-repo: claude skill is a symlink"         "$root/.claude/skills/bmad-foo"
-  assert_symlink "in-repo: cursor skill is a symlink"         "$root/.cursor/skills/bmad-foo"
+  # In-repo install publishes skills to ~/.claude and ~/.cursor (user level),
+  # NOT to the workspace root. And because TARGET == REPO_ROOT, symlinks back
+  # to the source so dev edits flow live.
+  if [ ! -d "$root/.claude/skills" ] && [ ! -d "$root/.cursor/skills" ]; then
+    _pass "in-repo: no workspace-level skills dirs created"
+  else
+    _fail "in-repo: no workspace-level skills dirs" \
+      "unexpected $root/.claude/skills or $root/.cursor/skills"
+  fi
 
-  # Symlink target should be the canonical claude/skills/bmad-foo
-  local target; target=$(readlink "$root/.claude/skills/bmad-foo")
-  assert_contains "in-repo: symlink points at canonical source" "$target" "claude/skills/bmad-foo"
+  assert_dir     "in-repo: ~/.claude/skills exists"           "$fake_home/.claude/skills"
+  assert_dir     "in-repo: ~/.cursor/skills exists"           "$fake_home/.cursor/skills"
+  assert_symlink "in-repo: claude skill is a symlink"         "$fake_home/.claude/skills/bmad-foo"
+  assert_symlink "in-repo: cursor skill is a symlink"         "$fake_home/.cursor/skills/bmad-foo"
 
-  rm -rf "$root"
+  # Symlink target should be the canonical claude/skills/bmad-foo in the source repo.
+  # Normalize $root the same way install.sh does (collapses // from $TMPDIR).
+  local root_canonical; root_canonical=$(cd "$root" && pwd)
+  local target; target=$(readlink "$fake_home/.claude/skills/bmad-foo")
+  assert_contains "in-repo: symlink points at canonical source" "$target" "$root_canonical/claude/skills/bmad-foo"
+
+  rm -rf "$root" "$fake_home"
 }
 
 test_workspace_root_as_project() {
   # Workspace root itself has _bmad/ → install.sh records a "." entry.
-  local ws; ws=$(mktempdir)
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
   mkdir -p "$ws/_bmad/bmm"
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
 
   assert_contains "root project listed as '.:'"       "$content" "  .:"
   assert_contains "root project path is '.'"          "$content" "    path: ."
@@ -66,13 +81,14 @@ test_workspace_root_as_project() {
 }
 
 test_multi_project_workspace() {
-  local ws; ws=$(mktempdir)
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
   mkdir -p "$ws/proj-alpha/_bmad/bmm" \
            "$ws/proj-beta/_bmad/cis"  \
            "$ws/proj-gamma/_bmad/core"
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
 
   assert_contains "alpha listed"  "$content" "proj-alpha:"
   assert_contains "beta listed"   "$content" "proj-beta:"
@@ -82,12 +98,13 @@ test_multi_project_workspace() {
 }
 
 test_git_repo_without_bmad_appears_commented() {
-  local ws; ws=$(mktempdir)
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
   ( cd "$ws" && git init -q legacy-app && cd legacy-app && \
       git config user.email t@t.t && git config user.name t )
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
 
   # The git repo with no _bmad/ should appear as commented stub guiding the
   # user to run bmad init in it. Lines look like:
@@ -98,10 +115,11 @@ test_git_repo_without_bmad_appears_commented() {
 }
 
 test_empty_workspace_yields_no_projects() {
-  local ws; ws=$(mktempdir)
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
   assert_contains "default_project empty"  "$content" "default_project: ''"
   # No project lines (only the `projects:` key)
   local proj_lines; proj_lines=$(printf '%s\n' "$content" | awk '/^projects:/{flag=1; next} flag' | grep -cE '^  [a-zA-Z]' || true)
@@ -114,16 +132,17 @@ test_mixed_workspace_combines_all_shapes() {
   #   proj-beta/    has _bmad/        (real project, listed)
   #   legacy-app/   .git but no _bmad (git repo, commented stub)
   #   notes/        plain dir         (ignored)
-  local ws; ws=$(mktempdir)
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
   mkdir -p "$ws/proj-alpha/_bmad/bmm" \
            "$ws/proj-beta/_bmad/cis"  \
            "$ws/notes"
   ( cd "$ws" && git init -q legacy-app && cd legacy-app && \
       git config user.email t@t.t && git config user.name t )
 
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
 
   assert_contains "alpha listed (uncommented)"           "$content" "  proj-alpha:"
   assert_contains "beta listed (uncommented)"            "$content" "  proj-beta:"
@@ -135,11 +154,12 @@ test_mixed_workspace_combines_all_shapes() {
 test_root_and_children_both_listed() {
   # Root itself is a BMAD project AND there are also child projects.
   # workspace.yaml should include both `.:` and the child entries.
-  local ws; ws=$(mktempdir)
+  local ws fake_home
+  ws=$(mktempdir); fake_home=$(mktempdir)
   mkdir -p "$ws/_bmad/bmm" "$ws/sub-a/_bmad/bmm" "$ws/sub-b/_bmad/cis"
-  bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
+  HOME="$fake_home" bash "$INSTALL" --skills-only "$ws" >/dev/null 2>&1
   local content; content=$(cat "$ws/_bmad/workspace.yaml")
-  rm -rf "$ws"
+  rm -rf "$ws" "$fake_home"
 
   assert_contains "root listed as '.:'"        "$content" "  .:"
   assert_contains "sub-a listed"               "$content" "  sub-a:"
