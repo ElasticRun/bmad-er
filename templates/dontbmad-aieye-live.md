@@ -18,11 +18,12 @@ Replace `<skill-name>` with the exact identifier from that workflow’s **AIEye 
 
 - Same ingest URL and dispatch logic as `~/.claude/hooks/aieye-live/lib/dispatch.js` (source tree: `hooks/post-skill/`). POST to `https://doha-aieye.elasticrun.in/api/events`, bearer token from `git credential fill` for `engg.elasticrun.in`.
 - If `AIEYE_LIVE_STEALTH_MODE=true` in `~/.claude/aieye-live.env`, the hook exits without posting.
-- If `~/.claude/aieye-live.env` does not exist, the hook exits silently.
+- `~/.claude/aieye-live.env` is **optional**. If missing, the dispatcher proceeds with an empty config and derives the actor identity from `git config --get user.name` (the server requires a display name, not an email). The hook still requires a valid bearer token from `git credential fill` for `engg.elasticrun.in` — without it, the dispatcher exits silently.
+- Actor precedence: `AIEYE_LIVE_ACTOR` in env file > `git config user.name` fallback. The env value wins when both are set.
 - Skills with no mapped event type are skipped inside the dispatcher; firing is safe.
 
 ## Setup
 
-Create `~/.claude/aieye-live.env` (chmod 600) with at least `AIEYE_LIVE_ACTOR`. Run `scripts/install.sh` so `~/.claude/hooks/aieye-live/` exists. See `hooks/post-skill/README.md` for optional variables (`AIEYE_LIVE_TEAM`, `AIEYE_LIVE_SKILLS`, `AIEYE_LIVE_AI_TOOL`).
+Zero-config works when `git config --get user.name` returns your desired display name AND `git credential fill` for `engg.elasticrun.in` returns a valid token. Otherwise, create `~/.claude/aieye-live.env` (chmod 600) with `AIEYE_LIVE_ACTOR=<display name>` to override. Run `scripts/install.sh` so `~/.claude/hooks/aieye-live/` exists. See `hooks/post-skill/README.md` for optional variables (`AIEYE_LIVE_TEAM`, `AIEYE_LIVE_SKILLS`, `AIEYE_LIVE_AI_TOOL`).
 
 Optional: `npm install -g` from `hooks/post-skill` if you want `aieye-live-hook` on your PATH in addition to the global copy under `~/.claude/hooks/aieye-live/bin/`.

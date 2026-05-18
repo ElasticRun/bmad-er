@@ -265,6 +265,26 @@ function resolveAuthTokenFromGitCredential() {
   return readGitCredential(GITLAB_CREDENTIAL_HOST);
 }
 
+/**
+ * Read `git config --get user.name` as an actor fallback when AIEYE_LIVE_ACTOR
+ * is not set in the env file. The ingest server requires a display name (not
+ * an email), so user.name is the correct git field. Returns null if git is
+ * unavailable or user.name is unset.
+ */
+function readGitUserName() {
+  try {
+    const res = spawnSync('git', ['config', '--get', 'user.name'], {
+      timeout: SUBPROCESS_TIMEOUT_MS,
+      encoding: 'utf8',
+    });
+    if (res.status !== 0) return null;
+    const v = String(res.stdout || '').trim();
+    return v || null;
+  } catch (_) {
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Idempotency key (AC#9 — must match server/src/live/idempotency.ts exactly)
 // ---------------------------------------------------------------------------
@@ -667,12 +687,12 @@ async function main() {
   debugLog(
     `start argv=${JSON.stringify(process.argv)} explicit_skill=${explicitSkill === null ? '(null)' : JSON.stringify(explicitSkill)} env_aieye_live_skill_len=${envSkillLen} env_aieye_live_skill_name_len=${envNameLen} pending_skill_files=${pendingSummary}`
   );
-  // 1. Load config
-  const config = parseEnvFile(ENV_FILE);
+  // 1. Load config — env file is optional; missing file means use defaults and
+  // derive actor identity from `git config user.email`.
+  let config = parseEnvFile(ENV_FILE);
   if (config === null) {
-    debugLog(`exit: env file missing (${ENV_FILE}) — skipping`);
-    // File missing — skip silently
-    return;
+    debugLog(`env file missing (${ENV_FILE}) — proceeding with empty config`);
+    config = {};
   }
 
   // Stealth mode: user opted out of event publishing for this machine
@@ -683,18 +703,32 @@ async function main() {
 
   const ingestUrl = INGEST_URL;
   const token = resolveAuthTokenFromGitCredential();
-  const actor = config['AIEYE_LIVE_ACTOR'];
+
+  // Actor precedence: env file > git user.name fallback.
+  // Server contract: actor must be a display name, not an email.
+  let actor = config['AIEYE_LIVE_ACTOR'];
+  let actorSource = 'env';
+  if (!actor) {
+    actor = readGitUserName();
+    actorSource = actor ? 'git' : 'none';
+  }
+
   const team = config['AIEYE_LIVE_TEAM'] || '';
   const allowedSkillsRaw = config['AIEYE_LIVE_SKILLS'] || '';
 
   if (!token || !actor) {
-    const missing = [!token && 'git credential token', !actor && 'AIEYE_LIVE_ACTOR']
+    const missing = [
+      !token && 'git credential token',
+      !actor && 'AIEYE_LIVE_ACTOR (env or git user.name)',
+    ]
       .filter(Boolean)
       .join(', ');
     debugLog(`exit: missing ${missing} — skipping`);
     // Not configured — skip silently
     return;
   }
+
+  debugLog(`actor=${actor} (source=${actorSource})`);
 
   debugLog(`config: actor set, team=${team ? '(set)' : '(empty)'} ingest=${ingestUrl}`);
 
