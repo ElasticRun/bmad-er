@@ -41,7 +41,7 @@ test_in_repo_install_uses_symlinks() {
   local root fake_home
   root=$(make_fake_repo)
   fake_home=$(mktempdir)
-  HOME="$fake_home" bash "$root/scripts/install.sh" --skills-only "$root" >/dev/null 2>&1
+  HOME="$fake_home" DONTBMAD_SKIP_GIT_AI=1 bash "$root/scripts/install.sh" --skills-only "$root" >/dev/null 2>&1
 
   # In-repo install publishes skills to ~/.claude and ~/.cursor (user level),
   # NOT to the workspace root. And because TARGET == REPO_ROOT, symlinks back

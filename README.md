@@ -62,6 +62,8 @@ bash dont-b-mad/scripts/install.sh --global
 
 Run with `--dev-link` (or simply run from inside this repo with `bash scripts/install.sh .`) to symlink user-level skills back to the source so edits apply live.
 
+The installer also installs and initializes [Git AI](https://github.com/git-ai-project/git-ai) (agent hooks via `git-ai install-hooks`). Restart your terminal and IDE after install so `git-ai` is on your PATH. Use `git ai stats` and `git ai blame` for line-level attribution. Set `DONTBMAD_SKIP_GIT_AI=1` to skip the download step.
+
 If a `prepare-commit-msg` hook already exists in a repo, the installer backs it up to `.bak` before replacing.
 
 ## What Gets Installed
@@ -80,6 +82,7 @@ If a `prepare-commit-msg` hook already exists in a repo, the installer backs it 
 | `_bmad/_config/team.yaml` | Custom agent display names | Workspace root |
 | `scripts/adoption-dashboard.sh` | Reads git trailers, prints adoption rates | Workspace root |
 | `<repo>/.git/hooks/prepare-commit-msg` | Auto-tags manual commits with AI trailers | Per repo |
+| `~/.git-ai/bin/git-ai` | [Git AI](https://github.com/git-ai-project/git-ai) — line-level AI attribution in commits | User home |
 
 ### Workspace layout example
 

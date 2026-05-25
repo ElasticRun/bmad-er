@@ -7,6 +7,8 @@ Set up and query AI adoption tracking for the project. Use when the user says "s
 1. Installs a `prepare-commit-msg` git hook that auto-tags manual commits with three trailers: `AI-Phase`, `AI-Tool`, `Story-Ref`.
 2. Queries git history for AI adoption metrics grouped by SDLC phase and displays the Pulse dashboard.
 
+`scripts/install.sh` also installs and initializes [Git AI](https://github.com/git-ai-project/git-ai) for line-level AI attribution (`git ai stats`, `git ai blame`). Set `DONTBMAD_SKIP_GIT_AI=1` to skip that step.
+
 ## Trailer Scheme
 
 Every commit gets exactly three trailers:

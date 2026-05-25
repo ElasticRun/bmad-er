@@ -14,7 +14,7 @@ INSTALL="$REPO_ROOT/scripts/install.sh"
 . "$SCRIPT_DIR/../lib/assert.sh"
 
 run_install() {
-  bash "$INSTALL" "$@" >/dev/null 2>&1
+  DONTBMAD_SKIP_GIT_AI=1 bash "$INSTALL" "$@" >/dev/null 2>&1
 }
 
 test_skills_only_populates_workspace_and_user_home() {
@@ -191,12 +191,39 @@ test_global_dev_link_uses_symlinks() {
 
 test_dep_check_output_printed() {
   local fake_home; fake_home=$(mktempdir)
-  local out; out=$(HOME="$fake_home" bash "$INSTALL" --global 2>&1)
+  local out; out=$(HOME="$fake_home" DONTBMAD_SKIP_GIT_AI=1 bash "$INSTALL" --global 2>&1)
   rm -rf "$fake_home"
 
   assert_contains "dep check prints git status"     "$out" "git:"
   assert_contains "dep check prints node status"    "$out" "node:"
   assert_contains "dep check prints python3 status" "$out" "python3:"
+  assert_contains "dep check prints curl status"    "$out" "curl:"
+}
+
+test_git_ai_detects_existing_install() {
+  local fake_home; fake_home=$(mktempdir)
+  mkdir -p "$fake_home/.git-ai/bin"
+  cat > "$fake_home/.git-ai/bin/git-ai" <<'MOCK'
+#!/bin/sh
+case "$1" in
+  --version) echo "git-ai test-version" ;;
+  install-hooks) exit 0 ;;
+  *) exit 0 ;;
+esac
+MOCK
+  chmod +x "$fake_home/.git-ai/bin/git-ai"
+
+  local out; out=$(HOME="$fake_home" bash "$INSTALL" --global 2>&1)
+  assert_contains "reports git-ai status" "$out" "Git AI:"
+  assert_contains "shows installed version" "$out" "test-version"
+  rm -rf "$fake_home"
+}
+
+test_git_ai_skipped_when_env_set() {
+  local fake_home; fake_home=$(mktempdir)
+  local out; out=$(HOME="$fake_home" DONTBMAD_SKIP_GIT_AI=1 bash "$INSTALL" --global 2>&1)
+  assert_contains "skip message when env set" "$out" "DONTBMAD_SKIP_GIT_AI=1"
+  rm -rf "$fake_home"
 }
 
 test_global_injects_caveman_into_claude_md() {
@@ -229,5 +256,7 @@ run_test test_hooks_only_skips_when_no_repos
 run_test test_global_publish_to_isolated_home
 run_test test_global_dev_link_uses_symlinks
 run_test test_dep_check_output_printed
+run_test test_git_ai_detects_existing_install
+run_test test_git_ai_skipped_when_env_set
 run_test test_global_injects_caveman_into_claude_md
 finish

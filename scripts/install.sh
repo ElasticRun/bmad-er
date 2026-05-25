@@ -74,6 +74,7 @@ PYTHON3_OK=false
 GIT_OK=false
 UVX_OK=false
 BASH_OK=false
+CURL_OK=false
 
 check_system_deps() {
   echo "Dependencies:"
@@ -124,6 +125,14 @@ check_system_deps() {
   else
     echo "  uvx:      NOT FOUND — graphify will be skipped"
     echo "            Install:  curl -LsSf https://astral.sh/uv/install.sh | sh"
+  fi
+
+  if command -v curl >/dev/null 2>&1; then
+    echo "  curl:     ok"
+    CURL_OK=true
+  else
+    echo "  curl:     NOT FOUND — git-ai install will be skipped"
+    echo "            Install:  https://curl.se/download.html  or  brew install curl"
   fi
 
   echo ""
@@ -267,6 +276,43 @@ PYEOF
 # Runs graphify install for both platforms so the /graphify skill is available
 # everywhere without a manual pip/uvx step. Safe to run repeatedly.
 graphify_installed=false
+git_ai_installed=false
+install_git_ai() {
+  if [ "${DONTBMAD_SKIP_GIT_AI:-}" = "1" ]; then
+    echo "  Git AI:         skipped (DONTBMAD_SKIP_GIT_AI=1)"
+    return 0
+  fi
+
+  local git_ai_bin="$HOME/.git-ai/bin/git-ai"
+
+  if [ -x "$git_ai_bin" ]; then
+    if "$git_ai_bin" install-hooks >/dev/null 2>&1; then
+      local ver; ver=$("$git_ai_bin" --version 2>/dev/null | head -1 || echo "installed")
+      echo "  Git AI:         ok ($ver)"
+      git_ai_installed=true
+    else
+      echo "  Git AI:         ok (run 'git-ai install-hooks' if agent hooks are missing)"
+      git_ai_installed=true
+    fi
+    return 0
+  fi
+
+  if ! $CURL_OK; then
+    echo "  Git AI:         skipped (curl required — see dependency warnings above)"
+    return 0
+  fi
+
+  if curl -fsSL https://usegitai.com/install.sh | bash >/dev/null 2>&1 && [ -x "$git_ai_bin" ]; then
+    local ver; ver=$("$git_ai_bin" --version 2>/dev/null | head -1 || echo "installed")
+    echo "  Git AI:         installed ($ver)"
+    git_ai_installed=true
+  else
+    echo "  Git AI:         skipped (install failed)"
+    echo "            Install:  curl -sSL https://usegitai.com/install.sh | bash"
+    echo "            Docs:     https://github.com/git-ai-project/git-ai"
+  fi
+}
+
 install_graphify() {
   if ! $UVX_OK; then
     echo "  Graphify:       skipped (uvx not found — see dependency warnings above)"
@@ -289,6 +335,7 @@ if [ "$MODE" = "global" ] || $IN_REPO; then
   install_aieye_live_hook
   inject_global_caveman
   install_graphify
+  install_git_ai
   echo ""
   if $IN_REPO; then
     echo "Source-repo install: skills published as symlinks to $REPO_ROOT."
@@ -307,6 +354,7 @@ if [ "$MODE" = "all" ] || [ "$MODE" = "skills" ]; then
   install_aieye_live_hook
   inject_global_caveman
   install_graphify
+  install_git_ai
 
   if [ -f "$REPO_ROOT/scripts/adoption-dashboard.sh" ]; then
     mkdir -p "$TARGET/scripts"
@@ -567,4 +615,11 @@ if $graphify_installed; then
 elif ! $UVX_OK; then
   echo ""
   echo "Graphify skipped. Install uv (curl -LsSf https://astral.sh/uv/install.sh | sh) then re-run."
+fi
+if $git_ai_installed; then
+  echo ""
+  echo "Git AI tracks AI-generated lines in commits. Restart your terminal/IDE, then use 'git ai stats' or 'git ai blame'."
+elif ! $CURL_OK; then
+  echo ""
+  echo "Git AI skipped. Install curl, then re-run, or: curl -sSL https://usegitai.com/install.sh | bash"
 fi
