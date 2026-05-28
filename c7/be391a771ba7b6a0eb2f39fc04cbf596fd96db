@@ -1,0 +1,43 @@
+_bmad-output/planning-artifacts/references.md
+  s_3611989f8d3eb0::t_3582a2dc0705f0 1-15
+_bmad-output/planning-artifacts/uploads/BMAD-METHOD.md
+  s_3611989f8d3eb0::t_3a18b59d7d9280 1-453
+_bmad-output/planning-artifacts/prd-validation-report.md
+  s_3611989f8d3eb0::t_6aa5569ac7154e 6-9,24-27
+  s_3611989f8d3eb0::t_b7d6ad58970dde 11-13
+  s_3611989f8d3eb0::t_1055bf13302b90 70-73
+  s_3611989f8d3eb0::t_05eff5e75615aa 31-53
+  s_3611989f8d3eb0::t_bd142cd21e10de 1-5,14-23,28-30
+  s_3611989f8d3eb0::t_fcdcefecf69f7a 10
+  s_3611989f8d3eb0::t_bf98d1b595ad5e 74-115
+  s_3611989f8d3eb0::t_11efd3e8268d4d 116-183
+  s_3611989f8d3eb0::t_03756c759ef465 265-347
+  s_3611989f8d3eb0::t_b813bb1c09bf4b 348-417
+  s_3611989f8d3eb0::t_50ebe005ee6522 418-463
+  s_3611989f8d3eb0::t_4c9c41d1096df6 217-224
+  s_3611989f8d3eb0::t_6c0308f9a927ab 184-216
+  s_3611989f8d3eb0::t_ab2de0c1d003d6 54-69
+  s_3611989f8d3eb0::t_1cbda265d7acab 225-264
+_bmad-output/planning-artifacts/uploads/graphify.md
+  s_3611989f8d3eb0::t_3a18b59d7d9280 1-845
+_bmad-output/planning-artifacts/uploads/git-ai.md
+  s_3611989f8d3eb0::t_3a18b59d7d9280 1-510
+_bmad-output/planning-artifacts/prd.md
+  s_3611989f8d3eb0::t_366c98dfa95916 4-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c7be391a771ba7b6a0eb2f39fc04cbf596fd96db",
+  "prompts": {},
+  "sessions": {
+    "s_3611989f8d3eb0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "07bab7e3-37b2-4ada-85d6-42a7b4ac144e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
