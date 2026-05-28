@@ -1,0 +1,37 @@
+tests/e2e/install-layouts.test.sh
+  s_cba26f4e4cb74a::t_6574046cf4ecdf 44
+claude/skills/dontbmad-ai-tracking/SKILL.md
+  s_cba26f4e4cb74a::t_fe786cec802a7b 10-11
+scripts/install.sh
+  s_cba26f4e4cb74a::t_0a77fba32c2655 338
+  s_cba26f4e4cb74a::t_ba3f1a87f5d0e8 130-137
+  s_cba26f4e4cb74a::t_e51f8f45e5d18f 619-625
+  s_cba26f4e4cb74a::t_25bba946c0c011 357
+  s_cba26f4e4cb74a::t_a1e2d7bd744077 77
+  s_cba26f4e4cb74a::t_6cbeca0e0b088e 279-315
+README.md
+  s_cba26f4e4cb74a::t_6b66dfd3212d5b 65-66
+  s_cba26f4e4cb74a::t_fae8d45fcfcf2b 85
+tests/e2e/install.test.sh
+  s_cba26f4e4cb74a::t_cb745920c88b35 17
+  s_cba26f4e4cb74a::t_5f402f22902e6f 194,200-226
+  s_cba26f4e4cb74a::t_44bfb3d4e2b1a3 259-260
+cursor/skills/dontbmad-ai-tracking/SKILL.md
+  s_cba26f4e4cb74a::t_a63149b64c5a3c 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "6b35d0dc060b86910af4ee220c5d8a877cace4b3",
+  "prompts": {},
+  "sessions": {
+    "s_cba26f4e4cb74a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1c025393-49c4-446d-8eba-3417c531a0d2",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
