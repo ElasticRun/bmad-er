@@ -1,9 +1,10 @@
 ---
 stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-02c-executive-summary', 'step-03-success', 'step-04-journeys', 'step-05-domain', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional', 'step-10-nonfunctional', 'step-11-polish']
 inputDocuments:
-  - 'uploads/BMAD-METHOD-1.md'
-  - 'uploads/git-ai-2.md'
-  - 'uploads/graphify-3.md'
+  - 'uploads/BMAD-METHOD.md'
+  - 'uploads/git-ai.md'
+  - 'uploads/graphify.md'
+references: 'references.md'
 workflowType: 'prd'
 documentCounts:
   briefs: 0
