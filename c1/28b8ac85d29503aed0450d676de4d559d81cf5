@@ -1,0 +1,26 @@
+_bmad-output/planning-artifacts/prd.md
+  s_0c533e3d4479d2::t_06d11bf3ed370c 371-444
+  s_0c533e3d4479d2::t_fa27152027792c 40
+  s_0c533e3d4479d2::t_f5a3e886dd457b 259-283
+  s_0c533e3d4479d2::t_2cc71cfa2acd62 284-369
+  s_0c533e3d4479d2::t_375d06f4e284cc 2
+  s_0c533e3d4479d2::t_4fe40863ff74e5 445-481
+  s_0c533e3d4479d2::t_4eeb352a6de063 370
+  s_0c533e3d4479d2::t_ab04c8c5db9084 81-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c128b8ac85d29503aed0450d676de4d559d81cf5",
+  "prompts": {},
+  "sessions": {
+    "s_0c533e3d4479d2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "dc2443b9-6ad3-492b-a04d-5b25d8e1c3c0",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
