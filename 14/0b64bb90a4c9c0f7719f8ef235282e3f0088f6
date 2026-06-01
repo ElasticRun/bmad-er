@@ -1,0 +1,39 @@
+tests/e2e/shuru.json
+  s_7422fa0cd18449::t_32783d422fffe1 5
+  s_7422fa0cd18449::t_ea769cc98f28bb 1-4,6
+tests/e2e/shuru-bootstrap-prereqs.sh
+  s_7422fa0cd18449::t_37b16d650dad49 12-13
+  s_7422fa0cd18449::t_9796e8a5d855c4 1-11,14-40
+tests/e2e/create-shuru-checkpoint.sh
+  s_7422fa0cd18449::t_5f08a728262546 1-39
+tests/e2e/developer-onboarding-vm.sh
+  s_7422fa0cd18449::t_513bf9ef548947 28-34,36-40,42-45,47-49
+  s_7422fa0cd18449::t_39f1cdc4f1473a 62
+  s_7422fa0cd18449::t_b457822180c7ca 68,100,114
+tests/e2e/run-developer-onboarding-shuru.sh
+  s_7422fa0cd18449::t_46b8dade9cc736 2-3,8,10-11,14,23-31,36-38
+tests/e2e/shuru-checkpoint.name
+  s_7422fa0cd18449::t_4f31fc18f4c16a 1
+tests/e2e/README.md
+  s_7422fa0cd18449::t_939c1fb852c853 1-41
+_bmad-output/implementation-artifacts/tests/test-summary.md
+  s_7422fa0cd18449::t_67c5acb9560a64 76,78-80
+tests/e2e/shuru-checkpoint.manifest.json
+  s_7422fa0cd18449::t_4c18053b2e6c54 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "140b64bb90a4c9c0f7719f8ef235282e3f0088f6",
+  "prompts": {},
+  "sessions": {
+    "s_7422fa0cd18449": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a863ad74-21cb-4b43-adf2-2b30a2857c36",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
