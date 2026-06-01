@@ -1,0 +1,23 @@
+scripts/lib/bmad.sh
+  s_df748465ef670f::t_dd307ae7846304 111
+scripts/lib/common.sh
+  s_df748465ef670f::t_56ad70f051a83a 5
+.shellcheckrc
+  s_df748465ef670f::t_1a822b1a216e65 4-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "37805f355ecc15d03cbea594fd83da86d69ac024",
+  "prompts": {},
+  "sessions": {
+    "s_df748465ef670f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c60f6b73-a6af-40f5-a895-ceec974d87c0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
