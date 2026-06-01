@@ -1,0 +1,54 @@
+_bmad-output/implementation-artifacts/sprint-status.yaml
+  s_b0d0e32e84c62c::t_b6dfed4d4faa8a 62,64
+  s_b0d0e32e84c62c::t_6e6fda3adb6358 63
+scripts/install.sh
+  s_b0d0e32e84c62c::t_c2c0191083718d 256
+  s_b0d0e32e84c62c::t_0b1cfbe81979ca 27
+  s_b0d0e32e84c62c::t_46b207d19e9ebd 254-255
+  s_b0d0e32e84c62c::t_9d4acab56dafb9 8
+  s_b0d0e32e84c62c::t_cd49a52468cb68 21
+  s_b0d0e32e84c62c::t_b8345dbb67e4d4 167-200
+  s_b0d0e32e84c62c::t_8e7942378d0af8 201-219
+_bmad-output/implementation-artifacts/4-1-graphify-global-installation-and-per-repo-initialization.md
+  s_b0d0e32e84c62c::t_13da0625313b0e 1-3,5-8,10-30,32-54,61-63,68,70,73,78,80,82,86-91,95-97,99,103-105,112,117
+  s_b0d0e32e84c62c::t_24ec52d9556176 4,9,31,64-67,69,71-72,74-77,79,81,83-85,92-94,98,100-102,106-111,113-116,118
+  s_b0d0e32e84c62c::t_005ceff72f7235 55-60
+scripts/lib/workspace.sh
+  s_b0d0e32e84c62c::t_8c4ab335af2532 363-395
+tests/unit/test_graphify_init.sh
+  s_b0d0e32e84c62c::t_6a7e27b32e55a3 1-106
+tests/unit/test_dependencies.sh
+  s_b0d0e32e84c62c::t_0d4f398f103661 98
+  s_b0d0e32e84c62c::t_cf9ea8c8436e0d 92-97,99-116,121-125,129-131,136-137
+  s_b0d0e32e84c62c::t_ee2b6ca169960c 79
+  s_b0d0e32e84c62c::t_2ee9edd2fb6b3f 74
+  s_b0d0e32e84c62c::t_76bf04cf4a258c 117-120,126-128
+_bmad-output/implementation-artifacts/4-2-per-repo-hook-installation-and-conflict-detection.md
+  s_b0d0e32e84c62c::t_84a463a5c0aff4 4,9,48-50,52,54-55,57,64-66,69-70,72-74,76-79,83,87
+  s_b0d0e32e84c62c::t_a5de75079a332b 1-3,5-8,10-47,51,53,56,58-63,67-68,71,75,80-82,84-86
+scripts/lib/hooks.sh
+  s_b0d0e32e84c62c::t_48e8ba1603e7a4 1-179
+tests/unit/test_hooks.sh
+  s_b0d0e32e84c62c::t_48b5ac2ef0db86 1-115
+scripts/lib/dependencies.sh
+  s_b0d0e32e84c62c::t_3e2f06de887d9a 117-138,140-151,153,159-182,184-185,187-188,190-336
+  s_b0d0e32e84c62c::t_ccceb9663b91b0 3
+  s_b0d0e32e84c62c::t_af84b48f7db9c5 183,186,189
+  s_b0d0e32e84c62c::t_4977a648e17ca6 139,152,154-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6355c8ce7313b0913d7f5b94f01b78dfed3de019",
+  "prompts": {},
+  "sessions": {
+    "s_b0d0e32e84c62c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ff37e17c-1b36-40ac-84f7-ab0ed5d1760d",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
