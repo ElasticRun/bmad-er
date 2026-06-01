@@ -73,9 +73,11 @@
 
 | Test | Runner | Coverage |
 | --- | --- | --- |
-| Developer onboarding | `tests/e2e/run-developer-onboarding-shuru.sh` | Clone `dont-b-mad@lets-b-mad`, workspace, `install.sh`, global skills, `validate-installation.sh` in ephemeral Linux VM via [shuru](https://shuru.run/) |
+| Developer onboarding | `tests/e2e/run-developer-onboarding-shuru.sh` | Clone `dont-b-mad@lets-b-mad`, workspace, `install.sh`, global skills, `validate-installation.sh` in Linux VM via [shuru](https://shuru.run/) |
 
-**Run:** `tests/e2e/run-developer-onboarding-shuru.sh` (requires `shuru` CLI, network, ~5–6 min)
+**Checkpoint (one-time per machine):** `tests/e2e/create-shuru-checkpoint.sh` → `lets-b-mad-linux-prereqs` (apt + jq + yq + uv). Recipe in repo: `tests/e2e/shuru-bootstrap-prereqs.sh`.
+
+**Run:** `tests/e2e/run-developer-onboarding-shuru.sh` uses `shuru run --from lets-b-mad-linux-prereqs` when the checkpoint exists (~3–4 min); without it, slow path installs prereqs each run (~5–6 min).
 
 **Latest run:** `_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01.md`
 

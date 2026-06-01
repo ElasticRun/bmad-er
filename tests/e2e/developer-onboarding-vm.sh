@@ -25,27 +25,28 @@ assert() {
     fi
 }
 
+prereqs_already_installed() {
+    [ -f /etc/lets-b-mad-e2e-prereqs-ready ] &&
+        command -v git >/dev/null 2>&1 &&
+        command -v /usr/local/bin/uv >/dev/null 2>&1 &&
+        command -v /usr/local/bin/jq >/dev/null 2>&1 &&
+        command -v /usr/local/bin/yq >/dev/null 2>&1
+}
+
 install_linux_prereqs() {
-    log "Installing base packages (apt)..."
-    export HOME="${HOME:-/root}"
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update -qq
-    apt-get install -y -qq git curl ca-certificates python3 python3-venv nodejs npm \
-        build-essential wget >/dev/null
-
-    log "Installing jq 1.8.1, yq 4.53.2, and uv to /usr/local/bin..."
-    wget -qO /usr/local/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux-arm64
-    chmod +x /usr/local/bin/jq
-    wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.53.2/yq_linux_arm64
-    chmod +x /usr/local/bin/yq
-
-    if ! command -v /usr/local/bin/uv >/dev/null 2>&1; then
-        HOME=/root /usr/bin/curl -fsSL https://astral.sh/uv/install.sh | HOME=/root /bin/sh
-        if [ -x /root/.local/bin/uv ]; then
-            cp /root/.local/bin/uv /usr/local/bin/uv
-            chmod +x /usr/local/bin/uv
-        fi
+    if prereqs_already_installed; then
+        log "Linux prerequisites present (shuru checkpoint); skipping apt bootstrap"
+        return 0
     fi
+
+    log "No checkpoint marker; installing prerequisites (slow path)..."
+    if [ -f /e2e/shuru-bootstrap-prereqs.sh ]; then
+        sh /e2e/shuru-bootstrap-prereqs.sh
+        return $?
+    fi
+
+    log "ERROR: run tests/e2e/create-shuru-checkpoint.sh on the host first"
+    return 1
 }
 
 create_dev_user() {
@@ -58,13 +59,13 @@ create_dev_user() {
 }
 
 run_as_devuser() {
-  su - "$E2E_USER" -c "export HOME='$E2E_USER_HOME' PATH='/usr/local/bin:\$HOME/.local/bin:/usr/bin:/bin'; $1"
+    su - "$E2E_USER" -c "export HOME='$E2E_USER_HOME' PATH='/usr/local/bin:\$HOME/.local/bin:/usr/bin:/bin'; $1"
 }
 
 step_clone_lets_b_mad() {
     run_as_devuser "
         set -u
-        export PATH=\"\$HOME/.local/bin:\$PATH\"
+        export PATH=\"/usr/local/bin:\$HOME/.local/bin:\$PATH\"
         if [ -d '$E2E_LETS_B_MAD_CLONE/.git' ]; then
             echo '[e2e] lets-b-mad clone exists; fetching'
             cd '$E2E_LETS_B_MAD_CLONE' && git fetch origin '$E2E_REPO_BRANCH' && git checkout '$E2E_REPO_BRANCH'
@@ -96,7 +97,7 @@ step_create_workspace() {
 step_run_install() {
     run_as_devuser "
         set -u
-        export PATH=\"\$HOME/.local/bin:\$PATH\"
+        export PATH=\"/usr/local/bin:\$HOME/.local/bin:\$PATH\"
         cd '$E2E_WORKSPACE_ROOT'
         bash '$E2E_LETS_B_MAD_CLONE/scripts/install.sh' > /tmp/install-stdout.txt 2> /tmp/install-stderr.txt
         ec=\$?
@@ -110,7 +111,7 @@ step_run_install() {
 step_validate_artifacts() {
     run_as_devuser "
         set -u
-        export PATH=\"\$HOME/.local/bin:\$PATH\"
+        export PATH=\"/usr/local/bin:\$HOME/.local/bin:\$PATH\"
         WS='$E2E_WORKSPACE_ROOT'
         test -f \"\$WS/workspace.yaml\"
         test -f \"\$WS/.lets-b-mad/install-manifest.json\"

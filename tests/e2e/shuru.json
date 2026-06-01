@@ -1,0 +1,6 @@
+{
+  "cpus": 4,
+  "memory": 4096,
+  "disk_size": 4096,
+  "allow_net": true
+}
