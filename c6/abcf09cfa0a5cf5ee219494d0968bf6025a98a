@@ -1,0 +1,32 @@
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01T090623Z.log
+  s_7422fa0cd18449::t_b51e2749ce4b7c 1-116
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01T092819Z.log
+  s_7422fa0cd18449::t_42e907492e7e51 1-117
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01T091238Z.log
+  s_7422fa0cd18449::t_f8903bb1625706 1-109
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01T090117Z.log
+  s_7422fa0cd18449::t_e3142b6298f961 1-34
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01T090108Z.log
+  s_7422fa0cd18449::t_38be72691653fa 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c6abcf09cfa0a5cf5ee219494d0968bf6025a98a",
+  "prompts": {},
+  "humans": {
+    "h_f039b93e5404ee": {
+      "author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  },
+  "sessions": {
+    "s_7422fa0cd18449": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a863ad74-21cb-4b43-adf2-2b30a2857c36",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
