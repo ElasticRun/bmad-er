@@ -1,0 +1,16 @@
+# lets-b-mad generated and local state
+.lets-b-mad/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor / temp
+*.swp
+*.swo
+*~
+.tmp/
+tmp/
+
+# Test artifacts
+tests/tmp/
