@@ -1,3 +1,7 @@
 # shellcheck configuration for lets-b-mad (POSIX sh)
 shell=sh
 external-sources=false
+# SC1091: dynamic sourcing paths cannot be resolved statically
+disable=SC1091
+# SC2329: functions invoked via trap are not detected as "called"
+disable=SC2329

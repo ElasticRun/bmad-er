@@ -108,7 +108,7 @@ bmad_deploy_skills() {
             [ -d "$skill_dir" ] || continue
             for f in "$skill_dir"/*; do
                 [ -f "$f" ] || continue
-                rel_path="${f#${HOME}/}"
+                rel_path="${f#"${HOME}"/}"
                 cs=$(compute_checksum "$f") || continue
                 manifest_add_managed "$rel_path" "$cs" || true
             done

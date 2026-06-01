@@ -2,6 +2,7 @@
 # POSIX sh only; source from install scripts and tests.
 
 # --- Exit code constants (range-based, NFR16) ---
+# shellcheck disable=SC2034  # used by scripts that source this file
 EXIT_PREREQ_MISSING=10
 EXIT_PREREQ_INSTALL_FAILED=11
 EXIT_PREREQ_VERSION_MISMATCH=12
