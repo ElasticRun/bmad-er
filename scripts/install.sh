@@ -6,6 +6,7 @@
 BMAD_VERSION="6.8.0"
 GITAI_VERSION="1.5.2"
 GRAPHIFY_VERSION="0.8.27"
+CENTRAL_CONTEXT_REPO_URL="git@github.com:elasticrun/central-context.git"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -19,6 +20,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 . "$LIB_DIR/workspace.sh"
 . "$LIB_DIR/dependencies.sh"
 . "$LIB_DIR/hooks.sh"
+. "$LIB_DIR/context.sh"
 
 INSTALL_FORCE=0
 INSTALL_TEMP_DIR=""
@@ -217,6 +219,19 @@ install_step_hooks() {
     return "$rc"
 }
 
+install_step_context() {
+    step_name="Central Context"
+    if context_clone "$CENTRAL_CONTEXT_REPO_URL"; then
+        summary_add_pass "$step_name" "cloned/updated at ~/.lets-b-mad/central-context/"
+        return 0
+    fi
+
+    rc=$?
+    summary_add_fail "$step_name" "exit $rc — see logs"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
 install_main() {
     install_parse_args "$@"
     install_resolve_workspace
@@ -254,6 +269,7 @@ install_main() {
     install_step_graphify || true
     install_step_graphify_init || true
     install_step_hooks || true
+    install_step_context || true
 
     summary_print
 
