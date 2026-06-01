@@ -5,7 +5,7 @@
 # --- Version pins (NFR9, NFR17, NFR19) ---
 BMAD_VERSION="6.8.0"
 GITAI_VERSION="1.5.2"
-GRAPHIFY_VERSION="0.0.0"
+GRAPHIFY_VERSION="0.8.27"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -18,11 +18,13 @@ LIB_DIR="$SCRIPT_DIR/lib"
 . "$LIB_DIR/bmad.sh"
 . "$LIB_DIR/workspace.sh"
 . "$LIB_DIR/dependencies.sh"
+. "$LIB_DIR/hooks.sh"
 
 INSTALL_FORCE=0
 INSTALL_TEMP_DIR=""
 INSTALL_WORKSPACE_ROOT=""
 INSTALL_WORST_EXIT=0
+GRAPHIFY_INSTALL_OK=0
 
 install_record_failure() {
     code="${1:-1}"
@@ -162,6 +164,59 @@ install_step_workspace_yaml() {
     return 0
 }
 
+install_step_graphify() {
+    step_name="graphify Install"
+    if deps_install_graphify "$GRAPHIFY_VERSION"; then
+        GRAPHIFY_INSTALL_OK=1
+        summary_add_pass "$step_name" "graphify@$GRAPHIFY_VERSION"
+        return 0
+    fi
+
+    rc=$?
+    GRAPHIFY_INSTALL_OK=0
+    summary_add_fail "$step_name" "exit $rc — see logs"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
+install_step_graphify_init() {
+    step_name="graphify Init"
+
+    if [ "$GRAPHIFY_INSTALL_OK" -ne 1 ]; then
+        summary_add_pass "$step_name" "skipped (graphify install failed)"
+        return 0
+    fi
+
+    if deps_graphify_init_all "$INSTALL_WORKSPACE_ROOT"; then
+        summary_add_pass "$step_name" "per-repo knowledge graphs"
+        return 0
+    fi
+
+    rc=$?
+    summary_add_fail "$step_name" "all repo inits failed (exit $rc)"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
+install_step_hooks() {
+    step_name="graphify Hooks"
+
+    if [ "$GRAPHIFY_INSTALL_OK" -ne 1 ]; then
+        summary_add_pass "$step_name" "skipped (graphify install failed)"
+        return 0
+    fi
+
+    if hooks_install_all "$INSTALL_WORKSPACE_ROOT"; then
+        summary_add_pass "$step_name" "post-commit + post-checkout"
+        return 0
+    fi
+
+    rc=$?
+    summary_add_fail "$step_name" "hook install failed (exit $rc)"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
 install_main() {
     install_parse_args "$@"
     install_resolve_workspace
@@ -196,6 +251,9 @@ install_main() {
     install_step_toml || true
     install_step_gitai || true
     install_step_workspace_yaml || true
+    install_step_graphify || true
+    install_step_graphify_init || true
+    install_step_hooks || true
 
     summary_print
 

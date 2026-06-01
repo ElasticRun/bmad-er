@@ -360,3 +360,36 @@ workspace_generate_yaml() {
     log_success "workspace_generate_yaml: wrote $yaml_path"
     return 0
 }
+
+workspace_set_graphify_initialized() {
+    workspace_root="$1"
+    rel_path="$2"
+
+    if [ -z "$workspace_root" ] || [ -z "$rel_path" ]; then
+        log_error "workspace_set_graphify_initialized: workspace root and repo path required"
+        return 1
+    fi
+
+    if ! command -v yq >/dev/null 2>&1; then
+        log_error "workspace_set_graphify_initialized: yq not found on PATH"
+        return 1
+    fi
+
+    yaml_path=$(workspace_path_for "$workspace_root")
+    if [ ! -f "$yaml_path" ]; then
+        log_error "workspace_set_graphify_initialized: $yaml_path not found"
+        return 1
+    fi
+
+    export INIT_PATH="$rel_path"
+    if ! yq eval -i \
+        '(.repos[] | select(.path == strenv(INIT_PATH)) | .graphify_initialized) = true' \
+        "$yaml_path"; then
+        log_error "workspace_set_graphify_initialized: yq update failed for $rel_path"
+        unset INIT_PATH
+        return 1
+    fi
+    unset INIT_PATH
+
+    return 0
+}

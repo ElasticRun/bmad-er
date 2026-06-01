@@ -59,9 +59,9 @@ development_status:
   3-1-git-ai-global-installation: done
   3-2-local-ai-stats-summary-script: done
   epic-3-retrospective: optional
-  epic-4: backlog
-  4-1-graphify-global-installation-and-per-repo-initialization: backlog
-  4-2-per-repo-hook-installation-and-conflict-detection: backlog
+  epic-4: done
+  4-1-graphify-global-installation-and-per-repo-initialization: done
+  4-2-per-repo-hook-installation-and-conflict-detection: done
   epic-4-retrospective: optional
   epic-5: backlog
   5-1-central-context-repository-cloning: backlog
