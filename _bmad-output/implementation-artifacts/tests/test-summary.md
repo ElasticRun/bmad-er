@@ -69,7 +69,18 @@
 
 - **`scripts/lib/bmad.sh`:** `skills_changed` now uses exit code from `bmad_skills_checksum_changed` (fixes `integer expression expected` and restores IDE restart warning).
 
+## E2E Tests (shuru sandbox)
+
+| Test | Runner | Coverage |
+| --- | --- | --- |
+| Developer onboarding | `tests/e2e/run-developer-onboarding-shuru.sh` | Clone `dont-b-mad@lets-b-mad`, workspace, `install.sh`, global skills, `validate-installation.sh` in ephemeral Linux VM via [shuru](https://shuru.run/) |
+
+**Run:** `tests/e2e/run-developer-onboarding-shuru.sh` (requires `shuru` CLI, network, ~5–6 min)
+
+**Latest run:** `_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01.md`
+
 ## Next Steps
 
 - Run suites in CI on every PR
 - Add `markdownlint-cli2` to CI for doc tests when tool is available
+- Linux onboarding: fix `yq --version` parsing for mikefarah binary; optional HTTPS central-context on fresh machines
