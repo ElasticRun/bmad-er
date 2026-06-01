@@ -1,0 +1,36 @@
+docs/guide.md
+  s_53b863ba3ae679::t_8af7e2cebcf3f1 68-69
+tests/unit/test_docs.sh
+  s_53b863ba3ae679::t_06f7dc358bc243 1-58
+tests/unit/test_prerequisites.sh
+  s_53b863ba3ae679::t_04b4b4a0c53c65 37-38,42-49
+  s_53b863ba3ae679::t_c80ae09329fc7b 1-36,39-41,50-86
+tests/unit/test_install.sh
+  s_53b863ba3ae679::t_4bf525c0c3ad45 1-71
+_bmad-output/implementation-artifacts/tests/runs/epics-1-7-2026-06-01.md
+  s_53b863ba3ae679::t_c42a7fdaeeffa8 1-12
+scripts/lib/bmad.sh
+  s_53b863ba3ae679::t_30e8df5e54068a 91-93
+_bmad-output/implementation-artifacts/tests/test-summary.md
+  s_53b863ba3ae679::t_84cf33b841676a 1-75
+tests/unit/test_repo_structure.sh
+  s_53b863ba3ae679::t_8e89b4ee7c4eb3 1-59
+tests/unit/test_bmad.sh
+  s_53b863ba3ae679::t_d44877a0899186 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "eb51e18b9dd79854bc281752b524e565cacab9ae",
+  "prompts": {},
+  "sessions": {
+    "s_53b863ba3ae679": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "67bf565e-97c4-4f7d-8ee7-00a860f12f8a",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
