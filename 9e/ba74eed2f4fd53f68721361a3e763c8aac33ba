@@ -1,0 +1,23 @@
+scripts/lib/manifest.sh
+  s_df748465ef670f::t_3a306c600be94c 1-196
+_bmad-output/implementation-artifacts/1-2-install-manifest-tracking.md
+  s_df748465ef670f::t_fa99387eddca83 1-36
+tests/unit/test_manifest.sh
+  s_df748465ef670f::t_c0bc1a2469cba9 1-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9eba74eed2f4fd53f68721361a3e763c8aac33ba",
+  "prompts": {},
+  "sessions": {
+    "s_df748465ef670f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c60f6b73-a6af-40f5-a895-ceec974d87c0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
