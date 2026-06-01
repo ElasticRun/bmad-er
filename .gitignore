@@ -1,5 +1,6 @@
 # lets-b-mad generated and local state
 .lets-b-mad/
+workspace.yaml
 
 # OS artifacts
 .DS_Store

@@ -16,6 +16,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 . "$LIB_DIR/manifest.sh"
 . "$LIB_DIR/prerequisites.sh"
 . "$LIB_DIR/bmad.sh"
+. "$LIB_DIR/workspace.sh"
 
 INSTALL_FORCE=0
 INSTALL_TEMP_DIR=""
@@ -134,6 +135,19 @@ install_step_toml() {
     return 0
 }
 
+install_step_workspace_yaml() {
+    step_name="Workspace YAML"
+    if workspace_rediscover "$INSTALL_WORKSPACE_ROOT"; then
+        summary_add_pass "$step_name" "workspace.yaml merged"
+    else
+        rc=$?
+        summary_add_fail "$step_name" "workspace discovery failed (exit $rc)"
+        install_record_failure "$rc"
+        return "$rc"
+    fi
+    return 0
+}
+
 install_main() {
     install_parse_args "$@"
     install_resolve_workspace
@@ -166,6 +180,7 @@ install_main() {
     install_step_skills || true
     install_step_workspace || true
     install_step_toml || true
+    install_step_workspace_yaml || true
 
     summary_print
 

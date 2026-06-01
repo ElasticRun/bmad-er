@@ -51,9 +51,9 @@ development_status:
   1-4-bmad-installation-and-global-skill-deployment: done
   1-5-install-orchestrator-and-summary-table: done
   epic-1-retrospective: optional
-  epic-2: backlog
-  2-1-workspace-repository-discovery-and-yaml-generation: backlog
-  2-2-incremental-re-discovery-with-merge-semantics: backlog
+  epic-2: done
+  2-1-workspace-repository-discovery-and-yaml-generation: done
+  2-2-incremental-re-discovery-with-merge-semantics: done
   epic-2-retrospective: optional
   epic-3: backlog
   3-1-git-ai-global-installation: backlog
