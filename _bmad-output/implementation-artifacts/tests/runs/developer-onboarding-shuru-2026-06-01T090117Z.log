@@ -1,0 +1,34 @@
+shuru: booting VM (4cpus, 4096MB RAM, 4096MB disk)...
+[e2e] E2E developer onboarding (VM)
+[e2e] User=devuser workspace=//workspaces/my-bmad-workspace
+[e2e] Installing base packages (apt)...
+[e2e] Installing uv...
+downloading uv 0.11.17 aarch64-unknown-linux-gnu
+installing to //.local/bin
+  uv
+  uvx
+everything's installed!
+
+To add $HOME/.local/bin to your PATH, either restart your shell or run:
+
+    source $HOME/.local/bin/env (sh, bash, zsh)
+    source $HOME/.local/bin/env.fish (fish)
+[e2e] Installing jq 1.8.1...
+[e2e] Installing yq 4.53.2...
+[e2e] Creating user devuser...
+[e2e] Cloning https://github.com/elasticrun/dont-b-mad (branch lets-b-mad)
+fatal: could not create leading directories of '//tools/lets-b-mad': Permission denied
+[e2e] FAIL: clone lets-b-mad repository
+mkdir: cannot create directory '//workspaces': Permission denied
+fatal: cannot change to '//workspaces/my-bmad-workspace/projects/sample-app': No such file or directory
+fatal: cannot change to '//workspaces/my-bmad-workspace/projects/sample-app': No such file or directory
+fatal: cannot change to '//workspaces/my-bmad-workspace/projects/sample-app': No such file or directory
+-sh: 9: cannot create //workspaces/my-bmad-workspace/projects/sample-app/README.md: Directory nonexistent
+fatal: cannot change to '//workspaces/my-bmad-workspace/projects/sample-app': No such file or directory
+fatal: cannot change to '//workspaces/my-bmad-workspace/projects/sample-app': No such file or directory
+[e2e] FAIL: create workspace with git repo
+-sh: 4: cd: can't cd to //workspaces/my-bmad-workspace
+[e2e] install.sh exit code: 127
+bash: //tools/lets-b-mad/scripts/install.sh: No such file or directory
+[e2e] install.sh completed with exit 127 (0 = all steps passed per installer)
+/e2e/developer-onboarding-vm.sh: 64: 1: parameter not set

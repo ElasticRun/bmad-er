@@ -1,0 +1,117 @@
+shuru: booting VM (4cpus, 4096MB RAM, 4096MB disk)...
+[e2e] E2E developer onboarding (VM)
+[e2e] User=devuser workspace=/home/devuser/workspaces/my-bmad-workspace
+[e2e] Linux prerequisites present (shuru checkpoint); skipping apt bootstrap
+[e2e] Creating user devuser...
+[e2e] Cloning https://github.com/elasticrun/dont-b-mad (branch lets-b-mad)
+Cloning into '/home/devuser/tools/lets-b-mad'...
+[e2e] PASS: clone lets-b-mad repository
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Initialized empty Git repository in /home/devuser/workspaces/my-bmad-workspace/projects/sample-app/.git/
+[master (root-commit) 02600ca] init
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+[e2e] PASS: create workspace with git repo
+2026-06-01T09:30:00.678905Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.678945Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.678981Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.680355Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.680378Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.681702Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.681713Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685737Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685756Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685759Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685761Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685775Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+2026-06-01T09:30:00.685782Z  WARN shuru_proxy::stack: failed to send DNS response: buffer full
+[e2e] install.sh exit code: 0
+      deprecated calls
+              or your builds will no longer be supported.
+
+              See
+      https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license
+      for details.
+      
+      ********************************************************************************
+
+      !!
+        corresp(dist, value, root_dir)
+      bindings/python/tree_sitter_dm/binding.c:1:10: fatal error: Python.h: No
+      such file or directory
+          1 | #include <Python.h>
+            |          ^~~~~~~~~~
+      compilation terminated.
+      error: command '/usr/bin/aarch64-linux-gnu-gcc' failed with exit code 1
+
+hint: `tree-sitter-dm` (v0.25.1) was included because `graphifyy` (v0.8.27) depends on `tree-sitter-dm`
+hint: This error likely indicates that you need to install a library that provides "Python.h" for `tree-sitter-dm@0.25.1`[ERROR] deps_install_graphify: uv tool install failed
+[ERROR] deps_install_graphify: installation failed
+[INFO] Cloning central context from git@github.com:elasticrun/central-context.git...
+Cloning into '/home/devuser/.lets-b-mad/central-context'...
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[ERROR] context_clone: git clone failed
+[PASS] Installation complete — all steps passed
+[0;32m  ✓ /home/devuser/.bashrc[0m
+
+To apply changes immediately:
+  - For bash: source /home/devuser/.bashrc
+
+[0;33mClose and reopen your terminal and IDE sessions to use git-ai.[0m
+Step Name                | Status | Details
+-------------------------|--------|----------------------------------------
+Prerequisites            | FAIL   | exit 0 — see logs for manual install commands
+BMAD Install             | PASS   | bmad-method@6.8.0
+Global Skills            | PASS   | deployed to ~/.cursor and ~/.claude
+BMAD Workspace           | PASS   | _bmad/ at workspace root
+Customize TOML           | PASS   | _bmad/custom/*.toml
+git-ai Install           | PASS   | git-ai@1.5.2
+Workspace YAML           | PASS   | workspace.yaml merged
+graphify Install         | FAIL   | exit 0 — see logs
+graphify Init            | PASS   | skipped (graphify install failed)
+graphify Hooks           | PASS   | skipped (graphify install failed)
+Central Context          | FAIL   | exit 0 — see logs
+Gamification Config      | PASS   | endpoint disabled (empty GAMIFICATION_EVENT_URL)
+[e2e] install.sh completed with exit 0 (0 = all steps passed per installer)
+[e2e] PASS: workspace.yaml and manifest exist
+[e2e] PASS: global bmad skills in ~/.cursor and ~/.claude
+[e2e] validate-installation.sh exit code: 1
+Cursor global skills         | PASS | 54 bmad-* skill(s)
+Claude global skills         | PASS | 54 bmad-* skill(s)
+BMAD workspace               | PASS | _bmad/ present
+Workspace YAML               | PASS | 1 repo(s) listed
+Manifest bmad version        | PASS | 6.8.0
+Manifest gitai version       | PASS | 1.5.2
+Manifest graphify version    | PASS | 0.8.27
+git-ai version               | PASS | 1.5.2
+graphify hooks               | PASS | skipped (graphify not on PATH)
+Gamification endpoint        | PASS | disabled (empty pin)
+[INFO] validate-installation: workspace /home/devuser/workspaces/my-bmad-workspace
+Check Name                    | Status | Details
+------------------------------|--------|----------------------------------------
+graphify binary              | FAIL | not found
+  Expected: on PATH
+  Actual:   not found
+  Fix:      Run install or: uv tool install graphifyy==0.8.27
+Central context              | FAIL | not present
+  Expected: git clone at /home/devuser/.lets-b-mad/central-context
+  Actual:   not present
+  Fix:      Run install to clone central-context repository
+
+[ERROR] Validation failed — 2 failure(s), 10 passed
+[e2e] validate-installation.sh exit 1
+[e2e] E2E core onboarding passed; validate-installation exit 1
+[e2e] Common on fresh VMs: central-context needs git@github.com SSH; graphify needs uv on PATH

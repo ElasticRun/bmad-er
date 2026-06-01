@@ -1,0 +1,109 @@
+shuru: booting VM (4cpus, 4096MB RAM, 4096MB disk)...
+[e2e] E2E developer onboarding (VM)
+[e2e] User=devuser workspace=/home/devuser/workspaces/my-bmad-workspace
+[e2e] Installing base packages (apt)...
+[e2e] Installing jq 1.8.1 and yq 4.53.2 to /usr/local/bin...
+[e2e] Creating user devuser...
+[e2e] Installing uv for /home/devuser...
+-sh: 5: curl: not found
+-sh: 5: sh: not found
+[e2e] WARN: uv install for devuser failed
+[e2e] Cloning https://github.com/elasticrun/dont-b-mad (branch lets-b-mad)
+Cloning into '/home/devuser/tools/lets-b-mad'...
+[e2e] PASS: clone lets-b-mad repository
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Initialized empty Git repository in /home/devuser/workspaces/my-bmad-workspace/projects/sample-app/.git/
+[master (root-commit) 66e9b01] init
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+[e2e] PASS: create workspace with git repo
+[e2e] install.sh exit code: 0
+[PASS] Node.js/npx present
+[PASS] Python 3.13 present (>= 3.10)
+[WARN] uv missing
+[ERROR] Homebrew not found. Install from https://brew.sh then run: brew install uv
+[PASS] git present
+[PASS] curl present
+[PASS] jq 1.8.1 present
+[WARN] yq version mismatch: installed yq, required v4.53.2
+[ERROR] Homebrew not found. Install from https://brew.sh then run: brew install yq
+[INFO] Installing BMAD 6.8.0 into /tmp/tmp.AT1GDrEaaZ...
+[PASS] BMAD installed to /tmp/tmp.AT1GDrEaaZ
+[WARN] Global skills updated. Restart Cursor and Claude Code to pick up changes.
+[PASS] Global skills deployed
+[PASS] bmad_deploy_workspace: deployed to /home/devuser/workspaces/my-bmad-workspace/_bmad
+[PASS] bmad_generate_toml: generated customize.toml files
+[INFO] Installing git-ai 1.5.2...
+[PASS] git-ai 1.5.2 installed
+[INFO] workspace_discover: found 1 repos under /home/devuser/workspaces/my-bmad-workspace
+[PASS] workspace_merge_yaml: created /home/devuser/workspaces/my-bmad-workspace/workspace.yaml
+[ERROR] deps_install_graphify: uv not found
+[ERROR] deps_install_graphify: installation failed
+[INFO] Cloning central context from git@github.com:elasticrun/central-context.git...
+Cloning into '/home/devuser/.lets-b-mad/central-context'...
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[ERROR] context_clone: git clone failed
+[PASS] Installation complete — all steps passed
+[0;32m  ✓ /home/devuser/.bashrc[0m
+
+To apply changes immediately:
+  - For bash: source /home/devuser/.bashrc
+
+[0;33mClose and reopen your terminal and IDE sessions to use git-ai.[0m
+Step Name                | Status | Details
+-------------------------|--------|----------------------------------------
+Prerequisites            | FAIL   | exit 0 — see logs for manual install commands
+BMAD Install             | PASS   | bmad-method@6.8.0
+Global Skills            | PASS   | deployed to ~/.cursor and ~/.claude
+BMAD Workspace           | PASS   | _bmad/ at workspace root
+Customize TOML           | PASS   | _bmad/custom/*.toml
+git-ai Install           | PASS   | git-ai@1.5.2
+Workspace YAML           | PASS   | workspace.yaml merged
+graphify Install         | FAIL   | exit 0 — see logs
+graphify Init            | PASS   | skipped (graphify install failed)
+graphify Hooks           | PASS   | skipped (graphify install failed)
+Central Context          | FAIL   | exit 0 — see logs
+Gamification Config      | PASS   | endpoint disabled (empty GAMIFICATION_EVENT_URL)
+[e2e] install.sh completed with exit 0 (0 = all steps passed per installer)
+[e2e] PASS: workspace.yaml and manifest exist
+[e2e] PASS: global bmad skills in ~/.cursor and ~/.claude
+[e2e] validate-installation.sh exit code: 1
+Cursor global skills         | PASS | 54 bmad-* skill(s)
+Claude global skills         | PASS | 54 bmad-* skill(s)
+BMAD workspace               | PASS | _bmad/ present
+Workspace YAML               | PASS | 1 repo(s) listed
+Manifest bmad version        | PASS | 6.8.0
+Manifest gitai version       | PASS | 1.5.2
+Manifest graphify version    | PASS | 0.8.27
+git-ai version               | PASS | 1.5.2
+graphify hooks               | PASS | skipped (graphify not on PATH)
+Gamification endpoint        | PASS | disabled (empty pin)
+[INFO] validate-installation: workspace /home/devuser/workspaces/my-bmad-workspace
+Check Name                    | Status | Details
+------------------------------|--------|----------------------------------------
+graphify binary              | FAIL | not found
+  Expected: on PATH
+  Actual:   not found
+  Fix:      Run install or: uv tool install graphifyy==0.8.27
+Central context              | FAIL | not present
+  Expected: git clone at /home/devuser/.lets-b-mad/central-context
+  Actual:   not present
+  Fix:      Run install to clone central-context repository
+
+[ERROR] Validation failed — 2 failure(s), 10 passed
+[e2e] validate-installation.sh exit 1
+[e2e] E2E core onboarding passed; validate-installation exit 1
+[e2e] Common on fresh VMs: central-context needs git@github.com SSH; graphify needs uv on PATH
