@@ -1,0 +1,8 @@
+# Default BMAD skill customization template (lets-b-mad)
+# Placeholders replaced at install time: {{PRE_WORKFLOW_PATH}}, {{POST_WORKFLOW_PATH}}
+
+[[override]]
+activation_steps_prepend = ["{{PRE_WORKFLOW_PATH}}"]
+
+[[override]]
+on_complete = ["{{POST_WORKFLOW_PATH}}"]
