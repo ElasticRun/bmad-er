@@ -1,0 +1,28 @@
+_bmad-output/implementation-artifacts/sprint-status.yaml
+  s_7671d2e697124d::t_b577a97e53bd7f 66,69
+_bmad-output/implementation-artifacts/reviews/5-3-post-workflow-hook-execution-2026-06-01.md
+  s_7671d2e697124d::t_65c5a3820d2492 1-13
+tests/unit/test_post_workflow.sh
+  s_7671d2e697124d::t_2318bd92749dc1 1-79
+scripts/post-workflow.sh
+  s_7671d2e697124d::t_919813e97ae8f8 3,5-52
+_bmad-output/implementation-artifacts/5-3-post-workflow-hook-execution.md
+  s_7671d2e697124d::t_f8f2185da9fdab 4,9,13-15,17,19-20,27-36,40
+  s_7671d2e697124d::t_cdda6e8d6901d0 1-3,5-8,10-12,16,18,21-26,37-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "a2590155b8adadb66c73337842e310ccb22008cd",
+  "prompts": {},
+  "sessions": {
+    "s_7671d2e697124d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ae8a3ef2-e5b6-41e2-a825-743433795e01",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
