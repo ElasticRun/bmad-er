@@ -63,10 +63,10 @@ development_status:
   4-1-graphify-global-installation-and-per-repo-initialization: done
   4-2-per-repo-hook-installation-and-conflict-detection: done
   epic-4-retrospective: optional
-  epic-5: in-progress
+  epic-5: done
   5-1-central-context-repository-cloning: done
   5-2-pre-workflow-context-pull-and-hard-block: done
-  5-3-post-workflow-hook-execution: backlog
+  5-3-post-workflow-hook-execution: done
   epic-5-retrospective: optional
   epic-6: backlog
   6-1-agent-readable-readme: backlog
