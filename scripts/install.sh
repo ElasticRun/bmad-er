@@ -7,6 +7,8 @@ BMAD_VERSION="6.8.0"
 GITAI_VERSION="1.5.2"
 GRAPHIFY_VERSION="0.8.27"
 CENTRAL_CONTEXT_REPO_URL="git@github.com:elasticrun/central-context.git"
+# GitLab OAuth-protected gamification endpoint (URL only; credentials via git credential store)
+GAMIFICATION_EVENT_URL=""
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -232,6 +234,32 @@ install_step_context() {
     return "$rc"
 }
 
+install_write_gamification_config() {
+    config_dir="${HOME}/.lets-b-mad"
+    endpoint_file="$config_dir/gamification-endpoint"
+    mkdir -p "$config_dir" || return 1
+    printf '%s' "$GAMIFICATION_EVENT_URL" >"$endpoint_file" || return 1
+    chmod 600 "$endpoint_file" 2>/dev/null || true
+    return 0
+}
+
+install_step_gamification() {
+    step_name="Gamification Config"
+    if install_write_gamification_config; then
+        if [ -n "$GAMIFICATION_EVENT_URL" ]; then
+            summary_add_pass "$step_name" "endpoint at ~/.lets-b-mad/gamification-endpoint"
+        else
+            summary_add_pass "$step_name" "endpoint disabled (empty GAMIFICATION_EVENT_URL)"
+        fi
+        return 0
+    fi
+
+    rc=$?
+    summary_add_fail "$step_name" "could not write gamification-endpoint (exit $rc)"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
 install_main() {
     install_parse_args "$@"
     install_resolve_workspace
@@ -270,6 +298,7 @@ install_main() {
     install_step_graphify_init || true
     install_step_hooks || true
     install_step_context || true
+    install_step_gamification || true
 
     summary_print
 

@@ -157,6 +157,20 @@ If the new BMAD version fails in production:
 
 **Note:** Rollback does not automatically downgrade git-ai or graphify unless you also revert `GITAI_VERSION` / `GRAPHIFY_VERSION` and re-run install.
 
+## Gamification endpoint configuration
+
+Phase 2 workflow gamification pushes completion events from `scripts/post-workflow.sh` to a GitLab OAuth-protected HTTP endpoint (office TV dashboard).
+
+**Pin the URL** in `scripts/install.sh` (version block):
+
+```sh
+GAMIFICATION_EVENT_URL="https://gitlab.example.com/api/v4/projects/<id>/events"
+```
+
+Leave empty to disable pushes. Re-run `bash scripts/install.sh` to write `~/.lets-b-mad/gamification-endpoint` (mode `600`, URL only — no tokens).
+
+**Credentials:** OAuth tokens live in the native git credential store (`git credential fill` / `approve`). Configure GitLab auth with your team's credential helper before expecting events to flow. Tokens are never written to lets-b-mad files or logs (NFR5, NFR6).
+
 ## Documentation quality
 
 ```sh
