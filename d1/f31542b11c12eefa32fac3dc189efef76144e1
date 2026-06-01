@@ -1,0 +1,35 @@
+_bmad-output/implementation-artifacts/tests/test-summary.md
+  s_7422fa0cd18449::t_ae7480fc77a751 72-81,86
+_bmad-output/implementation-artifacts/tests/runs/developer-onboarding-shuru-2026-06-01.md
+  s_7422fa0cd18449::t_8fc8a756233a52 1-79
+tests/e2e/run-developer-onboarding-shuru.sh
+  s_7422fa0cd18449::t_1a024732c4d52f 25
+  s_7422fa0cd18449::t_214dac8ca57b6a 1-24,26-32
+tests/e2e/developer-onboarding-vm.sh
+  s_7422fa0cd18449::t_fb7b9b8e2b268c 1-7,9-11,14-18,21-29,31-35,41,49-55,58-60,62-155,160-176,180-183
+  s_7422fa0cd18449::t_dcf355d72a51b4 61
+  s_7422fa0cd18449::t_5f85cf79cbb551 156-159
+  s_7422fa0cd18449::t_b6e40554942aa5 8,12-13
+  s_7422fa0cd18449::t_9101c69a582d4f 30
+  s_7422fa0cd18449::t_4173734efc08df 56-57
+  s_7422fa0cd18449::t_1a6ed9d97127d4 36,42-48
+  s_7422fa0cd18449::t_599dda2cf5e159 19-20
+  s_7422fa0cd18449::t_b8c492a1d2a4bd 177-179
+  s_7422fa0cd18449::t_a217f867f71f6c 37-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d1f31542b11c12eefa32fac3dc189efef76144e1",
+  "prompts": {},
+  "sessions": {
+    "s_7422fa0cd18449": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a863ad74-21cb-4b43-adf2-2b30a2857c36",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
