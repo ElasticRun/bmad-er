@@ -55,9 +55,9 @@ development_status:
   2-1-workspace-repository-discovery-and-yaml-generation: done
   2-2-incremental-re-discovery-with-merge-semantics: done
   epic-2-retrospective: optional
-  epic-3: backlog
-  3-1-git-ai-global-installation: backlog
-  3-2-local-ai-stats-summary-script: backlog
+  epic-3: done
+  3-1-git-ai-global-installation: done
+  3-2-local-ai-stats-summary-script: done
   epic-3-retrospective: optional
   epic-4: backlog
   4-1-graphify-global-installation-and-per-repo-initialization: backlog

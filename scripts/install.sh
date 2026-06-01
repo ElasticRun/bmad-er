@@ -4,7 +4,7 @@
 
 # --- Version pins (NFR9, NFR17, NFR19) ---
 BMAD_VERSION="6.8.0"
-GITAI_VERSION="0.0.0"
+GITAI_VERSION="1.5.2"
 GRAPHIFY_VERSION="0.0.0"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -17,6 +17,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 . "$LIB_DIR/prerequisites.sh"
 . "$LIB_DIR/bmad.sh"
 . "$LIB_DIR/workspace.sh"
+. "$LIB_DIR/dependencies.sh"
 
 INSTALL_FORCE=0
 INSTALL_TEMP_DIR=""
@@ -135,6 +136,19 @@ install_step_toml() {
     return 0
 }
 
+install_step_gitai() {
+    step_name="git-ai Install"
+    if deps_install_gitai "$GITAI_VERSION"; then
+        summary_add_pass "$step_name" "git-ai@$GITAI_VERSION"
+        return 0
+    fi
+
+    rc=$?
+    summary_add_fail "$step_name" "exit $rc — see logs"
+    install_record_failure "$rc"
+    return "$rc"
+}
+
 install_step_workspace_yaml() {
     step_name="Workspace YAML"
     if workspace_rediscover "$INSTALL_WORKSPACE_ROOT"; then
@@ -180,6 +194,7 @@ install_main() {
     install_step_skills || true
     install_step_workspace || true
     install_step_toml || true
+    install_step_gitai || true
     install_step_workspace_yaml || true
 
     summary_print
