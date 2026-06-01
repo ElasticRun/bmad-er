@@ -73,6 +73,14 @@ On partial or full failure:
 
 Run from your **workspace root** (same directory used for install). Every check below must pass.
 
+**Automated validation** (runs all checks below plus version pins, hook verification, and context freshness):
+
+```sh
+bash /path/to/lets-b-mad/scripts/validate-installation.sh
+```
+
+**Pass when:** exits **0** and summary shows all checks `PASS`. **Fail when:** non-zero exit; each failure prints expected state, actual state, and suggested fix.
+
 ### Global Cursor skills
 
 ```sh

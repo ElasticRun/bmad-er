@@ -171,6 +171,16 @@ Leave empty to disable pushes. Re-run `bash scripts/install.sh` to write `~/.let
 
 **Credentials:** OAuth tokens live in the native git credential store (`git credential fill` / `approve`). Configure GitLab auth with your team's credential helper before expecting events to flow. Tokens are never written to lets-b-mad files or logs (NFR5, NFR6).
 
+## Installation health validation
+
+Run from the workspace root at any time:
+
+```sh
+bash /path/to/lets-b-mad/scripts/validate-installation.sh
+```
+
+Checks: global `bmad-*` skills, `_bmad/` workspace, `workspace.yaml`, manifest version pins, git-ai/graphify versions, central context freshness, graphify hooks per repo, and gamification endpoint file (when enabled). Exit **0** when healthy; **1** with remediation hints when not.
+
 ## Documentation quality
 
 ```sh
