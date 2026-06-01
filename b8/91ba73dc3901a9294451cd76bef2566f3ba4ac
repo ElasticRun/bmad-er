@@ -1,0 +1,39 @@
+_bmad-output/implementation-artifacts/7-2-installation-health-validation-command.md
+  s_8a1def0b422fbd::t_228bcf0f44e1d1 1-3,5-8,10-38,43,54-58,62-63,66,75,85-87
+  s_8a1def0b422fbd::t_bae9ac61c15210 4,9,39-42,44-53,59-61,64-65,67-74,76-84,88
+docs/guide.md
+  s_8a1def0b422fbd::t_c22920a6ef3362 174-183
+_bmad-output/implementation-artifacts/sprint-status.yaml
+  s_8a1def0b422fbd::t_c402a1865a2975 77,79
+README.md
+  s_8a1def0b422fbd::t_7d39f638229f24 76-83
+tests/unit/test_validate_installation.sh
+  s_8a1def0b422fbd::t_e739d1c17361ad 53-54,58
+  s_8a1def0b422fbd::t_9fe7a0f900d157 106,110
+  s_8a1def0b422fbd::t_04b8cd27a84ebf 115-116
+  s_8a1def0b422fbd::t_fc1a95774f4698 105,109
+  s_8a1def0b422fbd::t_f33df322dacac0 1-52,55-57,59-64,66-79,88-104,108,111-114,117-134
+  s_8a1def0b422fbd::t_a7c28a97131f55 80-87
+  s_8a1def0b422fbd::t_12050f1a71c260 65
+  s_8a1def0b422fbd::t_b7c7e57e8a24f7 107
+scripts/validate-installation.sh
+  s_8a1def0b422fbd::t_9cdfd5cfcb5bf8 184-188
+  s_8a1def0b422fbd::t_472221911b1cd1 311-312
+  s_8a1def0b422fbd::t_b42da33168f917 1-183,189-310,313-334
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b891ba73dc3901a9294451cd76bef2566f3ba4ac",
+  "prompts": {},
+  "sessions": {
+    "s_8a1def0b422fbd": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8deb705f-f766-43c4-a519-c8fadb1780e2",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
