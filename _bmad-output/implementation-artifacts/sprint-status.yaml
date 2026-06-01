@@ -1,5 +1,6 @@
 # generated: 2026-06-01
 # last_updated: 2026-06-01
+# epic-6 completed 2026-06-01
 # epic-1 completed 2026-06-01
 # project: lets-b-mad
 # project_key: NOKEY
@@ -37,6 +38,7 @@
 
 generated: 2026-06-01
 last_updated: 2026-06-01
+# epic-6 completed 2026-06-01
 # epic-1 completed 2026-06-01
 project: lets-b-mad
 project_key: NOKEY
@@ -68,9 +70,9 @@ development_status:
   5-2-pre-workflow-context-pull-and-hard-block: done
   5-3-post-workflow-hook-execution: done
   epic-5-retrospective: optional
-  epic-6: backlog
-  6-1-agent-readable-readme: backlog
-  6-2-contributor-guide-and-upgrade-procedures: backlog
+  epic-6: done
+  6-1-agent-readable-readme: done
+  6-2-contributor-guide-and-upgrade-procedures: done
   epic-6-retrospective: optional
   epic-7: backlog
   7-1-gamification-event-push-and-credential-management: backlog
