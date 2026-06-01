@@ -88,7 +88,9 @@ bmad_deploy_skills() {
 
     skills_changed=0
     if [ -n "$MANIFEST_CURRENT_PATH" ] && [ -f "$MANIFEST_CURRENT_PATH" ]; then
-        skills_changed=$(bmad_skills_checksum_changed "$skills_src")
+        if ! bmad_skills_checksum_changed "$skills_src"; then
+            skills_changed=1
+        fi
     fi
 
     _bmad_wipe_dir "$cursor_skills"

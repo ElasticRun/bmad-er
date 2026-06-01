@@ -65,6 +65,8 @@ Placeholders `{{PRE_WORKFLOW_PATH}}` and `{{POST_WORKFLOW_PATH}}` are replaced a
 
 4. Add an `install_step_<name>` function and call it from `install_main` with `|| true` (continue-on-failure).
 5. Add `tests/unit/test_<module>.sh` using `tests/unit/lib/test_helpers.sh`.
+
+Existing suites cover epics 1–7: `test_repo_structure.sh`, `test_prerequisites.sh`, `test_bmad.sh`, `test_install.sh`, `test_docs.sh`, plus module tests for manifest, workspace, dependencies, hooks, context, workflows, and validation.
 6. Run shellcheck on all scripts.
 
 ### Testing procedures
