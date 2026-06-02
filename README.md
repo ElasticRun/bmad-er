@@ -18,30 +18,33 @@ Run these checks from a terminal. **Supported platform: macOS (Darwin).** Prereq
 | 8 | jq ≥ 1.8.1 | `jq --version` | version printed |
 | 9 | yq ≥ 4.53.2 | `yq --version` | version printed |
 | 10 | GitHub SSH | `ssh -T git@github.com` | authenticated (or access to clone `git@github.com:elasticrun/central-context.git`) |
-| 11 | Workspace layout | `pwd` | you are at the **workspace root** — the folder that contains (or should contain) your git repositories |
+| 11 | Workspace layout | identify your **workspace root** — the folder that contains (or should contain) your git repositories | you know the absolute path |
 
 **Version pins** (installed by `scripts/install.sh`): BMAD **6.8.0**, git-ai **1.5.2**, graphify **0.8.27**.
 
 ## Install
 
 1. Clone this repository (or ensure `scripts/install.sh` is available).
-2. `cd` to your **workspace root** (the directory where `workspace.yaml` should live — typically your monorepo or projects folder, not only the lets-b-mad source tree unless that is your workspace).
-3. Run the installer:
+2. Run the installer from any directory:
 
 ```sh
 bash /path/to/lets-b-mad/scripts/install.sh
 ```
 
-If your shell is already in the lets-b-mad clone and that directory **is** your workspace root:
+3. When prompted, enter your **workspace root** — the directory where `workspace.yaml` should live (typically your monorepo or projects folder). Press Enter to accept the default (`pwd`).
+
+Or pass the path on the command line (skips the prompt):
 
 ```sh
-bash scripts/install.sh
+bash /path/to/lets-b-mad/scripts/install.sh --workspace /path/to/your/workspace
+# or
+bash /path/to/lets-b-mad/scripts/install.sh /path/to/your/workspace
 ```
 
 Optional:
 
 - `--force` — redeploy global skills even when checksums match (wipes `~/.cursor/skills` and `~/.claude/skills` before copy).
-- `LETS_B_MAD_WORKSPACE=/absolute/path` — install against a workspace root other than `pwd`.
+- `LETS_B_MAD_WORKSPACE=/absolute/path` — skip the prompt and install against that workspace root (for agents and automation).
 
 **Success criterion:** command exits with code **0**.
 

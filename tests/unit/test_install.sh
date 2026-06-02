@@ -57,12 +57,31 @@ test_summary_print() {
     return 0
 }
 
+test_workspace_prompt() {
+    grep -q 'install_validate_workspace_path' "$INSTALL_SH" || return 1
+    grep -q 'Workspace folder path' "$INSTALL_SH" || return 1
+    return 0
+}
+
+test_workspace_cli_arg() {
+    grep -q 'INSTALL_WORKSPACE_ARG' "$INSTALL_SH" || return 1
+    grep -q -- '--workspace' "$INSTALL_SH" || return 1
+    return 0
+}
+
+test_help_shows_workspace_option() {
+    sh "$INSTALL_SH" --help 2>&1 | grep -q -- '--workspace'
+}
+
 run_test "help" test_help_exits_zero
 run_test "version_pins" test_version_pins_block
 run_test "lib_sources" test_sources_lib_modules
 run_test "continue_on_failure" test_continue_on_failure_pattern
 run_test "trap_cleanup" test_trap_cleanup
 run_test "summary_table" test_summary_print
+run_test "workspace_prompt" test_workspace_prompt
+run_test "workspace_cli_arg" test_workspace_cli_arg
+run_test "help_workspace_option" test_help_shows_workspace_option
 
 if [ "$failures" -ne 0 ]; then
     exit 1

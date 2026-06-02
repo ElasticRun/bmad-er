@@ -1,5 +1,9 @@
 ---
-stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-02c-executive-summary', 'step-03-success', 'step-04-journeys', 'step-05-domain', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional', 'step-10-nonfunctional', 'step-11-polish']
+stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-02c-executive-summary', 'step-03-success', 'step-04-journeys', 'step-05-domain', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional', 'step-10-nonfunctional', 'step-11-polish', 'step-e-01-discovery', 'step-e-02-review', 'step-e-03-edit']
+lastEdited: '2026-06-02'
+editHistory:
+  - date: '2026-06-02'
+    changes: 'install.sh prompts for workspace folder at startup; --force and other flags unchanged'
 inputDocuments:
   - 'uploads/BMAD-METHOD.md'
   - 'uploads/git-ai.md'
@@ -93,7 +97,7 @@ Three context layers feed every agent session, each kept automatically current: 
 
 | Capability | Description | Justification |
 |-----------|-------------|---------------|
-| `scripts/install.sh` | Idempotent bootstrap: pins BMAD v6.8.0 via npx (non-interactive), installs git-ai + graphify (version-pinned), sets up git hooks, deploys global skills, clones central context repo, auto-discovers repos and generates workspace YAML. Supports `--force`. Prints pass/fail per step. | Day-one journey fails without it |
+| `scripts/install.sh` | Idempotent bootstrap: prompts once for workspace folder path, then pins BMAD v6.8.0 via npx (non-interactive), installs git-ai + graphify (version-pinned), sets up git hooks, deploys global skills, clones central context repo, auto-discovers repos and generates workspace YAML. Supports `--force`. Prints pass/fail per step. | Day-one journey fails without it |
 | Workspace YAML manifest | Auto-discovered from workspace root (every initialized git repo = entry, relative paths). Developer-editable. Validated on every command invocation. | Multi-repo context unavailable without it |
 | Central context integration | Git repo of markdown files (org standards, data dictionary, domain glossary, ADRs) cloned at install, pulled fresh via `activation_steps_prepend` before every BMAD workflow. Pull failure = hard block. | Mandatory workflow contract: context never stale at workflow start |
 | git-ai integration | Global install, version-pinned. Tracks AI code attribution per commit. Data available for durability, autonomy, and efficiency metrics consumed by separate aggregation project. | Quality metrics are the primary MVP goal |
@@ -169,13 +173,13 @@ Three context layers feed every agent session, each kept automatically current: 
 
 **Opening Scene:** Priya opens Cursor, clones the lets-b-mad repository, and opens it as her workspace. She reads the README — or more precisely, her Cursor agent reads it. The agent identifies `scripts/install.sh` and asks if she'd like to proceed with installation.
 
-**Rising Action:** The install script runs. It detects her workspace folder, discovers 4 git repositories she's already cloned as siblings, pins and installs BMAD v6.8.0 via npx, installs git-ai globally, installs graphify via uv, clones the central context repo, generates her workspace YAML with all 4 repos listed, and deploys global skills to `~/.cursor`. Each step prints a pass/fail status. Total time: under 3 minutes.
+**Rising Action:** The install script runs. It prompts Priya for her workspace folder path (her agent supplies the path from context). The script validates the folder, discovers 4 git repositories she's already cloned as siblings, pins and installs BMAD v6.8.0 via npx, installs git-ai globally, installs graphify via uv, clones the central context repo, generates her workspace YAML with all 4 repos listed, and deploys global skills to `~/.cursor`. Each step prints a pass/fail status. Total time: under 3 minutes.
 
 **Climax:** Priya opens one of her assigned repos and invokes `/bmad-dev-story`. Before the workflow begins, `activation_steps_prepend` fires — pulling the latest org standards, data dictionary, and ADRs from the central context repo. The agent has rich context from graphify's knowledge graph and knows the organization's coding conventions. She writes a functional specification, the agent generates implementation code that follows the team's patterns, and she reviews it — finding the code clean, well-tested, and consistent with existing architecture.
 
 **Resolution:** By lunch, Priya has completed her first story. git-ai has tracked the AI attribution on her commits. Her graphify graph updated automatically on commit. She didn't write a single line of implementation code — she authored a specification and reviewed the output. She messages her manager: "That was the smoothest onboarding I've ever had."
 
-**Requirements revealed:** Agent-readable README, single-command install, workspace auto-discovery, global skill deployment, graphify hook setup, central context clone, YAML generation, pass/fail verification output, non-interactive execution.
+**Requirements revealed:** Agent-readable README, single-command install, workspace folder prompt, workspace auto-discovery, global skill deployment, graphify hook setup, central context clone, YAML generation, pass/fail verification output, non-interactive execution after workspace selection.
 
 ### Journey 2: Arjun — Active Developer, Daily Workflow
 
@@ -211,7 +215,7 @@ Three context layers feed every agent session, each kept automatically current: 
 
 **Opening Scene:** Meera reads the lets-b-mad upgrade guide. It lists the steps: update the pinned BMAD version in install.sh, test the upgrade on her own workspace, then notify the team to re-run install.sh.
 
-**Rising Action:** Meera updates the BMAD version pin in the lets-b-mad repo and runs install.sh on her workspace. The script detects existing installations — it updates managed files (BMAD skills, global skills) but preserves all `_bmad/custom/*.toml` overrides, workspace YAML entries, and developer-specific configurations. New skills from 6.9.0 are added alongside existing ones. The `on_complete` hooks in customize.toml still point to the same shared scripts.
+**Rising Action:** Meera updates the BMAD version pin in the lets-b-mad repo and runs install.sh, entering her workspace folder path when prompted. The script detects existing installations — it updates managed files (BMAD skills, global skills) but preserves all `_bmad/custom/*.toml` overrides, workspace YAML entries, and developer-specific configurations. New skills from 6.9.0 are added alongside existing ones. The `on_complete` hooks in customize.toml still point to the same shared scripts.
 
 **Climax:** Meera runs a BMAD workflow end-to-end on her workspace. Central context pulls correctly, graphify graph is current, git-ai tracks normally, and the new 6.9.0 features work. She pushes the version bump to the lets-b-mad repo.
 
@@ -251,7 +255,7 @@ Three context layers feed every agent session, each kept automatically current: 
 
 | Journey | User Type | Key Capabilities Revealed |
 |---------|-----------|--------------------------|
-| Priya (Day One) | New Developer | Agent-readable README, single-command install, auto-discovery, global skills, graphify hooks, context clone, YAML generation, verification output |
+| Priya (Day One) | New Developer | Agent-readable README, single-command install, workspace folder prompt, auto-discovery, global skills, graphify hooks, context clone, YAML generation, verification output |
 | Arjun (Daily) | Active Developer | Multi-repo YAML context, pre-workflow context pull, graphify git hooks, git-ai tracking, customize.toml on_complete, specification-first workflow |
 | Arjun (Edge Case) | Active Developer | On-demand repo discovery, YAML merge-not-overwrite, per-repo graphify init, validation |
 | Meera (Upgrade) | Workspace Maintainer | Version pin management, managed vs protected files, idempotent re-run, upgrade docs, customize.toml preservation |
@@ -306,6 +310,7 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 
 | Step | Action | Output Location |
 |------|--------|----------------|
+| 0 | Prompt developer for workspace folder path; validate path exists and is a directory | — |
 | 1 | `npx bmad-method@6.8.0 install --directory <temp> --modules bmm,cis,wds --tools cursor --yes` | Temp directory |
 | 2 | Delete and recreate global skills: wipe and copy `.agents/skills/*` from temp to `~/.cursor/skills/` and `~/.claude/skills/` | Global (per-machine) |
 | 3 | Copy full `_bmad/` from temp to workspace root (preserved on re-install, recreated on fresh/`--force`) | Workspace root |
@@ -313,6 +318,8 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 | 5 | Clean up temp directory | — |
 
 ### Installation Modes
+
+All modes prompt once for the workspace folder path before proceeding. The `--force` flag behavior is unchanged.
 
 | Mode | Command | Global Skills | `_bmad/` | `_bmad/custom/` |
 |------|---------|--------------|----------|-----------------|
@@ -366,6 +373,7 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 - **All scripts in `scripts/`** — single directory for all executable logic. install.sh orchestrates; sub-scripts handle individual concerns.
 - **Exit codes** — every script exits with meaningful codes. install.sh prints a summary table (step name, status, error if any).
 - **Idempotency** — every operation checks current state before acting. Already-installed dependencies are skipped. Manifest file (`.lets-b-mad/install-manifest.json`) tracks managed files with checksums.
+- **Workspace selection** — install.sh prompts once for the workspace folder path at startup (before any install steps). Invalid paths are rejected with a clear error. The `--force` flag and all other CLI flags behave unchanged.
 - **Graphify hook ordering** — `graphify hook install` sets up post-commit and post-checkout hooks. git-ai hooks are global. Verify no hook conflicts during install; warn if existing hooks detected.
 - **Credentials** — GitLab OAuth tokens retrieved via `git credential fill` / stored via `git credential approve`. Never stored in plaintext files. Never logged in install output.
 
@@ -373,8 +381,9 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 
 ### Workspace Initialization & Setup
 
-- **FR1:** Developer can install the complete lets-b-mad environment on a fresh macOS workspace using a single command (`bash scripts/install.sh`) with no interactive prompts
-- **FR2:** AI coding agent (Cursor/Claude Code) can execute the installation autonomously by reading the repository README
+- **FR1:** Developer can install the complete lets-b-mad environment on a fresh macOS machine using a single command (`bash scripts/install.sh`). The script prompts once for the workspace folder path; all subsequent steps run non-interactively
+- **FR1a:** install.sh prompts for the workspace folder path at startup, validates that the path exists and is a directory, and uses it as the workspace root for all installation steps
+- **FR2:** AI coding agent (Cursor/Claude Code) can execute the installation autonomously by reading the repository README, including supplying the workspace folder path when install.sh prompts for it
 - **FR3:** Developer can force a clean reinstallation of all components using the `--force` flag, overwriting all managed and protected files
 - **FR4:** install.sh can detect missing prerequisites (Node.js/npx, Python 3.10+, uv, git, curl) and attempt automatic installation via Homebrew
 - **FR5:** install.sh can report clear error messages with manual installation instructions and exit with a non-zero code when prerequisite installation fails
@@ -432,7 +441,7 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 
 ### Documentation & Guidance
 
-- **FR36:** The README can serve as a complete, agent-executable installation guide with preflight checks, single-command install, success verification criteria, and a do-not list
+- **FR36:** The README can serve as a complete, agent-executable installation guide with preflight checks, single-command install (including how to answer the workspace folder prompt), success verification criteria, and a do-not list
 - **FR37:** Developer can find contribution guidelines (repo structure, template modification, testing) and upgrade procedures (version bump, test-then-rollout, compatibility checklist) in `docs/guide.md`
 
 ### Phase 2: Gamification Event Push (Growth)

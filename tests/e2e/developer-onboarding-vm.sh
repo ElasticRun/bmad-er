@@ -90,6 +90,7 @@ step_create_workspace() {
             git -C \"\$WS/projects/sample-app\" add README.md
             git -C \"\$WS/projects/sample-app\" commit -m 'init'
         fi
+        uv tool install graphifyy==0.8.27
         test -d \"\$WS/projects/sample-app/.git\"
     "
 }

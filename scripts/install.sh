@@ -25,6 +25,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 . "$LIB_DIR/context.sh"
 
 INSTALL_FORCE=0
+INSTALL_WORKSPACE_ARG=""
 INSTALL_TEMP_DIR=""
 INSTALL_WORKSPACE_ROOT=""
 INSTALL_WORST_EXIT=0
@@ -53,23 +54,95 @@ install_parse_args() {
             --force)
                 INSTALL_FORCE=1
                 ;;
+            --workspace)
+                if [ $# -lt 2 ]; then
+                    log_error "--workspace requires a path argument"
+                    exit 1
+                fi
+                INSTALL_WORKSPACE_ARG="$2"
+                shift
+                ;;
+            --workspace=*)
+                INSTALL_WORKSPACE_ARG="${1#--workspace=}"
+                ;;
             -h|--help)
-                printf 'Usage: %s [--force]\n' "$0" >&2
+                printf 'Usage: %s [--force] [--workspace PATH] [PATH]\n' "$0" >&2
+                printf '\n  PATH  workspace root directory (optional; prompts if omitted)\n' >&2
                 exit 0
                 ;;
-            *)
+            --*)
                 log_warn "Unknown argument: $1"
+                ;;
+            *)
+                if [ -n "$INSTALL_WORKSPACE_ARG" ]; then
+                    log_warn "Ignoring extra argument: $1"
+                else
+                    INSTALL_WORKSPACE_ARG="$1"
+                fi
                 ;;
         esac
         shift
     done
 }
 
-install_resolve_workspace() {
-    INSTALL_WORKSPACE_ROOT="$(pwd)"
-    if [ -n "${LETS_B_MAD_WORKSPACE:-}" ]; then
-        INSTALL_WORKSPACE_ROOT="$LETS_B_MAD_WORKSPACE"
+install_validate_workspace_path() {
+    path="$1"
+    [ -n "$path" ] || return 1
+    [ -d "$path" ] || return 1
+    INSTALL_WORKSPACE_ROOT="$(cd "$path" && pwd)" || return 1
+    return 0
+}
+
+install_expand_home_path() {
+    path="$1"
+    case "$path" in
+        ~/*)
+            printf '%s%s' "$HOME" "${path#~}"
+            ;;
+        ~)
+            printf '%s' "$HOME"
+            ;;
+        *)
+            printf '%s' "$path"
+            ;;
+    esac
+}
+
+install_set_workspace_from_path() {
+    path="$(install_expand_home_path "$1")"
+    if install_validate_workspace_path "$path"; then
+        return 0
     fi
+    log_error "Invalid workspace folder: $path (must exist and be a directory)"
+    exit 1
+}
+
+install_resolve_workspace() {
+    if [ -n "$INSTALL_WORKSPACE_ARG" ]; then
+        install_set_workspace_from_path "$INSTALL_WORKSPACE_ARG"
+        return 0
+    fi
+
+    if [ -n "${LETS_B_MAD_WORKSPACE:-}" ]; then
+        install_set_workspace_from_path "$LETS_B_MAD_WORKSPACE"
+        return 0
+    fi
+
+    default="$(pwd)"
+    workspace_input=""
+
+    if [ -t 0 ]; then
+        printf 'Workspace folder path [%s]: ' "$default" >&2
+        IFS= read -r workspace_input || workspace_input=""
+    else
+        IFS= read -r workspace_input || workspace_input=""
+    fi
+
+    if [ -z "$workspace_input" ]; then
+        workspace_input="$default"
+    fi
+
+    install_set_workspace_from_path "$workspace_input"
 }
 
 install_step_prerequisites() {
