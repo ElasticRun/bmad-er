@@ -1,0 +1,49 @@
+README.md
+  s_549f9eca34c125::t_c6834dfaee7a1e 21,28,34,47
+  s_549f9eca34c125::t_6c7d5af82eedf3 36,39-41
+tests/e2e/developer-onboarding-vm.sh
+  h_f039b93e5404ee 93
+_bmad-output/planning-artifacts/prd.md
+  s_549f9eca34c125::t_28d561d45c5f02 176
+  s_549f9eca34c125::t_73a29c82fa5eb2 258
+  s_549f9eca34c125::t_15425e84ef73a9 384-385
+  s_549f9eca34c125::t_6f952e4d2ba74f 313
+  s_549f9eca34c125::t_2b3eda7baf61c4 2-6
+  s_549f9eca34c125::t_e683ae8f9dfa15 100
+  s_549f9eca34c125::t_7048e665e6efd7 182
+  s_549f9eca34c125::t_0420b5d1f78177 218
+  s_549f9eca34c125::t_23b4fce5a6d04b 376
+  s_549f9eca34c125::t_45a1d99ac6fd79 386
+  s_549f9eca34c125::t_dd946f8e166937 444
+  s_549f9eca34c125::t_69e1e25a81bb85 322-323
+scripts/install.sh
+  s_549f9eca34c125::t_d9e871c64ec9ed 57-67,69-70,73,76-81
+  s_549f9eca34c125::t_1e215690e2442a 28
+  s_549f9eca34c125::t_0429c37eb8e50b 88-110,130-144
+  s_549f9eca34c125::t_4ba79d93d7c103 111-119,121-125,127-128,145
+tests/unit/test_install.sh
+  s_549f9eca34c125::t_044bdf6f5ac41e 66-75
+  s_549f9eca34c125::t_9b866d374d7bb5 60-65,82
+  s_549f9eca34c125::t_617a5f4c7e0fec 83-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fb4ff941a8699cacc3d3f4bfa63e37c69309a1d8",
+  "prompts": {},
+  "humans": {
+    "h_f039b93e5404ee": {
+      "author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  },
+  "sessions": {
+    "s_549f9eca34c125": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9e2c5559-855b-48f9-a8c8-173fa9dc2773",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
