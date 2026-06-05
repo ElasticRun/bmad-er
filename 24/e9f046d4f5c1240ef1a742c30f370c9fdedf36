@@ -1,0 +1,90 @@
+_bmad-output/implementation-artifacts/5-1-central-context-repository-cloning.md
+  s_91267793c5dd10::t_078d7c43bb1635 60,62
+scripts/ai-stats-summary.sh
+  s_91267793c5dd10::t_c41d8c80d20a71 143
+  s_549f9eca34c125::t_3d1b1f4a619917 144-146
+  s_91267793c5dd10::t_8f020415160af4 19-41
+_bmad-output/implementation-artifacts/4-2-per-repo-hook-installation-and-conflict-detection.md
+  s_91267793c5dd10::t_2e5db4c7c7dc80 54-60
+_bmad-output/implementation-artifacts/5-2-pre-workflow-context-pull-and-hard-block.md
+  s_91267793c5dd10::t_451e5ffb823794 20,22
+scripts/validate-installation.sh
+  s_91267793c5dd10::t_9b184de5b9eb2b 252
+  s_549f9eca34c125::t_d72ccb1e4cc6d4 253-255
+scripts/lib/dependencies.sh
+  s_91267793c5dd10::t_23c0d1231368c7 300-301
+scripts/lib/workspace.sh
+  s_91267793c5dd10::t_09021f5126f336 382-385,391-395,407
+  s_91267793c5dd10::t_3d902cda557fd0 194-195
+  s_91267793c5dd10::t_45569b3a0219e5 270,274,276,284-287,290-294,306
+  s_91267793c5dd10::t_10933f8c066554 24,30-88
+  s_91267793c5dd10::t_29fd6cd66fe6dd 348-355,359,361
+tests/unit/test_workspace.sh
+  s_91267793c5dd10::t_b7ce98c1352757 229
+  s_91267793c5dd10::t_1dbe316fa9780a 93-95
+  s_91267793c5dd10::t_104f5da1c5fc66 148-165
+README.md
+  s_91267793c5dd10::t_1a679944dc05a2 119-130
+_bmad-output/implementation-artifacts/2-1-workspace-repository-discovery-and-yaml-generation.md
+  s_91267793c5dd10::t_f955d0ca89840e 69-76
+_bmad-output/implementation-artifacts/2-2-incremental-re-discovery-with-merge-semantics.md
+  s_91267793c5dd10::t_b72d74d858c80c 42-48
+_bmad-output/implementation-artifacts/4-1-graphify-global-installation-and-per-repo-initialization.md
+  s_91267793c5dd10::t_ec4f7e6b751adc 71-77
+tests/unit/test_hooks.sh
+  s_549f9eca34c125::t_40c7879dffd0dd 105-108,110-120,122-125
+  s_91267793c5dd10::t_5d8f8ba13927fe 109
+  s_91267793c5dd10::t_f6e6b652ed4087 121
+  s_549f9eca34c125::t_db35df20f9ddaf 130
+_bmad-output/implementation-artifacts/6-1-agent-readable-readme.md
+  s_91267793c5dd10::t_e868e68e424ff9 50,52-56
+_bmad-output/implementation-artifacts/sprint-status.yaml
+  s_91267793c5dd10::t_a1a0e1bbfe4544 50
+  s_91267793c5dd10::t_2afb564a0808da 71-72
+  s_91267793c5dd10::t_1ba7c71ae968de 3
+  s_91267793c5dd10::t_16bfcef93f6fb6 57
+  s_91267793c5dd10::t_8ba50ba522a619 58-59
+  s_91267793c5dd10::t_3755801061d8a8 70
+  s_91267793c5dd10::t_40668664482747 65
+  s_91267793c5dd10::t_1c644aa816a4cb 55
+  s_91267793c5dd10::t_b4bb0097547015 75
+  s_91267793c5dd10::t_a71c2798028075 76
+  s_91267793c5dd10::t_6f5c1816928011 66-67
+tests/unit/test_dependencies.sh
+  s_91267793c5dd10::t_c33e2a1118a022 117
+scripts/lib/hooks.sh
+  s_549f9eca34c125::t_4784322358e4e6 166-171
+  s_549f9eca34c125::t_1e590498657c69 157-159
+  s_91267793c5dd10::t_220080dabbe570 155-156
+_bmad-output/implementation-artifacts/1-5-install-orchestrator-and-summary-table.md
+  s_91267793c5dd10::t_8b57c4ebed677b 18-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "24e9f046d4f5c1240ef1a742c30f370c9fdedf36",
+  "prompts": {},
+  "humans": {
+    "h_f039b93e5404ee": {
+      "author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  },
+  "sessions": {
+    "s_549f9eca34c125": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9e2c5559-855b-48f9-a8c8-173fa9dc2773",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    },
+    "s_91267793c5dd10": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f87e2d62-46f4-45ec-b732-4c58534a9715",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
