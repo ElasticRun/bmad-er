@@ -3,6 +3,10 @@ stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-0
 lastEdited: '2026-06-02'
 editHistory:
   - date: '2026-06-02'
+    changes: 'dual workspace layout: standalone git repo at workspace root OR multi-repo with nested git subfolders'
+  - date: '2026-06-02'
+    changes: 'graphify init and git hooks run per nested repo under workspace root, never at workspace root'
+  - date: '2026-06-02'
     changes: 'install.sh prompts for workspace folder at startup; --force and other flags unchanged'
 inputDocuments:
   - 'uploads/BMAD-METHOD.md'
@@ -97,11 +101,11 @@ Three context layers feed every agent session, each kept automatically current: 
 
 | Capability | Description | Justification |
 |-----------|-------------|---------------|
-| `scripts/install.sh` | Idempotent bootstrap: prompts once for workspace folder path, then pins BMAD v6.8.0 via npx (non-interactive), installs git-ai + graphify (version-pinned), sets up git hooks, deploys global skills, clones central context repo, auto-discovers repos and generates workspace YAML. Supports `--force`. Prints pass/fail per step. | Day-one journey fails without it |
-| Workspace YAML manifest | Auto-discovered from workspace root (every initialized git repo = entry, relative paths). Developer-editable. Validated on every command invocation. | Multi-repo context unavailable without it |
+| `scripts/install.sh` | Idempotent bootstrap: prompts once for workspace folder path, then pins BMAD v6.8.0 via npx (non-interactive), installs git-ai + graphify (version-pinned) globally, auto-detects workspace layout (standalone vs multi-repo), initializes graphify and installs graphify git hooks in every target git repository for that layout, deploys global skills, clones central context repo, generates workspace YAML. Supports `--force`. Prints pass/fail per step. | Day-one journey fails without it |
+| Workspace YAML manifest | Auto-discovered per layout mode: **standalone** — workspace root is the sole git repo (manifest may use path `.`); **multi-repo** — one entry per nested git repo under the workspace root (workspace root may or may not be a git repo; when nested repos exist, the root is not a graphify/hook target). Developer-editable. Validated on every command invocation. | Multi-repo context unavailable without it |
 | Central context integration | Git repo of markdown files (org standards, data dictionary, domain glossary, ADRs) cloned at install, pulled fresh via `activation_steps_prepend` before every BMAD workflow. Pull failure = hard block. | Mandatory workflow contract: context never stale at workflow start |
 | git-ai integration | Global install, version-pinned. Tracks AI code attribution per commit. Data available for durability, autonomy, and efficiency metrics consumed by separate aggregation project. | Quality metrics are the primary MVP goal |
-| graphify integration | Per-repo initialization. Post-commit/post-checkout hooks for automatic graph rebuild. Always-current knowledge graph reflecting committed code. | Always-current knowledge graph is core differentiator |
+| graphify integration | Global graphify (graphifyy) install; `graphify update` + post-commit/post-checkout hooks in each **target repository** for the detected layout (standalone: workspace root git repo; multi-repo: each nested git subfolder). Always-current knowledge graph reflecting committed code. | Always-current knowledge graph is core differentiator |
 | Global skills | All BMAD skills (BMM, CIS, WDS) installed once centrally (`~/.cursor/skills/`, `~/.claude/skills/`), wiped and recreated on every install. Single upgrade point. | BMAD workflows unavailable without it |
 | BMAD `customize.toml` overrides | `_bmad/custom/{skill-name}.toml` files for `on_complete` and `activation_steps_prepend` hooks. Shared scripts in `scripts/` as execution targets. Protected on re-install. | Integration surface for pre/post-workflow actions |
 | Agent-readable README | Structured for autonomous installation by Cursor/Claude Code agents. Preflight checks, single-command install, exit-code-based success criteria. | Agent-driven installation is a day-one requirement |
@@ -173,13 +177,13 @@ Three context layers feed every agent session, each kept automatically current: 
 
 **Opening Scene:** Priya opens Cursor, clones the lets-b-mad repository, and opens it as her workspace. She reads the README — or more precisely, her Cursor agent reads it. The agent identifies `scripts/install.sh` and asks if she'd like to proceed with installation.
 
-**Rising Action:** The install script runs. It prompts Priya for her workspace folder path (her agent supplies the path from context). The script validates the folder, discovers 4 git repositories she's already cloned as siblings, pins and installs BMAD v6.8.0 via npx, installs git-ai globally, installs graphify via uv, clones the central context repo, generates her workspace YAML with all 4 repos listed, and deploys global skills to `~/.cursor`. Each step prints a pass/fail status. Total time: under 3 minutes.
+**Rising Action:** The install script runs. It prompts Priya for her workspace folder path (her agent supplies the path to a folder containing multiple project repos). The script validates the folder, detects **multi-repo** layout, discovers 4 nested git repositories, pins and installs BMAD v6.8.0 via npx, installs git-ai globally, installs graphify via uv, initializes graphify and installs graphify git hooks in each of the 4 nested repos, clones the central context repo at the workspace root, generates her workspace YAML with all 4 repos listed, and deploys global skills to `~/.cursor`. Each step prints a pass/fail status. Total time: under 3 minutes.
 
 **Climax:** Priya opens one of her assigned repos and invokes `/bmad-dev-story`. Before the workflow begins, `activation_steps_prepend` fires — pulling the latest org standards, data dictionary, and ADRs from the central context repo. The agent has rich context from graphify's knowledge graph and knows the organization's coding conventions. She writes a functional specification, the agent generates implementation code that follows the team's patterns, and she reviews it — finding the code clean, well-tested, and consistent with existing architecture.
 
 **Resolution:** By lunch, Priya has completed her first story. git-ai has tracked the AI attribution on her commits. Her graphify graph updated automatically on commit. She didn't write a single line of implementation code — she authored a specification and reviewed the output. She messages her manager: "That was the smoothest onboarding I've ever had."
 
-**Requirements revealed:** Agent-readable README, single-command install, workspace folder prompt, workspace auto-discovery, global skill deployment, graphify hook setup, central context clone, YAML generation, pass/fail verification output, non-interactive execution after workspace selection.
+**Requirements revealed:** Agent-readable README, single-command install, workspace folder prompt, workspace layout detection, auto-discovery, global skill deployment, per-target-repo graphify init and hook setup, central context clone, YAML generation, pass/fail verification output, non-interactive execution after workspace selection.
 
 ### Journey 2: Arjun — Active Developer, Daily Workflow
 
@@ -255,7 +259,7 @@ Three context layers feed every agent session, each kept automatically current: 
 
 | Journey | User Type | Key Capabilities Revealed |
 |---------|-----------|--------------------------|
-| Priya (Day One) | New Developer | Agent-readable README, single-command install, workspace folder prompt, auto-discovery, global skills, graphify hooks, context clone, YAML generation, verification output |
+| Priya (Day One) | New Developer | Agent-readable README, single-command install, workspace folder prompt, layout-aware auto-discovery, global skills, per-target-repo graphify init + hooks, context clone, YAML generation, verification output |
 | Arjun (Daily) | Active Developer | Multi-repo YAML context, pre-workflow context pull, graphify git hooks, git-ai tracking, customize.toml on_complete, specification-first workflow |
 | Arjun (Edge Case) | Active Developer | On-demand repo discovery, YAML merge-not-overwrite, per-repo graphify init, validation |
 | Meera (Upgrade) | Workspace Maintainer | Version pin management, managed vs protected files, idempotent re-run, upgrade docs, customize.toml preservation |
@@ -306,6 +310,17 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 - **Post-install notification:** If global skill files changed during installation, print a message recommending IDE restart to pick up new/updated skills.
 - **Workspace-level files:** `_bmad/` config directory, `_bmad/custom/*.toml` overrides, workspace YAML — shared across IDEs (IDE-agnostic paths).
 
+### Workspace Layout Modes
+
+install.sh detects one of two layouts from the developer-supplied workspace folder path:
+
+| Mode | When it applies | `workspace.yaml` repos | Graphify + git hooks |
+|------|-----------------|------------------------|----------------------|
+| **Standalone** | Workspace folder is an initialized git repository and discovery finds no nested git repos under it (typical single-project install) | Single entry: workspace root (path `.`) | Workspace root directory |
+| **Multi-repo** | Discovery finds one or more initialized git repositories in subfolders under the workspace root | One entry per nested repo (relative paths, not `.`) | Each listed nested repo only |
+
+The workspace root **may or may not** be a git repository. In **multi-repo** mode it always holds shared orchestration assets (`_bmad/`, `workspace.yaml`, central context clone). If the workspace root is also a git repo in multi-repo mode, it is **not** a graphify or hook target — only nested project repos are. In **standalone** mode the workspace root **is** the project git repo and receives graphify init and hooks there.
+
 ### Installation Flow
 
 | Step | Action | Output Location |
@@ -314,8 +329,11 @@ lets-b-mad is a developer tool delivered as bash scripts, YAML configuration, BM
 | 1 | `npx bmad-method@6.8.0 install --directory <temp> --modules bmm,cis,wds --tools cursor --yes` | Temp directory |
 | 2 | Delete and recreate global skills: wipe and copy `.agents/skills/*` from temp to `~/.cursor/skills/` and `~/.claude/skills/` | Global (per-machine) |
 | 3 | Copy full `_bmad/` from temp to workspace root (preserved on re-install, recreated on fresh/`--force`) | Workspace root |
-| 4 | Copy lets-b-mad `templates/customize/*.toml` to `_bmad/custom/` per repo (protected on re-install) | Per-repo |
-| 5 | Clean up temp directory | — |
+| 4 | Copy lets-b-mad `templates/customize/*.toml` to `_bmad/custom/` per target repo (protected on re-install) | Per target repo |
+| 5 | Auto-discover git repos; detect standalone vs multi-repo layout; generate `workspace.yaml` | Workspace root |
+| 6 | For each target repo in `workspace.yaml`: run graphify init/update (`graphify-out/graph.json`) | Standalone: workspace root; multi-repo: each nested repo |
+| 7 | For each target repo in `workspace.yaml`: `graphify hook install` (post-commit, post-checkout) | Standalone: workspace root; multi-repo: each nested repo |
+| 8 | Clean up temp directory | — |
 
 ### Installation Modes
 
@@ -374,7 +392,8 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 - **Exit codes** — every script exits with meaningful codes. install.sh prints a summary table (step name, status, error if any).
 - **Idempotency** — every operation checks current state before acting. Already-installed dependencies are skipped. Manifest file (`.lets-b-mad/install-manifest.json`) tracks managed files with checksums.
 - **Workspace selection** — install.sh prompts once for the workspace folder path at startup (before any install steps). Invalid paths are rejected with a clear error. The `--force` flag and all other CLI flags behave unchanged.
-- **Graphify hook ordering** — `graphify hook install` sets up post-commit and post-checkout hooks. git-ai hooks are global. Verify no hook conflicts during install; warn if existing hooks detected.
+- **Workspace layout detection** — After repo discovery, install.sh selects **standalone** (only workspace-root git repo) or **multi-repo** (one or more nested git repos). Standalone: graphify init/hooks at workspace root. Multi-repo: graphify init/hooks only in nested repos listed in `workspace.yaml`; workspace root holds `_bmad/` and context even when it is not a git repo, and is excluded from graphify/hooks when nested repos exist even if the root is also a git repository.
+- **Graphify hook ordering** — `graphify hook install` runs inside each target repository for the active layout and sets up post-commit and post-checkout hooks there. git-ai hooks are global. Verify no hook conflicts during install; warn if existing hooks detected.
 - **Credentials** — GitLab OAuth tokens retrieved via `git credential fill` / stored via `git credential approve`. Never stored in plaintext files. Never logged in install output.
 
 ## Functional Requirements
@@ -382,7 +401,7 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 ### Workspace Initialization & Setup
 
 - **FR1:** Developer can install the complete lets-b-mad environment on a fresh macOS machine using a single command (`bash scripts/install.sh`). The script prompts once for the workspace folder path; all subsequent steps run non-interactively
-- **FR1a:** install.sh prompts for the workspace folder path at startup, validates that the path exists and is a directory, and uses it as the workspace root for all installation steps
+- **FR1a:** install.sh prompts for the workspace folder path at startup, validates that the path exists and is a directory, and uses it as the workspace root for all installation steps (whether that folder is a standalone git repository or a multi-repo container)
 - **FR2:** AI coding agent (Cursor/Claude Code) can execute the installation autonomously by reading the repository README, including supplying the workspace folder path when install.sh prompts for it
 - **FR3:** Developer can force a clean reinstallation of all components using the `--force` flag, overwriting all managed and protected files
 - **FR4:** install.sh can detect missing prerequisites (Node.js/npx, Python 3.10+, uv, git, curl) and attempt automatic installation via Homebrew
@@ -393,7 +412,8 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 
 ### Repository Management
 
-- **FR9:** install.sh can auto-discover all initialized git repositories under the workspace root and generate a workspace YAML manifest with relative paths
+- **FR9:** install.sh can auto-discover git repositories under the developer-supplied workspace folder and generate a workspace YAML manifest appropriate to the detected layout: **standalone** — single repo entry for the workspace root (path `.`); **multi-repo** — one entry per nested initialized git repository (relative paths under the workspace root, not `.`)
+- **FR9a:** install.sh can detect whether the workspace is **standalone** (workspace root is the only git repo) or **multi-repo** (one or more nested git repos exist) and use that mode to determine graphify/hook targets and YAML contents
 - **FR10:** Developer can manually edit the workspace YAML manifest to add, remove, or annotate repository entries
 - **FR11:** Developer can re-run repository discovery to add newly cloned repos to the YAML without overwriting existing entries (merge-not-overwrite)
 - **FR12:** BMAD workflows can read the workspace YAML to determine which repository to target for code and test generation
@@ -408,9 +428,10 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 ### Knowledge Graph Management
 
 - **FR17:** install.sh can install graphify (graphifyy) globally via uv at a pinned version
-- **FR18:** Developer can initialize graphify for a specific repository to build its initial knowledge graph
-- **FR19:** install.sh can install graphify git hooks (post-commit, post-checkout) per discovered repository so that the knowledge graph rebuilds on every commit and branch switch
-- **FR20:** install.sh can detect existing git hooks in a repository and warn the developer if hook conflicts are found during installation
+- **FR18:** install.sh can initialize graphify (`graphify update`, producing `graphify-out/graph.json`) for every target repository in the active layout during installation: **standalone** — workspace root; **multi-repo** — each nested repository listed in `workspace.yaml` (not the workspace root when nested repos exist)
+- **FR18a:** Developer can manually initialize or re-initialize graphify for a specific repository (workspace root in standalone mode, or any nested repo in multi-repo mode, e.g., after adding a repo mid-sprint) to build or refresh its knowledge graph
+- **FR19:** install.sh can install graphify git hooks (post-commit, post-checkout) in every target repository for the active layout so that the knowledge graph rebuilds on every commit and branch switch, using the same standalone vs multi-repo rules as FR18
+- **FR20:** install.sh can detect existing git hooks in each target repository and warn the developer if hook conflicts are found during installation
 
 ### Organizational Context Distribution
 
@@ -441,7 +462,7 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 
 ### Documentation & Guidance
 
-- **FR36:** The README can serve as a complete, agent-executable installation guide with preflight checks, single-command install (including how to answer the workspace folder prompt), success verification criteria, and a do-not list
+- **FR36:** The README can serve as a complete, agent-executable installation guide with preflight checks, single-command install (including how to answer the workspace folder prompt for both standalone project repos and multi-repo workspace folders), success verification criteria, and a do-not list
 - **FR37:** Developer can find contribution guidelines (repo structure, template modification, testing) and upgrade procedures (version bump, test-then-rollout, compatibility checklist) in `docs/guide.md`
 
 ### Phase 2: Gamification Event Push (Growth)
@@ -457,7 +478,7 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 
 ### Performance
 
-- **NFR1:** install.sh completes full workspace setup (prerequisites + BMAD + git-ai + graphify + context clone + YAML discovery) in under 5 minutes on a typical developer machine with stable network connectivity
+- **NFR1:** install.sh completes full workspace setup (prerequisites + BMAD + git-ai + global graphify + per-repo graphify init/hooks + context clone + YAML discovery) in under 5 minutes on a typical developer machine with stable network connectivity
 - **NFR2:** Pre-workflow context pull (`activation_steps_prepend` git pull) adds no more than 10 seconds to workflow startup under normal network conditions
 - **NFR3:** Graphify post-commit hook execution completes within 30 seconds for repositories under 100,000 lines of code, without blocking the developer's next git operation
 - **NFR4:** Workspace YAML discovery scans and generates the manifest within 5 seconds for workspaces containing up to 50 repositories
@@ -473,7 +494,7 @@ All modes prompt once for the workspace folder path before proceeding. The `--fo
 
 - **NFR9:** All external dependencies (BMAD, git-ai, graphify, central context repo) are version-pinned with exact versions — no floating ranges, no "latest" resolution
 - **NFR10:** Failure in any single integration (git-ai install, graphify install, context clone) does not prevent installation of remaining components — install.sh continues and reports all failures in the summary table
-- **NFR11:** git-ai global hooks and graphify per-repo hooks coexist without conflict — install.sh verifies hook compatibility and warns on detected conflicts rather than silently overwriting
+- **NFR11:** git-ai global hooks and graphify per-target-repo hooks coexist without conflict — install.sh verifies hook compatibility in each repository that receives graphify hooks for the active layout and warns on detected conflicts rather than silently overwriting
 - **NFR12:** Central context git pull failure at workflow start is a hard block — the workflow must not proceed with stale context under any circumstances
 
 ### Reliability

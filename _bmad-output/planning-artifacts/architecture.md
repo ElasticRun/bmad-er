@@ -3,6 +3,12 @@ stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 lastStep: 8
 status: 'complete'
 completedAt: '2026-05-29'
+lastEdited: '2026-06-05'
+editHistory:
+  - date: '2026-06-05'
+    changes: 'Aligned with updated PRD — dual workspace layout modes (standalone/multi-repo), workspace-local central context, per-target-repo customize.toml and graphify hooks, MVP credential handling (FR34-FR35), workspace folder prompt (FR1a), layout detection (FR9a), per-repo graphify init (FR18a), bash runtime'
+  - date: '2026-05-29'
+    changes: 'Initial architecture complete'
 inputDocuments:
   - 'prd.md'
   - 'prd-validation-report.md'
@@ -25,10 +31,10 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 ### Requirements Overview
 
 **Functional Requirements:**
-40 FRs across 10 categories. The system is a workspace-level orchestration layer — not an application with runtime logic. The FR surface breaks into three functional pillars:
-1. **Bootstrap & Install (FR1-FR8):** Idempotent single-command setup, prerequisite detection/installation, managed-vs-protected file tracking via install manifest, `--force` for clean reset.
-2. **Integration Wiring (FR9-FR33):** Workspace YAML auto-discovery, git-ai global install + per-commit tracking, graphify per-repo init + git hook setup, central context clone + pre-workflow pull via `activation_steps_prepend`, global skill deployment to both IDEs, `customize.toml` override management, `on_complete` hook execution.
-3. **Enablement & Observability (FR34-FR40):** Credential management via native git credential store, agent-readable README, contributor/upgrade guide, Phase 2 gamification event push and installation validation.
+43 FRs across 10 categories (including FR1a, FR9a, FR18a). The system is a workspace-level orchestration layer — not an application with runtime logic. The FR surface breaks into three functional pillars:
+1. **Bootstrap & Install (FR1-FR8, FR1a):** Idempotent single-command setup with workspace folder prompt at startup, prerequisite detection/installation, managed-vs-protected file tracking via install manifest, `--force` for clean reset.
+2. **Integration Wiring (FR9-FR33, FR9a, FR18a):** Layout-aware workspace YAML auto-discovery (standalone vs multi-repo), git-ai global install + per-commit tracking, graphify init + git hooks on layout-appropriate target repos, central context clone at workspace root + pre-workflow pull via `activation_steps_prepend`, global skill deployment to both IDEs, per-target-repo `customize.toml` override management, `on_complete` hook execution.
+3. **Enablement & Observability (FR34-FR40):** GitLab credential retrieval/storage via native git credential store (MVP), agent-readable README, contributor/upgrade guide, Phase 2 gamification event push and installation validation.
 
 **Non-Functional Requirements:**
 20 NFRs define the quality envelope:
@@ -42,19 +48,23 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 - Primary domain: CLI / DevOps tooling (bash, git hooks, file system, YAML/TOML)
 - Complexity level: Medium
-- Estimated architectural components: 6 (install orchestrator, prerequisite manager, dependency installer, workspace discoverer, file manifest tracker, hook manager)
+- Estimated architectural components: 7 (install orchestrator, prerequisite manager, dependency installer, workspace discoverer + layout detector, file manifest tracker, hook manager, credential helper)
 
 ### Technical Constraints & Dependencies
 
 | Constraint | Impact |
 |-----------|--------|
 | macOS Apple Silicon only | No cross-platform abstractions needed; bash and Homebrew assumptions are safe |
+| Bash shell (not POSIX sh) | PRD specifies bash pre-installed on macOS; bash arrays and `[[ ]]` are acceptable |
+| Workspace folder prompt at install startup | install.sh prompts once for workspace folder path before any steps; all subsequent operations use that path as workspace root |
+| Dual workspace layout modes | **Standalone:** workspace root is sole git repo (YAML entry path `.`); graphify/hooks at workspace root. **Multi-repo:** one or more nested git repos; workspace root holds orchestration assets (`_bmad/`, `workspace.yaml`, central context) but is never a graphify/hook target when nested repos exist — even if workspace root is also a git repo |
 | BMAD v6.8.0 pinned, zero source modifications | All integration through `customize.toml` hooks (`on_complete`, `activation_steps_prepend`) and shared scripts — architecture must never require BMAD source changes |
 | git-ai installs globally via curl | Global hooks auto-track AI attribution; no per-repo configuration needed |
-| graphify installs globally via uv, hooks are per-repo | post-commit and post-checkout hooks must be installed per discovered repo; hook conflict detection required |
-| Central context is a git repo of markdown | Freshness guaranteed by `git pull` before every workflow; pull failure = hard block |
+| graphify installs globally via uv, hooks are layout-aware per target repo | post-commit and post-checkout hooks installed only in target repos per active layout mode; hook conflict detection required |
+| Central context is a git repo of markdown at workspace root | Cloned to `<workspace-root>/central-context/` at install; freshness guaranteed by `git pull` before every workflow; pull failure = hard block |
 | Global skills deployed to two paths simultaneously | `~/.cursor/skills/` and `~/.claude/skills/` — wiped and recreated on every install run |
-| `_bmad/custom/*.toml` are developer-editable | Protected on re-install, overwritten only with `--force`; install manifest tracks managed vs. customized via checksums |
+| `_bmad/custom/*.toml` per target repo | Full `_bmad/` at workspace root; `customize.toml` templates copied to `_bmad/custom/` in each target repo (standalone: workspace root; multi-repo: each nested repo). Protected on re-install, overwritten only with `--force` |
+| GitLab credentials via git credential system | MVP requirement — retrieve via `git credential fill`, store via `git credential approve`; never plaintext |
 
 ### Cross-Cutting Concerns Identified
 
@@ -68,11 +78,13 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 5. **Version Pin Centralization:** All dependency versions (BMAD, git-ai, graphify) declared in a single configuration section of install.sh (NFR19). Upgrade = change one value (NFR17).
 
+6. **Layout-Aware Targeting:** graphify init, graphify hooks, and customize.toml deployment all resolve target repositories from the detected layout mode. The same discovery algorithm drives workspace YAML generation and downstream install steps — standalone and multi-repo must never diverge in detection logic.
+
 ## Starter Template Evaluation
 
 ### Primary Technology Domain
 
-CLI / DevOps tooling — POSIX shell scripts, YAML/TOML configuration, markdown documentation. No application runtime, no build system, no framework. The "starter" is the repository structure itself.
+CLI / DevOps tooling — bash scripts, YAML/TOML configuration, markdown documentation. No application runtime, no build system, no framework. The "starter" is the repository structure itself.
 
 ### Starter Options Considered
 
@@ -80,7 +92,7 @@ CLI / DevOps tooling — POSIX shell scripts, YAML/TOML configuration, markdown 
 |--------|-------------|---------|
 | Framework starter (oclif, commander) | CLI frameworks for structured command-line tools | **Rejected** — lets-b-mad is an install orchestrator + config layer, not a user-facing CLI with subcommands. A framework adds dependency weight with no benefit. |
 | Makefile task runner | Use `make` to organize install steps as targets | **Rejected** — direct script invocation is simpler, and `make` adds indirection without value for a single-entry-point tool (`install.sh`). |
-| Bare repository with conventions | POSIX sh scripts, directory conventions, linting tools | **Selected** — minimal dependencies, maximum portability, aligned with project's nature as a thin orchestration layer. |
+| Bare repository with conventions | Bash scripts, directory conventions, linting tools | **Selected** — minimal dependencies, aligned with PRD macOS/bash target and project's nature as a thin orchestration layer. |
 
 ### Selected Starter: Bare Repository with Conventions
 
@@ -98,9 +110,9 @@ lets-b-mad/
 │   │   ├── prerequisites.sh          # Prerequisite detection and installation
 │   │   ├── bmad.sh                   # BMAD install + global skill deployment
 │   │   ├── dependencies.sh           # git-ai + graphify installation
-│   │   ├── context.sh                # Central context repo clone/pull
-│   │   ├── workspace.sh              # Workspace YAML auto-discovery
-│   │   ├── hooks.sh                  # Git hook installation + conflict detection
+│   │   ├── context.sh                # Central context repo clone/pull to workspace root
+│   │   ├── workspace.sh              # Workspace YAML auto-discovery + layout detection
+│   │   ├── hooks.sh                  # Graphify init + hook install per layout-appropriate target repo
 │   │   └── manifest.sh               # Install manifest tracking (checksums, managed vs protected)
 │   └── ai-stats-summary.sh           # Local git-ai metrics summary
 ├── templates/
@@ -117,9 +129,9 @@ lets-b-mad/
 **Architectural Decisions Provided by Structure:**
 
 **Language & Runtime:**
-- POSIX sh (`#!/bin/sh`) for all scripts — maximum portability across shells
-- No bash-specific features (no arrays, no `[[ ]]`, no `(( ))`)
-- `shellcheck` v0.11.0 for static analysis with POSIX compliance enforcement
+- Bash (`#!/usr/bin/env bash`) for all scripts — PRD specifies bash on macOS; enables arrays and robust string handling for repo discovery
+- `set -euo pipefail` in orchestrator (`install.sh`); library modules use guard-clause returns, not global errexit
+- `shellcheck` v0.11.0 for static analysis with bash compliance enforcement
 
 **Data Processing Tools:**
 - `jq` v1.8.1 for JSON manipulation (install manifest, git-ai stats)
@@ -165,20 +177,23 @@ compute_checksum() {
 - Script communication: return codes + stdout/stderr separation
 - Logging with summary collector for FR6 compliance
 - Install manifest schema with dual-checksum tracking
+- Workspace folder prompt as install step 0 (FR1a)
+- Layout detection: standalone vs multi-repo drives all downstream targeting (FR9a)
 - `activation_steps_prepend` via shared `pre-workflow.sh`
-- Central context at global `~/.lets-b-mad/central-context/`
+- Central context at workspace-local `<workspace-root>/central-context/`
 
 **Important Decisions (Shape Architecture):**
 - Range-based exit code schema
 - Smart merge detection for protected files
 - Stub `post-workflow.sh` wired from day one
-- Per-skill customize.toml generated from single default template
-- Recursive repo discovery (depth 3, well-known excludes)
+- Per-skill customize.toml generated from single default template, deployed per target repo
+- Recursive repo discovery (depth 3, well-known excludes) with layout mode selection
+- GitLab credential helper via `git credential fill` / `git credential approve` (FR34-FR35)
 
 **Deferred Decisions (Post-MVP):**
-- Explicit credential management via `git credential fill/approve` (Phase 2 with gamification)
 - Multi-org central context support
 - Global state cleanup/purge command
+- `--force` granularity flags (`--force-skills`, `--force-config`)
 
 ### Script Communication & Error Handling
 
@@ -200,7 +215,18 @@ compute_checksum() {
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Central context repo URL | Hardcoded in install.sh version configuration block | Single org, single source of truth alongside version pins |
-| Credential management | Defer to Phase 2; rely on git's native auth (SSH keys, credential helper) for MVP | Every developer already has git auth configured; explicit management adds complexity for a problem that doesn't exist until gamification endpoint |
+| Credential management | `git credential fill` to retrieve, `git credential approve` to store; never log or persist in config files | FR34-FR35 MVP requirement; establishes auth pattern for Phase 2 gamification endpoint; NFR5-6 compliance |
+| Credential scope | GitLab OAuth tokens only; central context uses existing SSH/credential helper | No separate auth mechanism for context repo (NFR7) |
+
+### Workspace Layout Architecture
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Layout detection | After repo discovery, select **standalone** (workspace root is only git repo, no nested repos) or **multi-repo** (one or more nested git repos under workspace root) | FR9a; single detection pass drives YAML, graphify, hooks, and customize.toml targets |
+| Standalone targeting | Single YAML entry (path `.`); graphify init/hooks at workspace root; customize.toml at workspace root `_bmad/custom/` | Typical single-project install |
+| Multi-repo targeting | One YAML entry per nested repo (relative paths, not `.`); graphify init/hooks only in nested repos; workspace root excluded from graphify/hooks even if it is a git repo | FR18, FR19; workspace root holds shared orchestration only |
+| Workspace root role | Always holds `_bmad/`, `workspace.yaml`, `central-context/`, `.lets-b-mad/`; may or may not be a git repository | Multi-repo container pattern from PRD user journeys |
+| On-demand re-discovery | `scripts/discover-repos.sh` (or equivalent) merges new repos into YAML without overwriting existing entries (FR11) | Arjun edge-case journey; Phase 2 may add richer auto-sync |
 
 ### BMAD Integration Architecture
 
@@ -208,43 +234,48 @@ compute_checksum() {
 |----------|--------|-----------|
 | `activation_steps_prepend` | Delegate to shared `scripts/pre-workflow.sh`; absolute path written into customize.toml at install time | Single source of truth for pre-workflow logic; avoids runtime path resolution |
 | `on_complete` | Stub `scripts/post-workflow.sh` with extension points, wired in templates from day one | Templates ship complete; Phase 2 gamification is a single-file change, no template updates needed |
-| customize.toml granularity | Single default template (`templates/customize/_default.toml`); install.sh generates per-skill `.toml` files from it | One template to maintain; per-skill files allow future skill-specific overrides; NFR18 satisfied |
+| customize.toml granularity | Single default template (`templates/customize/_default.toml`); install.sh generates per-skill `.toml` files from it, copied to `_bmad/custom/` in each target repo | One template to maintain; per-skill files allow future skill-specific overrides; NFR18 satisfied; FR28 per-target-repo deployment |
 
 ### Hook Management Architecture
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Hook installation | Delegate to `graphify hook install` per repo with post-install verification via `graphify hook status` | graphify manages its own hooks and merge driver; lets-b-mad avoids reimplementing fragile hook logic |
+| Hook installation | Delegate to `graphify hook install` in each layout-appropriate target repo with post-install verification via `graphify hook status` | graphify manages its own hooks; lets-b-mad never installs graphify hooks at workspace root in multi-repo mode |
 | Hook conflict detection | Rely on graphify's behavior + status check; warn if status reports issues | Avoids lets-b-mad understanding hook file internals; graphify is the source of truth for its own hooks |
 
 ### Workspace Discovery & Configuration
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| YAML manifest schema | Minimal: `workspace.name`, `workspace.root`, `repos[].path` (relative), `repos[].name`, `repos[].graphify_initialized` | Portable, extensible, human-editable |
-| Auto-discovery algorithm | Recursive scan from workspace root, depth limit 3, exclude well-known directories (`node_modules`, `.git`, `vendor`, `dist`, `build`, `.venv`, `__pycache__`, etc.) | Handles nested repo structures while avoiding false positives |
-| Central context location | Global: `~/.lets-b-mad/central-context/` | Shared across workspaces, fixed known path, mirrors global skills pattern, concurrent pull handled with retry |
+| YAML manifest schema | `workspace.name`, `workspace.root`, `workspace.layout` (`standalone` \| `multi-repo`), `repos[].path` (relative), `repos[].name`, `repos[].graphify_initialized` | Portable, extensible, human-editable; layout field drives runtime validation |
+| Auto-discovery algorithm | Recursive scan from workspace root, depth limit 3, exclude well-known directories; then apply layout selection rules | Handles nested repo structures while avoiding false positives; FR9, FR9a |
+| Central context location | Workspace-local: `<workspace-root>/central-context/` | FR21 — cloned within workspace, not global; each developer workspace is self-contained |
+| Target repo resolution | Shared function `get_target_repos()` returns repo paths based on `workspace.layout` from YAML or fresh detection | Single source of truth used by hooks.sh, bmad.sh (customize.toml copy), and graphify init |
 
 ### Decision Impact Analysis
 
 **Implementation Sequence:**
+0. `install.sh` workspace prompt — validate path, export `WORKSPACE_ROOT` (FR1a)
 1. `common.sh` — logging, checksum, platform detection, exit codes (foundation for everything)
 2. `manifest.sh` — install manifest CRUD (needed by all subsequent install steps)
 3. `prerequisites.sh` — prerequisite detection (gates all dependency installs)
-4. `bmad.sh` — BMAD install + skill deployment (generates customize.toml files)
-5. `dependencies.sh` — git-ai + graphify installation
-6. `context.sh` — central context clone to `~/.lets-b-mad/central-context/`
-7. `workspace.sh` — repo discovery + YAML generation
-8. `hooks.sh` — graphify hook install per repo + verification
+4. `bmad.sh` — BMAD install + skill deployment + customize.toml generation per target repo
+5. `dependencies.sh` — git-ai + graphify installation + credential helper setup
+6. `context.sh` — central context clone to `<workspace-root>/central-context/`
+7. `workspace.sh` — repo discovery, layout detection, YAML generation
+8. `hooks.sh` — graphify init + hook install per layout-appropriate target repo
 9. `install.sh` — orchestrator wiring all modules + summary table
 10. `pre-workflow.sh` + `post-workflow.sh` — runtime scripts
+11. `discover-repos.sh` — on-demand repo re-discovery with merge-not-overwrite (FR11)
 
 **Cross-Component Dependencies:**
 - All modules depend on `common.sh` (logging, exit codes)
+- Workspace prompt (step 0) must complete before any workspace-scoped operation
+- `workspace.sh` must run before `hooks.sh` and customize.toml copy in `bmad.sh` (repo list and layout mode must be known)
 - `bmad.sh` must run before `hooks.sh` (skills must exist before hooks reference them)
-- `workspace.sh` must run before `hooks.sh` (repo list must be known before per-repo hook install)
 - `context.sh` is independent — can run in any order relative to other dependency installs
 - `manifest.sh` is used by `bmad.sh` and `context.sh` to track installed files
+- `get_target_repos()` in `workspace.sh` is the shared layout resolver for hooks, graphify, and customize.toml deployment
 
 ## Implementation Patterns & Consistency Rules
 
@@ -328,11 +359,11 @@ compute_checksum() {
 - Every function checks current state before acting (already installed? right version? right checksum?)
 - Install manifest is source of truth; filesystem verification as fallback
 
-**POSIX Compliance:**
-- `#!/bin/sh` on every script
-- shellcheck with `shell=sh` in `.shellcheckrc`
-- No `[[ ]]`, no arrays, no `(( ))`
-- `local` allowed (de facto standard, supported by all target shells)
+**Shell Compliance:**
+- `#!/usr/bin/env bash` on every script
+- `shellcheck` with `shell=bash` in `.shellcheckrc`
+- Prefer portable bash constructs; avoid bash 4+ features not available on macOS default bash 3.2 where possible (e.g., use `readarray` alternatives)
+- `local` and `[[ ]]` allowed
 
 ### Enforcement Guidelines
 
@@ -344,7 +375,7 @@ compute_checksum() {
 - Never add `# shellcheck disable` without justification
 
 **Pattern Enforcement:**
-- `shellcheck` validates POSIX compliance and quoting discipline on every script
+- `shellcheck` validates bash compliance and quoting discipline on every script
 - `markdownlint-cli2` validates documentation formatting
 - Code review checks naming conventions and function structure
 
@@ -386,25 +417,26 @@ writeManifest() {
 ```
 lets-b-mad/
 ├── scripts/
-│   ├── install.sh                        # Orchestrator — entry point for all install modes
+│   ├── install.sh                        # Orchestrator — entry point; prompts for workspace folder (step 0)
 │   ├── pre-workflow.sh                   # Runtime — central context pull before BMAD workflows
 │   ├── post-workflow.sh                  # Runtime — stub with extension points for Phase 2
+│   ├── discover-repos.sh                 # Utility — on-demand repo re-discovery with merge-not-overwrite (FR11)
 │   ├── ai-stats-summary.sh              # Utility — local git-ai metrics per repo
 │   └── lib/
 │       ├── common.sh                     # Foundation — logging, checksum, platform detection, exit codes, constants
 │       ├── prerequisites.sh              # Step — detect/install Node.js, Python, uv, git, curl, jq, yq
-│       ├── bmad.sh                       # Step — BMAD install via npx, global skill deployment, customize.toml generation
-│       ├── dependencies.sh               # Step — git-ai install (curl), graphify install (uv)
-│       ├── context.sh                    # Step — central context repo clone/pull to ~/.lets-b-mad/central-context/
-│       ├── workspace.sh                  # Step — recursive repo discovery, YAML manifest generation
-│       ├── hooks.sh                      # Step — graphify hook install per repo, verification, conflict detection
+│       ├── bmad.sh                       # Step — BMAD install via npx, global skill deployment, customize.toml per target repo
+│       ├── dependencies.sh               # Step — git-ai install (curl), graphify install (uv), credential helper
+│       ├── context.sh                    # Step — central context repo clone/pull to <workspace-root>/central-context/
+│       ├── workspace.sh                  # Step — recursive repo discovery, layout detection, YAML generation, get_target_repos()
+│       ├── hooks.sh                      # Step — graphify init + hook install per layout-appropriate target repo
 │       └── manifest.sh                   # Support — install manifest CRUD, checksum comparison, managed/protected logic
 ├── templates/
 │   └── customize/
 │       └── _default.toml                 # Source template — activation_steps_prepend + on_complete hooks
 ├── docs/
 │   └── guide.md                          # Contributor guidelines + BMAD upgrade procedures
-├── .shellcheckrc                         # shellcheck config: shell=sh
+├── .shellcheckrc                         # shellcheck config: shell=bash
 ├── .markdownlint-cli2.yaml              # markdownlint config
 ├── .gitignore                            # Exclude .lets-b-mad/, temp files, OS artifacts
 ├── README.md                             # Agent-readable install guide: preflight, single-command, verification
@@ -414,26 +446,27 @@ lets-b-mad/
 **Generated at install time (not in repo):**
 
 ```
-<workspace-root>/
+<workspace-root>/                          # Developer-supplied workspace folder
 ├── .lets-b-mad/
 │   └── install-manifest.json             # Tracks managed/protected files, versions, workspace state
-├── workspace.yaml                        # Auto-discovered repo listing
-└── _bmad/                                # Generated by npx bmad-method (BMAD-owned)
+├── workspace.yaml                        # Auto-discovered repo listing with layout mode
+├── central-context/                      # Cloned org context repo (workspace-local)
+│   ├── standards/
+│   ├── data-dictionary/
+│   ├── domain-glossary/
+│   └── adrs/
+└── _bmad/                                # Generated by npx bmad-method (BMAD-owned, at workspace root)
     ├── bmm/                              # BMAD Method module config
     ├── cis/                              # Creative Intelligence Suite config
     ├── wds/                              # Web Design Studio config
-    └── custom/                           # Per-skill customize.toml files (generated from _default.toml)
-        ├── bmad-dev-story.toml
-        ├── bmad-create-story.toml
-        ├── bmad-create-architecture.toml
-        └── ...                           # One per installed BMAD skill
+    └── custom/                           # customize.toml in standalone mode only (workspace root is target repo)
 
-~/.lets-b-mad/
-└── central-context/                      # Cloned org context repo (global, shared across workspaces)
-    ├── standards/
-    ├── data-dictionary/
-    ├── domain-glossary/
-    └── adrs/
+# Standalone layout — workspace root is the sole target repo:
+<workspace-root>/_bmad/custom/*.toml      # Per-skill customize.toml overrides
+
+# Multi-repo layout — each nested repo is a target:
+<workspace-root>/<nested-repo>/_bmad/custom/*.toml   # Per-skill overrides per nested repo
+<workspace-root>/<nested-repo>/graphify-out/graph.json
 
 ~/.cursor/skills/                         # Global BMAD skills (wiped+recreated per install)
 ~/.claude/skills/                         # Global BMAD skills (wiped+recreated per install)
@@ -443,7 +476,7 @@ lets-b-mad/
 
 **Boundary 1: Repository (what ships in git) vs. Generated (created at install time)**
 - Repository contains only source scripts, templates, docs, and config
-- Everything under `.lets-b-mad/`, `_bmad/`, `workspace.yaml`, global skill paths, and `~/.lets-b-mad/` is generated
+- Everything under `.lets-b-mad/`, `_bmad/`, `workspace.yaml`, `central-context/`, global skill paths is generated
 - Agents implementing features must never assume generated files exist at development time
 
 **Boundary 2: Install-time (scripts/lib/) vs. Runtime (pre-workflow.sh, post-workflow.sh)**
@@ -453,9 +486,9 @@ lets-b-mad/
 - Runtime scripts can read the install manifest but must not write to it
 
 **Boundary 3: lets-b-mad owned vs. BMAD owned vs. External tool owned**
-- lets-b-mad owns: `scripts/`, `templates/`, `docs/`, `.lets-b-mad/`, `workspace.yaml`
-- BMAD owns: `_bmad/` (except `_bmad/custom/`), `~/.cursor/skills/`, `~/.claude/skills/`
-- `_bmad/custom/` is a shared boundary: generated by lets-b-mad, editable by developer, consumed by BMAD
+- lets-b-mad owns: `scripts/`, `templates/`, `docs/`, `.lets-b-mad/`, `workspace.yaml`, `central-context/`
+- BMAD owns: `_bmad/` at workspace root (except per-repo `_bmad/custom/`), `~/.cursor/skills/`, `~/.claude/skills/`
+- `_bmad/custom/` is a shared boundary: generated by lets-b-mad per target repo, editable by developer, consumed by BMAD
 - git-ai owns: its global hooks and per-commit Git Notes
 - graphify owns: its per-repo hooks, `graphify-out/` directories
 
@@ -463,17 +496,17 @@ lets-b-mad/
 
 | FR Group | Primary File(s) | Supporting Files |
 |----------|-----------------|-----------------|
-| **FR1-FR3** (Install modes) | `scripts/install.sh` | `scripts/lib/common.sh` (flags parsing) |
+| **FR1-FR3, FR1a** (Install modes) | `scripts/install.sh` | `scripts/lib/common.sh` (flags parsing, workspace prompt) |
 | **FR4-FR5** (Prerequisites) | `scripts/lib/prerequisites.sh` | `scripts/lib/common.sh` (exit codes) |
 | **FR6** (Summary table) | `scripts/lib/common.sh` (summary collector) | `scripts/install.sh` (prints table) |
 | **FR7-FR8** (Idempotency, manifest) | `scripts/lib/manifest.sh` | `.lets-b-mad/install-manifest.json` |
-| **FR9-FR12** (Repo management) | `scripts/lib/workspace.sh` | `workspace.yaml` |
+| **FR9-FR12, FR9a** (Repo management) | `scripts/lib/workspace.sh` | `workspace.yaml`, `scripts/discover-repos.sh` |
 | **FR13-FR16** (git-ai) | `scripts/lib/dependencies.sh` | `scripts/ai-stats-summary.sh` |
-| **FR17-FR20** (graphify) | `scripts/lib/dependencies.sh`, `scripts/lib/hooks.sh` | — |
-| **FR21-FR24** (Central context) | `scripts/lib/context.sh`, `scripts/pre-workflow.sh` | `~/.lets-b-mad/central-context/` |
+| **FR17-FR20, FR18a** (graphify) | `scripts/lib/dependencies.sh`, `scripts/lib/hooks.sh` | `workspace.sh` (`get_target_repos()`) |
+| **FR21-FR24** (Central context) | `scripts/lib/context.sh`, `scripts/pre-workflow.sh` | `<workspace-root>/central-context/` |
 | **FR25-FR30** (Skills & config) | `scripts/lib/bmad.sh` | `templates/customize/_default.toml` |
-| **FR31-FR33** (Workflow hooks) | `scripts/pre-workflow.sh`, `scripts/post-workflow.sh` | `_bmad/custom/*.toml` |
-| **FR34-FR35** (Credentials) | Deferred to Phase 2 | — |
+| **FR31-FR33** (Workflow hooks) | `scripts/pre-workflow.sh`, `scripts/post-workflow.sh` | `_bmad/custom/*.toml` (per target repo) |
+| **FR34-FR35** (Credentials) | `scripts/lib/dependencies.sh` (credential helper) | git credential store |
 | **FR36** (README) | `README.md` | — |
 | **FR37** (Guide) | `docs/guide.md` | — |
 | **FR38-FR40** (Phase 2) | `scripts/post-workflow.sh` (future) | — |
@@ -484,14 +517,15 @@ lets-b-mad/
 
 ```
 install.sh
+  ├── prompts → workspace folder path (FR1a)
   ├── sources → common.sh (logging, constants, exit codes)
   ├── sources → manifest.sh (read/write manifest)
   ├── calls → prerequisites.sh functions (detect, install prereqs)
-  ├── calls → bmad.sh functions (install BMAD, deploy skills, generate toml)
-  ├── calls → dependencies.sh functions (install git-ai, graphify)
-  ├── calls → context.sh functions (clone/pull central context)
-  ├── calls → workspace.sh functions (discover repos, generate YAML)
-  └── calls → hooks.sh functions (install graphify hooks per repo)
+  ├── calls → bmad.sh functions (install BMAD, deploy skills, generate+copy toml per target repo)
+  ├── calls → dependencies.sh functions (install git-ai, graphify, credential helper)
+  ├── calls → context.sh functions (clone central context to workspace root)
+  ├── calls → workspace.sh functions (discover repos, detect layout, generate YAML)
+  └── calls → hooks.sh functions (graphify init + install hooks per layout-appropriate target repo)
 ```
 
 **External Integrations:**
@@ -508,14 +542,15 @@ install.sh
 
 ```
 Install flow:
-  install.sh → [prereqs check] → [BMAD install] → [skill deploy] → [toml generate]
-             → [git-ai install] → [graphify install] → [context clone]
-             → [repo discover] → [YAML write] → [hooks install] → [manifest write]
+  install.sh → [workspace prompt] → [prereqs check] → [BMAD install] → [skill deploy]
+             → [toml generate + copy per target repo] → [git-ai install] → [graphify install]
+             → [context clone to workspace root] → [repo discover + layout detect] → [YAML write]
+             → [graphify init per target repo] → [hooks install per target repo] → [manifest write]
              → [summary table]
 
 Runtime flow (per BMAD workflow):
   BMAD skill start → activation_steps_prepend → pre-workflow.sh
-                   → git pull ~/.lets-b-mad/central-context/
+                   → git pull <workspace-root>/central-context/
                    → success: workflow proceeds | failure: hard block
 
   BMAD skill end → on_complete → post-workflow.sh → (stub, Phase 2: event push)
@@ -526,9 +561,10 @@ Runtime flow (per BMAD workflow):
 ### Coherence Validation ✅
 
 **Decision Compatibility:**
-- All technology choices are compatible: POSIX sh + jq + yq + shellcheck form a coherent, minimal toolchain with no conflicts
+- All technology choices are compatible: bash + jq + yq + shellcheck form a coherent, minimal toolchain with no conflicts
 - Version pins are independent — BMAD (npm), git-ai (curl/binary), graphify (uv/Python) have no shared dependency conflicts
-- The customize.toml integration pattern (absolute paths written at install time) is compatible with the global central context location decision
+- The customize.toml integration pattern (absolute paths written at install time) is compatible with workspace-local central context and per-target-repo deployment
+- Layout detection drives consistent targeting across workspace YAML, graphify, hooks, and customize.toml — no conflicting repo resolution logic
 
 **Pattern Consistency:**
 - Naming conventions are internally consistent: snake_case functions/variables, UPPER_SNAKE_CASE constants, kebab-case executables
@@ -539,6 +575,7 @@ Runtime flow (per BMAD workflow):
 - Project structure maps 1:1 to the library module decisions from step 4
 - The install-time vs. runtime boundary cleanly separates `scripts/lib/` from `pre-workflow.sh`/`post-workflow.sh`
 - The three-tier file ownership model (managed/protected/external) is reflected in the directory structure and manifest schema
+- Standalone and multi-repo layout artifacts are explicitly documented in generated structure
 
 ### Requirements Coverage Validation ✅
 
@@ -546,14 +583,14 @@ Runtime flow (per BMAD workflow):
 
 | FR Range | Status | Notes |
 |----------|--------|-------|
-| FR1-FR8 (Install) | ✅ Fully covered | `install.sh` + `manifest.sh` + `common.sh` (flags, idempotency, manifest) |
-| FR9-FR12 (Repos) | ✅ Fully covered | `workspace.sh` with depth-3 recursive scan + well-known excludes |
+| FR1-FR8, FR1a (Install) | ✅ Fully covered | `install.sh` workspace prompt + `manifest.sh` + `common.sh` (flags, idempotency, manifest) |
+| FR9-FR12, FR9a (Repos) | ✅ Fully covered | `workspace.sh` with layout detection, depth-3 recursive scan, `discover-repos.sh` for FR11 |
 | FR13-FR16 (git-ai) | ✅ Fully covered | `dependencies.sh` + `ai-stats-summary.sh` |
-| FR17-FR20 (graphify) | ✅ Fully covered | `dependencies.sh` + `hooks.sh` (delegated install + verification) |
-| FR21-FR24 (Context) | ✅ Fully covered | `context.sh` + `pre-workflow.sh` + global `~/.lets-b-mad/central-context/` |
-| FR25-FR30 (Skills) | ✅ Fully covered | `bmad.sh` (skill deploy, toml generation, IDE restart notification) |
+| FR17-FR20, FR18a (graphify) | ✅ Fully covered | `dependencies.sh` + `hooks.sh` with layout-aware `get_target_repos()` |
+| FR21-FR24 (Context) | ✅ Fully covered | `context.sh` + `pre-workflow.sh` + workspace-local `central-context/` |
+| FR25-FR30 (Skills) | ✅ Fully covered | `bmad.sh` (skill deploy, toml generation per target repo, IDE restart notification) |
 | FR31-FR33 (Hooks) | ✅ Fully covered | `pre-workflow.sh` + `post-workflow.sh` + customize.toml templates |
-| FR34-FR35 (Credentials) | ⏸ Deferred | Explicitly deferred to Phase 2 — architectural decision documented |
+| FR34-FR35 (Credentials) | ✅ Fully covered | `dependencies.sh` credential helper via git credential store |
 | FR36-FR37 (Docs) | ✅ Fully covered | `README.md` + `docs/guide.md` |
 | FR38-FR40 (Phase 2) | ⏸ Deferred | Extension point exists (`post-workflow.sh` stub) |
 
@@ -565,7 +602,7 @@ Runtime flow (per BMAD workflow):
 | NFR2 (Context pull < 10s) | ✅ | Single `git pull --ff-only` on local clone — bounded by network |
 | NFR3 (Graphify hook < 30s) | ✅ | Delegated to graphify — performance is graphify's concern |
 | NFR4 (YAML scan < 5s) | ✅ | Recursive find with depth limit 3 + excludes — fast by design |
-| NFR5-8 (Security) | ✅ | No credential storage; manifest contains only paths/checksums; git native auth |
+| NFR5-8 (Security) | ✅ | Git credential store for GitLab; no plaintext credential storage; manifest contains only paths/checksums; git native auth for context repo |
 | NFR9 (Version pins) | ✅ | All versions in single config block in install.sh |
 | NFR10 (Continue on failure) | ✅ | Summary collector pattern — each step logs pass/fail, orchestrator continues |
 | NFR11 (Hook coexistence) | ✅ | Delegated to graphify + post-install verification |
@@ -580,7 +617,7 @@ Runtime flow (per BMAD workflow):
 
 ### Implementation Readiness Validation ✅
 
-**Decision Completeness:** All critical and important decisions documented with versions, rationale, and affected components. Three deferred decisions are explicitly documented with Phase 2 triggers.
+**Decision Completeness:** All critical and important decisions documented with versions, rationale, and affected components. Phase 2 deferred decisions (`--force` granularity, multi-org context) are explicitly documented with triggers.
 
 **Structure Completeness:** Complete file tree defined for both repository content and generated artifacts. Every file has a purpose annotation. FR-to-file mapping is complete.
 
@@ -594,7 +631,9 @@ Runtime flow (per BMAD workflow):
 
 1. **FR30 (IDE restart notification):** `bmad.sh` compares checksums of deployed skills against previous install manifest. If any changed, prints `[WARN] Global skills updated. Restart Cursor and Claude Code to pick up changes.`
 
-2. **`pre-workflow.sh` concurrent pull handling:** Uses the standard network retry pattern — one retry with 3-second sleep. If git lock file error detected (`unable to lock`), retry once. If pull fails after retry, hard block.
+2. **`pre-workflow.sh` context pull:** Resolves `<workspace-root>/central-context/` from install manifest or `workspace.yaml` parent. Uses standard network retry — one retry with 3-second sleep. If git lock file error detected (`unable to lock`), retry once. If pull fails after retry, hard block.
+
+3. **Multi-repo customize.toml path resolution:** `pre-workflow.sh` and customize.toml absolute paths must resolve correctly when BMAD skill runs from a nested repo — install writes workspace-root-relative paths into each target repo's customize.toml.
 
 **Nice-to-Have Gaps:** 1
 
@@ -630,17 +669,19 @@ Runtime flow (per BMAD workflow):
 
 **Overall Status:** READY FOR IMPLEMENTATION
 
-**Confidence Level:** High — all 40 FRs and 20 NFRs are architecturally covered (2 MVP FRs explicitly deferred to Phase 2 with extension points in place). Zero critical gaps. Two important gaps resolved inline.
+**Confidence Level:** High — all 43 FRs and 20 NFRs are architecturally covered (3 Phase 2 FRs deferred with extension points in place). Zero critical gaps. Layout mode targeting and workspace-local context aligned with updated PRD.
 
 **Key Strengths:**
 - Clean separation between install-time and runtime concerns
+- Layout-aware targeting prevents graphify/hook misconfiguration in multi-repo workspaces
 - Three-tier file ownership model prevents accidental overwrites
 - Delegation to external tools (graphify hooks, git-ai) avoids fragile reimplementation
 - Manifest-based idempotency gives every install step state awareness
-- Single default template + per-skill generation minimizes maintenance burden
+- Single default template + per-skill generation + per-target-repo copy minimizes maintenance burden
 
 **Areas for Future Enhancement:**
-- Phase 2: credential management, gamification event push, installation validation command
+- Phase 2: gamification event push, installation validation command, workspace YAML auto-sync
+- Phase 2: `--force-skills` / `--force-config` granularity, BMAD version drift warning
 - Phase 2: multi-org central context support
 - Phase 2: `.editorconfig` and additional developer experience tooling
 
