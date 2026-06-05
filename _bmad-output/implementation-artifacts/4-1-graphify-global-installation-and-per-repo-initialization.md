@@ -68,8 +68,13 @@ so that AI agents have an always-current knowledge graph of my codebase to produ
 
 ## Senior Developer Review (AI)
 
-**Outcome:** Approve (after fixes)  
-**Date:** 2026-06-01
+**Outcome:** Approve (after layout fixes)  
+**Date:** 2026-06-05
+
+### Review Findings
+
+- [x] [Review][Patch] `deps_graphify_init_all` skipped standalone root via nested-only filter — use `workspace_should_process_repo` [`scripts/lib/dependencies.sh`]
+- [x] [Review][Patch] graphify install failure test PATH isolation regression — mock wrong version to force install path [`tests/unit/test_dependencies.sh`]
 
 **Action items addressed:**
 - Added `uv tool install --force` on version mismatch reinstall (AC 2b)

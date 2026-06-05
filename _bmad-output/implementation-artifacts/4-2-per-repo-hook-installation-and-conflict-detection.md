@@ -51,8 +51,13 @@ so that my knowledge graph rebuilds on every commit and branch switch without ma
 
 ## Senior Developer Review (AI)
 
-**Outcome:** Approve  
-**Date:** 2026-06-01
+**Outcome:** Approve (after layout fixes)  
+**Date:** 2026-06-05
+
+### Review Findings
+
+- [x] [Review][Patch] `hooks_install_all` used nested-only filter — replaced with `workspace_should_process_repo` for layout-aware targeting [`scripts/lib/hooks.sh`]
+- [x] [Review][Patch] validate-installation hook check aligned with layout rules [`scripts/validate-installation.sh`]
 
 **Notes:** Idempotent path verifies status before install; conflicts warn-only; test hooks for install/status; delegated runtime behavior to graphify per NFR14–15.
 

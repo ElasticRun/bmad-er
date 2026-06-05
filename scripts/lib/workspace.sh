@@ -21,10 +21,71 @@ workspace_path_for() {
     printf '%s/%s' "$workspace_root" "$WORKSPACE_YAML_NAME"
 }
 
-# Workspace root is a container for nested git repos, not an install target itself.
+# Nested git repo under workspace root (never "." — use layout helpers for root targeting).
 workspace_is_nested_repo_path() {
     rel_path="$1"
     [ -n "$rel_path" ] && [ "$rel_path" != "null" ] && [ "$rel_path" != "." ]
+}
+
+workspace_detect_layout_from_discover() {
+    discover_file="$1"
+    root_abs="$2"
+
+    if [ -s "$discover_file" ]; then
+        while IFS= read -r repo_path; do
+            [ -z "$repo_path" ] && continue
+            if workspace_is_nested_repo_path "$repo_path"; then
+                printf '%s\n' "multi-repo"
+                return 0
+            fi
+        done < "$discover_file"
+    fi
+
+    if [ -d "$root_abs/.git" ]; then
+        printf '%s\n' "standalone"
+        return 0
+    fi
+
+    printf '%s\n' "standalone"
+    return 0
+}
+
+_workspace_finalize_discovery() {
+    root_abs="$1"
+    discover_file="$2"
+
+    if [ -s "$discover_file" ]; then
+        return 0
+    fi
+
+    if [ -d "$root_abs/.git" ]; then
+        printf '%s\n' "." > "$discover_file" || return 1
+    fi
+    return 0
+}
+
+# Whether graphify/hooks/stats should process this repo path for the workspace layout.
+workspace_should_process_repo() {
+    workspace_root="$1"
+    rel_path="$2"
+
+    if [ -z "$workspace_root" ] || [ -z "$rel_path" ]; then
+        return 1
+    fi
+
+    layout=$(workspace_get_layout "$workspace_root") || return 1
+
+    case "$layout" in
+        standalone)
+            [ "$rel_path" = "." ]
+            ;;
+        multi-repo)
+            workspace_is_nested_repo_path "$rel_path"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 workspace_discover_file_for() {
@@ -130,6 +191,8 @@ workspace_discover() {
 
     _workspace_scan_dir "$root_abs" "$root_abs" 0 "$discover_file" || return 1
 
+    _workspace_finalize_discovery "$root_abs" "$discover_file" || return 1
+
     if [ -s "$discover_file" ]; then
         sort -u "$discover_file" > "${discover_file}.tmp" && mv "${discover_file}.tmp" "$discover_file"
     fi
@@ -204,11 +267,13 @@ _workspace_yaml_create() {
     yaml_path="$4"
 
     ws_name=$(basename "$root_abs")
+    layout=$(workspace_detect_layout_from_discover "$discover_file" "$root_abs")
 
     export WS_NAME="$ws_name"
     export WS_ROOT="$root_abs"
+    export WS_LAYOUT="$layout"
     yaml_doc=$(yq eval -n \
-        '.workspace.name = strenv(WS_NAME) | .workspace.root = strenv(WS_ROOT) | .repos = []') || {
+        '.workspace.name = strenv(WS_NAME) | .workspace.root = strenv(WS_ROOT) | .workspace.layout = strenv(WS_LAYOUT) | .repos = []') || {
         log_error "workspace yaml create: yq init failed"
         return 1
     }
@@ -216,10 +281,17 @@ _workspace_yaml_create() {
     if [ -s "$discover_file" ]; then
         while IFS= read -r repo_path; do
             [ -z "$repo_path" ] && continue
-            if ! workspace_is_nested_repo_path "$repo_path"; then
+            if [ "$layout" = "multi-repo" ] && ! workspace_is_nested_repo_path "$repo_path"; then
                 continue
             fi
-            repo_name=$(basename "$repo_path")
+            if [ "$layout" = "standalone" ] && [ "$repo_path" != "." ]; then
+                continue
+            fi
+            if [ "$repo_path" = "." ]; then
+                repo_name="$ws_name"
+            else
+                repo_name=$(basename "$repo_path")
+            fi
             export REPO_PATH="$repo_path"
             export REPO_NAME="$repo_name"
             yaml_doc=$(printf '%s\n' "$yaml_doc" | yq eval \
@@ -231,7 +303,7 @@ _workspace_yaml_create() {
     fi
 
     _workspace_yaml_write "$yaml_doc" "$yaml_path" || return 1
-    unset WS_NAME WS_ROOT REPO_PATH REPO_NAME MERGE_PATH
+    unset WS_NAME WS_ROOT WS_LAYOUT REPO_PATH REPO_NAME MERGE_PATH
     return 0
 }
 
@@ -273,15 +345,20 @@ workspace_merge_yaml() {
         return 1
     }
 
-    merged_doc=$(printf '%s\n' "$merged_doc" | yq eval 'del(.repos[] | select(.path == "."))' -) || {
-        log_error "workspace_merge_yaml: yq prune workspace root repo failed"
-        return 1
-    }
+    layout=$(workspace_detect_layout_from_discover "$discover_file" "$root_abs")
+
+    if [ "$layout" = "multi-repo" ]; then
+        merged_doc=$(printf '%s\n' "$merged_doc" | yq eval 'del(.repos[] | select(.path == "."))' -) || {
+            log_error "workspace_merge_yaml: yq prune workspace root repo failed"
+            return 1
+        }
+    fi
 
     export WS_NAME="$ws_name"
     export WS_ROOT="$root_abs"
+    export WS_LAYOUT="$layout"
     merged_doc=$(printf '%s\n' "$merged_doc" | yq eval \
-        '.workspace.name = strenv(WS_NAME) | .workspace.root = strenv(WS_ROOT)' -) || {
+        '.workspace.name = strenv(WS_NAME) | .workspace.root = strenv(WS_ROOT) | .workspace.layout = strenv(WS_LAYOUT)' -) || {
         log_error "workspace_merge_yaml: yq workspace update failed"
         return 1
     }
@@ -302,13 +379,20 @@ EOF
     if [ -s "$discover_file" ]; then
         while IFS= read -r repo_path; do
             [ -z "$repo_path" ] && continue
-            if ! workspace_is_nested_repo_path "$repo_path"; then
+            if [ "$layout" = "multi-repo" ] && ! workspace_is_nested_repo_path "$repo_path"; then
+                continue
+            fi
+            if [ "$layout" = "standalone" ] && [ "$repo_path" != "." ]; then
                 continue
             fi
             if _workspace_yaml_has_path "$merged_doc" "$repo_path"; then
                 continue
             fi
-            repo_name=$(basename "$repo_path")
+            if [ "$repo_path" = "." ]; then
+                repo_name="$ws_name"
+            else
+                repo_name=$(basename "$repo_path")
+            fi
             export REPO_PATH="$repo_path"
             export REPO_NAME="$repo_name"
             merged_doc=$(printf '%s\n' "$merged_doc" | yq eval \
@@ -320,7 +404,7 @@ EOF
     fi
 
     _workspace_yaml_write "$merged_doc" "$yaml_path" || return 1
-    unset WS_NAME WS_ROOT REPO_PATH REPO_NAME MERGE_PATH
+    unset WS_NAME WS_ROOT WS_LAYOUT REPO_PATH REPO_NAME MERGE_PATH
 
     log_success "workspace_merge_yaml: merged $yaml_path"
     return 0

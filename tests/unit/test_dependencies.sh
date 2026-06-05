@@ -114,17 +114,11 @@ test_graphify_skip_when_pinned() {
 
 test_graphify_install_failure_exit_code() {
     setup_ws || return 1
-    saved_path="$PATH"
-    rm -rf "$TEST_BIN_DIR"
-    mkdir -p "$TEST_BIN_DIR"
-    PATH="$TEST_BIN_DIR:$saved_path"
-    export PATH
+    setup_mock_graphify "0.8.26" || return 1
     export DEPS_GRAPHIFY_INSTALL_CMD='return 1'
 
     deps_install_graphify "0.8.27"
     rc=$?
-    PATH="$saved_path"
-    export PATH
     unset DEPS_GRAPHIFY_INSTALL_CMD
     assert_equals "$EXIT_DEP_GRAPHIFY_FAILED" "$rc" "exit code 31"
 }

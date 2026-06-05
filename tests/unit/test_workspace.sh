@@ -90,6 +90,9 @@ test_yaml_schema_and_paths() {
     assert_equals "$(cd "$TEST_WS" && pwd)" "$ws_root" "workspace.root" || return 1
     assert_equals "2" "$repo_count" "repos length" || return 1
 
+    ws_layout=$(yq eval '.workspace.layout' "$yaml_path")
+    assert_equals "multi-repo" "$ws_layout" "workspace.layout" || return 1
+
     graphify_default=$(yq eval '.repos[] | select(.path == "projects/api") | .graphify_initialized' "$yaml_path")
     assert_equals "false" "$graphify_default" "graphify_initialized default" || return 1
 
@@ -139,6 +142,24 @@ test_merge_preserves_missing_path() {
 
     removed=$(yq eval '.repos[] | select(.path == "removed/repo") | .path' "$yaml_path")
     assert_equals "removed/repo" "$removed" "missing repo entry preserved" || return 1
+    return 0
+}
+
+test_standalone_yaml_generation() {
+    standalone_ws="$REPO_ROOT/tests/tmp/standalone-workspace"
+    rm -rf "$standalone_ws"
+    mkdir -p "$standalone_ws" || return 1
+    git -C "$standalone_ws" init -q || return 1
+
+    workspace_discover "$standalone_ws" || return 1
+    workspace_generate_yaml "$standalone_ws" || return 1
+
+    yaml_path=$(workspace_path_for "$standalone_ws")
+    layout=$(yq eval '.workspace.layout' "$yaml_path")
+    assert_equals "standalone" "$layout" "standalone layout" || return 1
+
+    root_path=$(yq eval '.repos[] | select(.path == ".") | .path' "$yaml_path")
+    assert_equals "." "$root_path" "standalone root repo path" || return 1
     return 0
 }
 
@@ -205,6 +226,7 @@ EOF
 run_test "excluded_dir" test_excluded_dir_helper
 run_test "nested_repo_path" test_nested_repo_path_helper
 run_test "layout_helpers" test_layout_helpers
+run_test "standalone_yaml" test_standalone_yaml_generation
 run_test "discovery" test_discovery_counts_and_depth
 run_test "yaml_schema" test_yaml_schema_and_paths
 run_test "merge_annotations" test_merge_preserves_annotations

@@ -249,6 +249,10 @@ validate_check_graphify_hooks() {
         idx=$((idx + 1))
         [ -z "$rel_path" ] || [ "$rel_path" = "null" ] && continue
 
+        if ! workspace_should_process_repo "$VALIDATE_WORKSPACE_ROOT" "$rel_path"; then
+            continue
+        fi
+
         disk_path=$(_workspace_repo_disk_path "$root_abs" "$rel_path") || {
             validate_record_fail "graphify hooks ($rel_path)" "resolvable repo path" "path error" \
                 "Fix workspace.yaml entry for $rel_path"

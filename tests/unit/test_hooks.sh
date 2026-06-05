@@ -102,10 +102,32 @@ test_install_all_skips_without_graphify() {
     export PATH
 }
 
+test_install_all_skips_workspace_root_entry() {
+    setup_fixture || return 1
+    yq eval -i '.repos = [{"path": ".", "name": "root", "graphify_initialized": true}, {"path": "projects/api", "name": "api", "graphify_initialized": true}]' \
+        "$TEST_WS/workspace.yaml" || return 1
+    yq eval -i '.workspace.layout = "multi-repo"' "$TEST_WS/workspace.yaml" || return 1
+
+    export HOOKS_GRAPHIFY_INSTALL_CMD='return 0'
+    export HOOKS_GRAPHIFY_STATUS_CMD='return 0'
+    TEST_BIN_DIR="$REPO_ROOT/tests/tmp/hooks-bin3"
+    mkdir -p "$TEST_BIN_DIR"
+    printf '#!/bin/sh\necho graphify 0.8.27\n' > "$TEST_BIN_DIR/graphify"
+    chmod +x "$TEST_BIN_DIR/graphify"
+    PATH="$TEST_BIN_DIR:${PATH:-/usr/bin:/bin}"
+    export PATH
+
+    stderr_out=$(hooks_install_all "$TEST_WS" 2>&1) || return 1
+    assert_contains "$stderr_out" "skipping non-target" "skips path ." || return 1
+    assert_contains "$stderr_out" "installing hooks for projects/api" "hooks nested repo" || return 1
+    unset HOOKS_GRAPHIFY_INSTALL_CMD HOOKS_GRAPHIFY_STATUS_CMD
+}
+
 run_test "detect_conflicts" test_detect_conflicts_warns
 run_test "install_verify" test_install_and_verify
 run_test "install_all_idempotent" test_install_all_idempotent
 run_test "skip_no_graphify" test_install_all_skips_without_graphify
+run_test "skip_workspace_root" test_install_all_skips_workspace_root_entry
 
 if [ "$failures" -ne 0 ]; then
     printf '%d test(s) failed\n' "$failures" >&2

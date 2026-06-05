@@ -39,8 +39,13 @@ so that my workspace stays current as I add new projects.
 
 ## Senior Developer Review (AI)
 
-**Outcome:** Approve  
-**Date:** 2026-06-01
+**Outcome:** Approve (after layout fixes)  
+**Date:** 2026-06-05
+
+### Review Findings
+
+- [x] [Review][Patch] Merge always pruned `.` entry — prune only in multi-repo layout [`scripts/lib/workspace.sh`]
+- [x] [Review][Patch] Merge did not persist `workspace.layout` — layout now updated on each rediscover [`scripts/lib/workspace.sh`]
 
 **Notes:** Merge preserves full repo objects for existing paths; missing paths warn via log_warn; install.sh wired with workspace_rediscover step.
 

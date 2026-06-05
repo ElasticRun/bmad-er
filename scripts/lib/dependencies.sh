@@ -297,8 +297,8 @@ deps_graphify_init_all() {
             continue
         fi
 
-        if ! workspace_is_nested_repo_path "$rel_path"; then
-            log_info "deps_graphify_init_all: skipping workspace root (not a nested repo): $rel_path"
+        if ! workspace_should_process_repo "$workspace_root" "$rel_path"; then
+            log_info "deps_graphify_init_all: skipping non-target repo for layout: $rel_path"
             continue
         fi
 

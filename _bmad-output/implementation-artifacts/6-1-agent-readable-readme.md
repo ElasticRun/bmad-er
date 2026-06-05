@@ -47,9 +47,13 @@ so that Cursor or Claude Code can drive the full setup autonomously without huma
 ## Senior Developer Review (AI)
 
 **Outcome:** Approve  
-**Date:** 2026-06-01
+**Date:** 2026-06-05
 
-**Findings addressed:**
+### Review Findings
+
+- [x] [Review][Patch] README verification missing layout mode check — added `workspace.layout` section with standalone vs multi-repo criteria [`README.md`]
+
+**Findings addressed (2026-06-01):**
 
 - Verification section uses code blocks (not table cells) so shell pipes do not break MD056.
 - Documentation quality section documents `--no-globs` so lint targets only `README.md`.

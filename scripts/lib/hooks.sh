@@ -152,11 +152,22 @@ hooks_install_all() {
             continue
         fi
 
+        if ! workspace_should_process_repo "$root_abs" "$rel_path"; then
+            log_info "hooks_install_all: skipping non-target repo for layout: $rel_path"
+            continue
+        fi
+
         disk_path=$(_workspace_repo_disk_path "$root_abs" "$rel_path") || {
             log_warn "hooks_install_all: cannot resolve path for $rel_path"
             fail_count=$((fail_count + 1))
             continue
         }
+
+        if [ ! -d "$disk_path/.git" ]; then
+            log_warn "hooks_install_all: not a git repo, skipping $rel_path"
+            fail_count=$((fail_count + 1))
+            continue
+        fi
 
         log_info "hooks_install_all: installing hooks for $rel_path"
         if hooks_install_repo "$disk_path"; then

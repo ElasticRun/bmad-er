@@ -116,6 +116,18 @@ yq '.repos | length' workspace.yaml
 
 **Pass when:** integer is **≥ 1** if your workspace contains git repos; **0** means no repos were found (fix workspace path or add repos).
 
+### Workspace layout
+
+```sh
+yq '.workspace.layout' workspace.yaml
+```
+
+**Pass when:** value is **`standalone`** (single git repo at workspace root; YAML includes `repos[].path: .`) or **`multi-repo`** (nested git repos; workspace root is not a graphify/hook target).
+
+**Standalone:** graphify hooks and init run at workspace root only.
+
+**Multi-repo:** graphify hooks and init run in each nested repo listed in `workspace.yaml`, not at workspace root.
+
 ### Install manifest
 
 ```sh

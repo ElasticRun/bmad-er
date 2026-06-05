@@ -66,8 +66,14 @@ so that BMAD workflows know which repositories are available for targeting.
 
 ## Senior Developer Review (AI)
 
-**Outcome:** Approve  
-**Date:** 2026-06-01
+**Outcome:** Approve (after layout fixes)  
+**Date:** 2026-06-05
+
+### Review Findings
+
+- [x] [Review][Patch] Standalone workspaces discovered zero repos — added `_workspace_finalize_discovery` to record `.` when only root is a git repo [`scripts/lib/workspace.sh`]
+- [x] [Review][Patch] YAML missing `workspace.layout` — set during create/merge via `workspace_detect_layout_from_discover` [`scripts/lib/workspace.sh`]
+- [x] [Review][Patch] Added standalone YAML generation unit test [`tests/unit/test_workspace.sh`]
 
 **Notes:** Fixed recursion depth via positional `$3`; yq v4 `strenv` + export pattern; unset exported vars after YAML write.
 

@@ -16,6 +16,29 @@ _aistats_resolve_workspace() {
     pwd
 }
 
+_aistats_should_process_repo() {
+    yaml_path="$1"
+    rel_path="$2"
+
+    layout=$(yq eval '.workspace.layout' "$yaml_path" 2>/dev/null)
+    case "$layout" in
+        standalone)
+            [ "$rel_path" = "." ]
+            ;;
+        multi-repo)
+            [ -n "$rel_path" ] && [ "$rel_path" != "." ] && [ "$rel_path" != "null" ]
+            ;;
+        *)
+            nested=$(yq eval '.repos[] | select(.path != ".") | .path' "$yaml_path" 2>/dev/null | head -n 1)
+            if [ -n "$nested" ]; then
+                [ "$rel_path" != "." ]
+            else
+                [ "$rel_path" = "." ]
+            fi
+            ;;
+    esac
+}
+
 _aistats_repo_disk_path() {
     workspace_root="$1"
     rel_path="$2"
@@ -114,6 +137,10 @@ _aistats_main() {
         rel_path=$(yq eval ".repos[$idx].path" "$yaml_path")
         repo_name=$(yq eval ".repos[$idx].name" "$yaml_path")
         if [ -z "$rel_path" ] || [ "$rel_path" = "null" ]; then
+            idx=$((idx + 1))
+            continue
+        fi
+        if ! _aistats_should_process_repo "$yaml_path" "$rel_path"; then
             idx=$((idx + 1))
             continue
         fi

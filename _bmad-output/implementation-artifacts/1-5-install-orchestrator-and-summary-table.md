@@ -15,7 +15,9 @@ so that setup is simple, transparent, and recoverable.
 ## Senior Developer Review (AI)
 
 **Outcome:** Approve  
-**Notes:** No set -e; continue-on-failure; version pin block; highest-priority exit code; trap cleanup EXIT.
+**Date:** 2026-06-05
+
+**Notes:** No set -e; continue-on-failure; version pin block; highest-priority exit code; trap cleanup EXIT; workspace CLI arg and prompt verified in unit tests.
 
 ## Tasks
 
