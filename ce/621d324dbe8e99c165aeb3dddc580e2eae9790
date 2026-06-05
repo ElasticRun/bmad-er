@@ -1,0 +1,111 @@
+_bmad-output/planning-artifacts/architecture.md
+  s_7e48a7f719e4dc::t_b73b30a4a1bd7f 51,58-60,63-64,66-67
+  s_7e48a7f719e4dc::t_42988e0f1c62e3 132-134
+  s_7e48a7f719e4dc::t_02ccdcc57a6b24 34-37
+  s_7e48a7f719e4dc::t_bcce26247a07a8 273-274,278
+  s_7e48a7f719e4dc::t_5ad4c342ca9cba 363-366
+  s_7e48a7f719e4dc::t_8ffb56e9cb221c 420,423,428-432,439
+  s_7e48a7f719e4dc::t_397110922dd020 6-11
+  s_7e48a7f719e4dc::t_4d68498bd0a2ef 545-548,553
+  s_7e48a7f719e4dc::t_b35c03256ef2bb 449,452-458,462-469
+  s_7e48a7f719e4dc::t_f875fd5fb3c7cb 113-115
+  s_7e48a7f719e4dc::t_9cd496f20f6e6a 520,524-528
+  s_7e48a7f719e4dc::t_3728bf5e280b96 250-253
+  s_7e48a7f719e4dc::t_d6849b439a2fd8 95
+  s_7e48a7f719e4dc::t_906d71028dd321 218-229
+  s_7e48a7f719e4dc::t_2f7d848e065bdd 489-491
+  s_7e48a7f719e4dc::t_31392d4b45c855 237
+  s_7e48a7f719e4dc::t_faed783d86fe84 672,676,680,683-684
+  s_7e48a7f719e4dc::t_5921edcf7f056d 81-82
+  s_7e48a7f719e4dc::t_389e996ea45a51 564,566-567,578
+  s_7e48a7f719e4dc::t_da0d0840b4e251 605
+  s_7e48a7f719e4dc::t_e212cb1dcda4fa 479
+  s_7e48a7f719e4dc::t_0a12947e12ae9c 620
+  s_7e48a7f719e4dc::t_70bfff20c55a9c 634-636
+  s_7e48a7f719e4dc::t_0a213b2c4eb08f 378
+  s_7e48a7f719e4dc::t_43c106c50bc4d2 499,503,505-506,508-509
+  s_7e48a7f719e4dc::t_d9484b5a0dcdf6 243
+  s_7e48a7f719e4dc::t_15e30faef2c9cb 258,262-266,269
+  s_7e48a7f719e4dc::t_3a4268a53ca00e 362
+  s_7e48a7f719e4dc::t_aefb6f32d1990a 87
+  s_7e48a7f719e4dc::t_a68185d1ecc8f4 586-587,589-591,593
+  s_7e48a7f719e4dc::t_9a2da2059c6d84 180-181,183,189-191,196
+_bmad-output/planning-artifacts/epics.md
+  s_7b37ffc5657bfe::t_a251383934adb5 177-178,180-182,191-192,196,201
+  s_7b37ffc5657bfe::t_23fa10d0d68bc8 168
+  s_7b37ffc5657bfe::t_6cb030ea414ce5 112-113,118
+  s_7b37ffc5657bfe::t_3d32879d9b5d95 130-132,139-140,149-151
+  s_7b37ffc5657bfe::t_75170475a900cf 119
+  s_7b37ffc5657bfe::t_83204d0471dc99 153
+  s_7b37ffc5657bfe::t_3e091181101c77 32-33
+  s_7b37ffc5657bfe::t_7a0f01b2635d94 79
+  s_7b37ffc5657bfe::t_ca792428900e4c 3-6
+  s_7b37ffc5657bfe::t_ac8353d4beca3a 23-25
+  s_7b37ffc5657bfe::t_bed5dd6bd28c87 100
+  s_7b37ffc5657bfe::t_2ca12e15092ffc 359,362-363,367-373,378
+  s_7b37ffc5657bfe::t_c5270c56983af9 411,413,415,418-419,424,427-432,434-440,442-443,448,452,457-458,462,465,467
+  s_7b37ffc5657bfe::t_6c6c98a5dc7c3d 46
+  s_7b37ffc5657bfe::t_7cca1c7fb8d116 544,546,549-550,556,564-574,581,584,589,591-594,596,598,602,617,621-649
+  s_7b37ffc5657bfe::t_0f5bc7dce4c780 69
+  s_7b37ffc5657bfe::t_d4f937f489e51a 61
+  s_7b37ffc5657bfe::t_9dc346e8d23575 658-659,663,665,669,682,687,694,705
+  s_7b37ffc5657bfe::t_1ad6c71e4430b7 750,755,762,766,775
+  s_7b37ffc5657bfe::t_becbfc62d83f6e 849
+  s_7b37ffc5657bfe::t_2699c503e3e1f8 212
+  s_7b37ffc5657bfe::t_168ee740863aa0 42-44
+  s_7b37ffc5657bfe::t_88fb2aad760383 791-792
+_bmad-output/planning-artifacts/prd.md
+  s_d4caa57b57a498::t_5799f153527692 262
+  s_d4caa57b57a498::t_362589e4f3e977 108
+  s_d4caa57b57a498::t_9a05ea9039f8fe 497
+  s_d4caa57b57a498::t_99e0bde6bdc5f3 8
+  s_d4caa57b57a498::t_d8133da484cce1 104-105
+  s_d4caa57b57a498::t_0171e46ebbf38a 395-396
+  s_d4caa57b57a498::t_de5cbab38f95cc 404
+  s_d4caa57b57a498::t_e160d70617c2b8 180
+  s_d4caa57b57a498::t_3b712d7091768a 336
+  s_d4caa57b57a498::t_2af0aaf086ff75 431-434
+  s_d4caa57b57a498::t_aa79369a54b9d3 6-7
+  s_d4caa57b57a498::t_831ef705c2a8ec 415-416
+  s_d4caa57b57a498::t_9765042799180e 465
+  s_d4caa57b57a498::t_ecd081b58d938e 186
+  s_d4caa57b57a498::t_9a69d6ea66bdac 313-323,332-335
+  s_d4caa57b57a498::t_e6a0bf70ef24d9 481
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "ce621d324dbe8e99c165aeb3dddc580e2eae9790",
+  "prompts": {},
+  "humans": {
+    "h_f039b93e5404ee": {
+      "author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  },
+  "sessions": {
+    "s_7b37ffc5657bfe": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "bfde45ae-5bca-44bf-a33f-5c6b18bbd15b",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    },
+    "s_7e48a7f719e4dc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "47e0bdf0-d28d-4cc2-ae89-b9349143a487",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    },
+    "s_d4caa57b57a498": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c32ebf16-e66e-4fec-aef9-ef6398252890",
+        "model": "default"
+      },
+      "human_author": "ajit.pendse <ajit.pendse@elastic.run>"
+    }
+  }
+}
