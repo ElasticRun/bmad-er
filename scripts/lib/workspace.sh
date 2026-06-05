@@ -21,6 +21,12 @@ workspace_path_for() {
     printf '%s/%s' "$workspace_root" "$WORKSPACE_YAML_NAME"
 }
 
+# Workspace root is a container for nested git repos, not an install target itself.
+workspace_is_nested_repo_path() {
+    rel_path="$1"
+    [ -n "$rel_path" ] && [ "$rel_path" != "null" ] && [ "$rel_path" != "." ]
+}
+
 workspace_discover_file_for() {
     workspace_root="$1"
     printf '%s/%s/%s' "$workspace_root" "$MANIFEST_DIR_NAME" "$WORKSPACE_DISCOVER_FILE_NAME"
@@ -69,7 +75,7 @@ _workspace_scan_dir() {
     current_abs="$2"
     # Use $3 (depth) directly — assigning to a global clobbers parent frames in POSIX sh
 
-    if [ -d "$current_abs/.git" ]; then
+    if [ "$3" -gt 0 ] && [ -d "$current_abs/.git" ]; then
         rel_path=$(_workspace_rel_path "$root_abs" "$current_abs") || return 1
         _workspace_record_repo "$4" "$rel_path" || return 1
     fi
@@ -210,11 +216,10 @@ _workspace_yaml_create() {
     if [ -s "$discover_file" ]; then
         while IFS= read -r repo_path; do
             [ -z "$repo_path" ] && continue
-            if [ "$repo_path" = "." ]; then
-                repo_name="$ws_name"
-            else
-                repo_name=$(basename "$repo_path")
+            if ! workspace_is_nested_repo_path "$repo_path"; then
+                continue
             fi
+            repo_name=$(basename "$repo_path")
             export REPO_PATH="$repo_path"
             export REPO_NAME="$repo_name"
             yaml_doc=$(printf '%s\n' "$yaml_doc" | yq eval \
@@ -268,6 +273,11 @@ workspace_merge_yaml() {
         return 1
     }
 
+    merged_doc=$(printf '%s\n' "$merged_doc" | yq eval 'del(.repos[] | select(.path == "."))' -) || {
+        log_error "workspace_merge_yaml: yq prune workspace root repo failed"
+        return 1
+    }
+
     export WS_NAME="$ws_name"
     export WS_ROOT="$root_abs"
     merged_doc=$(printf '%s\n' "$merged_doc" | yq eval \
@@ -292,14 +302,13 @@ EOF
     if [ -s "$discover_file" ]; then
         while IFS= read -r repo_path; do
             [ -z "$repo_path" ] && continue
+            if ! workspace_is_nested_repo_path "$repo_path"; then
+                continue
+            fi
             if _workspace_yaml_has_path "$merged_doc" "$repo_path"; then
                 continue
             fi
-            if [ "$repo_path" = "." ]; then
-                repo_name="$ws_name"
-            else
-                repo_name=$(basename "$repo_path")
-            fi
+            repo_name=$(basename "$repo_path")
             export REPO_PATH="$repo_path"
             export REPO_NAME="$repo_name"
             merged_doc=$(printf '%s\n' "$merged_doc" | yq eval \
@@ -390,6 +399,91 @@ workspace_set_graphify_initialized() {
         return 1
     fi
     unset INIT_PATH
+
+    return 0
+}
+
+workspace_yaml_has_repo_path() {
+    workspace_root="$1"
+    rel_path="$2"
+
+    if [ -z "$workspace_root" ] || [ -z "$rel_path" ]; then
+        return 1
+    fi
+
+    if ! command -v yq >/dev/null 2>&1; then
+        log_error "workspace_yaml_has_repo_path: yq not found on PATH"
+        return 1
+    fi
+
+    yaml_path=$(workspace_path_for "$workspace_root")
+    if [ ! -f "$yaml_path" ]; then
+        return 1
+    fi
+
+    export REPO_LOOKUP_PATH="$rel_path"
+    found=$(yq eval '.repos[] | select(.path == strenv(REPO_LOOKUP_PATH)) | .path' "$yaml_path" 2>/dev/null | head -n 1)
+    unset REPO_LOOKUP_PATH
+
+    [ -n "$found" ] && [ "$found" != "null" ]
+}
+
+workspace_get_layout() {
+    workspace_root="$1"
+
+    if [ -z "$workspace_root" ]; then
+        log_error "workspace_get_layout: workspace path required"
+        return 1
+    fi
+
+    if ! command -v yq >/dev/null 2>&1; then
+        log_error "workspace_get_layout: yq not found on PATH"
+        return 1
+    fi
+
+    yaml_path=$(workspace_path_for "$workspace_root")
+    if [ ! -f "$yaml_path" ]; then
+        log_error "workspace_get_layout: $yaml_path not found"
+        return 1
+    fi
+
+    layout=$(yq eval '.workspace.layout' "$yaml_path" 2>/dev/null)
+    case "$layout" in
+        standalone|multi-repo)
+            printf '%s\n' "$layout"
+            return 0
+            ;;
+    esac
+
+    nested_paths=$(yq eval '.repos[] | select(.path != ".") | .path' "$yaml_path" 2>/dev/null)
+    if [ -n "$nested_paths" ]; then
+        printf '%s\n' "multi-repo"
+    else
+        printf '%s\n' "standalone"
+    fi
+    return 0
+}
+
+workspace_is_graphify_target() {
+    workspace_root="$1"
+    rel_path="$2"
+
+    if [ -z "$workspace_root" ] || [ -z "$rel_path" ]; then
+        log_error "workspace_is_graphify_target: workspace root and repo path required"
+        return 1
+    fi
+
+    layout=$(workspace_get_layout "$workspace_root") || return 1
+
+    if [ "$layout" = "multi-repo" ] && [ "$rel_path" = "." ]; then
+        log_error "workspace_is_graphify_target: workspace root is not a graphify target in multi-repo layout"
+        return 1
+    fi
+
+    if ! workspace_yaml_has_repo_path "$workspace_root" "$rel_path"; then
+        log_error "workspace_is_graphify_target: path not in workspace.yaml: $rel_path"
+        return 1
+    fi
 
     return 0
 }

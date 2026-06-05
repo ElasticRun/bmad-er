@@ -297,6 +297,11 @@ deps_graphify_init_all() {
             continue
         fi
 
+        if ! workspace_is_nested_repo_path "$rel_path"; then
+            log_info "deps_graphify_init_all: skipping workspace root (not a nested repo): $rel_path"
+            continue
+        fi
+
         if [ "$initialized" = "true" ]; then
             continue
         fi
@@ -307,6 +312,12 @@ deps_graphify_init_all() {
             fail_count=$((fail_count + 1))
             continue
         }
+
+        if [ ! -d "$disk_path/.git" ]; then
+            log_warn "deps_graphify_init_all: not a git repo, skipping $rel_path"
+            fail_count=$((fail_count + 1))
+            continue
+        fi
 
         log_info "deps_graphify_init_all: initializing $rel_path"
         if deps_graphify_init "$disk_path"; then
@@ -333,4 +344,52 @@ deps_graphify_init_all() {
     fi
 
     return 1
+}
+
+graphify_init_target_repo() {
+    workspace_root="$1"
+    rel_path="$2"
+
+    if [ -z "$workspace_root" ] || [ -z "$rel_path" ]; then
+        log_error "graphify_init_target_repo: workspace root and repo path required"
+        return 1
+    fi
+
+    if ! deps_graphify_binary >/dev/null 2>&1; then
+        log_error "graphify_init_target_repo: graphify not on PATH"
+        return 1
+    fi
+
+    if ! workspace_is_graphify_target "$workspace_root" "$rel_path"; then
+        return 1
+    fi
+
+    root_abs=$(cd "$workspace_root" && pwd) || {
+        log_error "graphify_init_target_repo: cannot resolve workspace path"
+        return 1
+    }
+
+    disk_path=$(_workspace_repo_disk_path "$root_abs" "$rel_path") || {
+        log_error "graphify_init_target_repo: cannot resolve disk path for $rel_path"
+        return 1
+    }
+
+    if [ ! -d "$disk_path/.git" ]; then
+        log_error "graphify_init_target_repo: not a git repo: $rel_path"
+        return 1
+    fi
+
+    log_info "graphify_init_target_repo: initializing $rel_path"
+    if ! deps_graphify_init "$disk_path"; then
+        log_error "graphify_init_target_repo: graphify init failed for $rel_path"
+        return 1
+    fi
+
+    if ! workspace_set_graphify_initialized "$workspace_root" "$rel_path"; then
+        log_error "graphify_init_target_repo: init ok but YAML update failed for $rel_path"
+        return 1
+    fi
+
+    log_success "graphify_init_target_repo: initialized $rel_path"
+    return 0
 }

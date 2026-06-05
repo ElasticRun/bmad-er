@@ -1,5 +1,6 @@
 # generated: 2026-06-01
-# last_updated: 2026-06-01
+# last_updated: 2026-06-05
+# PRD sync 2026-06-05: dual workspace layout, workspace folder prompt, layout-aware graphify, story 4-3 added
 # epic-6 completed 2026-06-01
 # epic-1 completed 2026-06-01
 # project: lets-b-mad
@@ -37,7 +38,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-01
-last_updated: 2026-06-01
+last_updated: 2026-06-05
 # epic-6 completed 2026-06-01
 # epic-1 completed 2026-06-01
 project: lets-b-mad
@@ -46,32 +47,33 @@ tracking_system: file-system
 story_location: "{project-root}/_bmad-output/implementation-artifacts"
 
 development_status:
-  epic-1: done
+  epic-1: in-progress
   1-1-repository-structure-and-foundation-module: done
   1-2-install-manifest-tracking: done
   1-3-prerequisite-detection-and-installation: done
   1-4-bmad-installation-and-global-skill-deployment: done
-  1-5-install-orchestrator-and-summary-table: done
+  1-5-install-orchestrator-workspace-selection-and-summary-table: review
   epic-1-retrospective: optional
-  epic-2: done
-  2-1-workspace-repository-discovery-and-yaml-generation: done
-  2-2-incremental-re-discovery-with-merge-semantics: done
+  epic-2: in-progress
+  2-1-workspace-layout-detection-repository-discovery-and-yaml-generation: review
+  2-2-incremental-re-discovery-with-merge-semantics: review
   epic-2-retrospective: optional
   epic-3: done
   3-1-git-ai-global-installation: done
   3-2-local-ai-stats-summary-script: done
   epic-3-retrospective: optional
-  epic-4: done
-  4-1-graphify-global-installation-and-per-repo-initialization: done
-  4-2-per-repo-hook-installation-and-conflict-detection: done
+  epic-4: in-progress
+  4-1-graphify-global-installation-and-layout-aware-init-during-install: review
+  4-2-layout-aware-hook-installation-and-conflict-detection: review
+  4-3-manual-per-repo-graphify-init-and-re-init: done
   epic-4-retrospective: optional
-  epic-5: done
-  5-1-central-context-repository-cloning: done
-  5-2-pre-workflow-context-pull-and-hard-block: done
+  epic-5: in-progress
+  5-1-central-context-repository-cloning: review
+  5-2-pre-workflow-context-pull-and-hard-block: review
   5-3-post-workflow-hook-execution: done
   epic-5-retrospective: optional
-  epic-6: done
-  6-1-agent-readable-readme: done
+  epic-6: in-progress
+  6-1-agent-readable-readme: review
   6-2-contributor-guide-and-upgrade-procedures: done
   epic-6-retrospective: optional
   epic-7: done
